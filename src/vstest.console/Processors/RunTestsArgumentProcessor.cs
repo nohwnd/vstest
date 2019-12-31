@@ -46,12 +46,14 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             {
                 if (this.executor == null)
                 {
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"argument executor create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                     this.executor = new Lazy<IArgumentExecutor>(() =>
                     new RunTestsArgumentExecutor(
                         CommandLineOptions.Instance,
                         RunSettingsManager.Instance,
                         TestRequestManager.Instance,
                         ConsoleOutput.Instance));
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"argument executor requeste manager create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                 }
 
                 return this.executor;

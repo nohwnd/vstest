@@ -39,10 +39,13 @@ namespace Microsoft.VisualStudio.TestPlatform.Client
 
         static TestPlatform()
         {
+            File.AppendAllText(@"C:\temp\t.txt", $"init of test platform {DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+
             // TODO This is not the right away to force initialization of default extensions. Test runtime providers
             // require this today. They're getting initialized even before test adapter paths are provided, which is
             // incorrect.
             AddExtensionAssembliesFromExtensionDirectory();
+            File.AppendAllText(@"C:\temp\t.txt", $"done init of test platform {DateTime.Now.ToString("HH:mm:ss.fff")}\n");
         }
 
         /// <summary>

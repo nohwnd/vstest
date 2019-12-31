@@ -135,7 +135,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
             // Execute all argument processors
             foreach (var processor in argumentProcessors)
             {
-                if (!this.ExecuteArgumentProcessor(processor, ref exitCode))
+                 if (!this.ExecuteArgumentProcessor(processor, ref exitCode))
                 {
                     break;
                 }
@@ -222,9 +222,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
                 IArgumentExecutor executorInstance;
                 try
                 {
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"processor executor create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                     // Ensure the instance is created.  Note that the Lazy not only instantiates
                     // the argument processor, but also initializes it.
                     executorInstance = processor.Executor.Value;
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"processor executor done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                 }
                 catch (Exception ex)
                 {
@@ -329,6 +331,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
             ArgumentProcessorResult result;
             try
             {
+                File.AppendAllText(@"C:\temp\t.txt", $"executing {processor.Executor.Value}  {DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                 result = processor.Executor.Value.Execute();
             }
             catch (Exception ex)

@@ -70,7 +70,13 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
         {
             get
             {
-                return instance ?? (instance = new TestPluginCache());
+                if (instance == null)
+                {
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test plugin cache create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                    instance = new TestPluginCache();
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test plugin cache done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                }
+                return instance; 
             }
 
             internal set

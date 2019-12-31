@@ -22,7 +22,19 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities
         /// <summary>
         /// Gets the instance.
         /// </summary>
-        public static AssemblyMetadataProvider Instance => instance ?? (instance = new AssemblyMetadataProvider(new FileHelper()));
+        public static AssemblyMetadataProvider Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"metadata provider create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                    instance = new AssemblyMetadataProvider(new FileHelper());
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"metadata provider done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                }
+                return instance;
+            }
+        }
 
         internal AssemblyMetadataProvider(IFileHelper fileHelper)
         {

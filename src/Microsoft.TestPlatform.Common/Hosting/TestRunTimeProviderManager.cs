@@ -39,8 +39,20 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Hosting
         /// <summary>
         /// Gets the instance of TestRuntimeProviderManager
         /// </summary>
-        public static TestRuntimeProviderManager Instance => testHostManager
-                                                             ?? (testHostManager = new TestRuntimeProviderManager(TestSessionMessageLogger.Instance));
+        public static TestRuntimeProviderManager Instance
+        {
+            get
+            {
+                if (testHostManager == null)
+                {
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test runtime provider manager create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                    testHostManager = new TestRuntimeProviderManager(TestSessionMessageLogger.Instance);
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test runtim provider manager done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                }
+                return testHostManager;
+            }
+        }
+
 
         #endregion
 

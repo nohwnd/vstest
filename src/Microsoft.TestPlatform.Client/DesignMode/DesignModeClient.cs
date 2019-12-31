@@ -106,8 +106,12 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
             // Wait for the connection to the server and listen for requests.
             if (this.communicationManager.WaitForServerConnection(connectionTimeoutInSecs * 1000))
             {
+                EqtTrace.Info("Connection awaited sending connnection message: {0}", port);
+
                 this.communicationManager.SendMessage(MessageType.SessionConnected);
+                EqtTrace.Info("Sent connection message: {0}", port);
                 this.ProcessRequests(testRequestManager);
+                EqtTrace.Info("Connected to server on port : {0}", port);
             }
             else
             {

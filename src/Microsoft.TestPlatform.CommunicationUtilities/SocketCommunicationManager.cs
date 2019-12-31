@@ -314,11 +314,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
         /// <returns> Raw message string </returns>
         public string ReceiveRawMessage()
         {
-            lock (this.receiveSyncObject)
-            {
+            // lock (this.receiveSyncObject)
+            // {
                 // Reading message on binaryreader is not thread-safe
                 return this.binaryReader.ReadString();
-            }
+
+            // }
         }
 
         /// <summary>
@@ -401,11 +402,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
         {
             // Writing Message on binarywriter is not Thread-Safe
             // Need to sync one by one to avoid buffer corruption
-            lock (this.sendSyncObject)
-            {
+            // lock (this.sendSyncObject)
+            // {
                 this.binaryWriter?.Write(rawMessage);
                 this.binaryWriter?.Flush();
-            }
+
+            // }
         }
     }
 }

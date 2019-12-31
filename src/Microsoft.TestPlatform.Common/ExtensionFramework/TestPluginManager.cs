@@ -29,7 +29,9 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
             {
                 if (instance == null)
                 {
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test plugin manager create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                     instance = new TestPluginManager();
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test plugin manager done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                 }
 
                 return instance;

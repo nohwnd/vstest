@@ -42,7 +42,9 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
                 {
                     if (consoleOutput == null)
                     {
+                        System.IO.File.AppendAllText(@"C:\temp\t.txt", $"console output create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                         consoleOutput = new ConsoleOutput();
+                        System.IO.File.AppendAllText(@"C:\temp\t.txt", $"console output done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                     }
                 }
 

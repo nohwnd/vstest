@@ -47,7 +47,14 @@ namespace Microsoft.TestPlatform.Protocol
         {
             get
             {
-                return instance ?? (instance = new JsonDataSerializer());
+                if (instance == null)
+                {
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"creating instance of JsonDataSerializer {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                    instance = new JsonDataSerializer();
+                        System.IO.File.AppendAllText(@"C:\temp\t.txt", $"json data serializer done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                }
+
+                return instance;
             }
         }
 

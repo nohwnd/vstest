@@ -38,7 +38,13 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Logging
         {
             get
             {
-                return instance ?? (instance = new TestSessionMessageLogger());
+                if (instance == null)
+                {
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test session message logger create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                    instance = new TestSessionMessageLogger();
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test session message logger done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                }
+                return instance;
             }
             set
             {

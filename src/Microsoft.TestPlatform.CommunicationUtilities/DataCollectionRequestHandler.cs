@@ -140,6 +140,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.DataCollect
                 {
                     if (Instance == null)
                     {
+                        System.IO.File.AppendAllText(@"C:\temp\t.txt", $"data collection request handler create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                         Instance = new DataCollectionRequestHandler(
                             communicationManager,
                             messageSink,
@@ -147,6 +148,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.DataCollect
                             new DataCollectionTestCaseEventHandler(),
                             JsonDataSerializer.Instance,
                             new FileHelper());
+                        System.IO.File.AppendAllText(@"C:\temp\t.txt", $"data collection requeste handler done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                     }
                 }
             }

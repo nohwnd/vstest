@@ -3,9 +3,11 @@
 
 namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using System.IO;
     using System.Linq;
 
     using Microsoft.TestPlatform.VsTestConsole.TranslationLayer.Interfaces;
@@ -299,12 +301,14 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
 
         private bool WaitForConnection()
         {
+            File.AppendAllText(@"C:\temp\t.txt", $"connection to command line runner init  {DateTime.Now.ToString("HH:mm:ss.fff")}\n");
             EqtTrace.Info("VsTestConsoleWrapper.WaitForConnection: Waiting for connection to command line runner.");
 
             var timeout = EnvironmentHelper.GetConnectionTimeout();
             if (!this.requestSender.WaitForRequestHandlerConnection(timeout * 1000))
             {
                 var processName = this.processHelper.GetCurrentProcessFileName();
+                File.AppendAllText(@"C:\temp\t.txt", $"----> connection to command line runner failed {DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                 throw new TransationLayerException(
                     string.Format(
                         CultureInfo.CurrentUICulture,
@@ -315,8 +319,10 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                         EnvironmentHelper.VstestConnectionTimeout)
                     );
             }
-
+            File.AppendAllText(@"C:\temp\t.txt", $"----> connection to command line runner done {DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+            EqtTrace.Info("VsTestConsoleWrapper.WaitForConnection: Command line runner connected.");
             this.testPlatformEventSource.TranslationLayerInitializeStop();
+            
             return true;
         }
     }

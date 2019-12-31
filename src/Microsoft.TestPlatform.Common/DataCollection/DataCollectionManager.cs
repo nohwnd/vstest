@@ -135,7 +135,9 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector
                 {
                     if (Instance == null)
                     {
+                        System.IO.File.AppendAllText(@"C:\temp\t.txt", $"data collection manager create instance {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                         Instance = new DataCollectionManager(messageSink);
+                        System.IO.File.AppendAllText(@"C:\temp\t.txt", $"data collection manager done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                     }
                 }
             }

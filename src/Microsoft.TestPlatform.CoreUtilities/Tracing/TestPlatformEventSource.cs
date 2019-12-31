@@ -10,7 +10,19 @@ namespace Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing
     [EventSource(Name = "TestPlatform")]
     public class TestPlatformEventSource : EventSource, ITestPlatformEventSource
     {
-        private static readonly TestPlatformEventSource LocalInstance = new TestPlatformEventSource();
+        private static TestPlatformEventSource i;
+        private static TestPlatformEventSource LocalInstance { get
+            {
+                if (i == null)
+                {
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test plat event sourc create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                    i = new TestPlatformEventSource();
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test plat event source done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+                }
+                return i;
+            }
+        }
+
 
         /// <summary>
         /// Gets the instance of <see cref="TestPlatformEventSource"/>.

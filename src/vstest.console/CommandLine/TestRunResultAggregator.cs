@@ -40,7 +40,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
             {
                 if(instance == null)
                 {
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test run result aggregatore create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                     instance = new TestRunResultAggregator();
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test run result aggregator done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                 }
 
                 return instance;

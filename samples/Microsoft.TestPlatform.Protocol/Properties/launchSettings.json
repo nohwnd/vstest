@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Microsoft.TestPlatform.Protocol": {
+      "commandName": "Project",
+      "commandLineArgs": "--testassembly:\"C:\\Projects\\temp\\UnitTestProject1\\UnitTestProject1\\bin\\Debug\\netcoreapp3.1\\UnitTestProject1.dll\" -o:RunAll"
+    }
+  }
+}

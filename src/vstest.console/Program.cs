@@ -5,6 +5,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
 {
     using System;
     using System.Globalization;
+    using System.IO;
     using Microsoft.VisualStudio.TestPlatform.Utilities;
 
     /// <summary>
@@ -19,6 +20,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
         /// <returns>0 if everything was successful and 1 otherwise.</returns>
         public static int Main(string[] args)
         {
+            File.AppendAllText(@"C:\temp\t.txt", $"----> starting {DateTime.Now.ToString("HH:mm:ss.fff")}\n");
             var debugEnabled = Environment.GetEnvironmentVariable("VSTEST_RUNNER_DEBUG");
             if (!string.IsNullOrEmpty(debugEnabled) && debugEnabled.Equals("1", StringComparison.Ordinal))
             {
@@ -38,8 +40,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
             }
 
             SetCultureSpecifiedByUser();
-
-            return new Executor(ConsoleOutput.Instance).Execute(args);
+            System.IO.File.AppendAllText(@"C:\temp\t.txt", $"executor create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+            var e = new Executor(ConsoleOutput.Instance);
+            System.IO.File.AppendAllText(@"C:\temp\t.txt", $"executor crate done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+            var r = e.Execute(args);
+            System.IO.File.AppendAllText(@"C:\temp\t.txt", $"executor execution done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+            return r;
         }
 
         private static void SetCultureSpecifiedByUser()

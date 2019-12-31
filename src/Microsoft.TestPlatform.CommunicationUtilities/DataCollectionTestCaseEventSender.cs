@@ -56,7 +56,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                 {
                     if (Instance == null)
                     {
+                        System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test case event sender create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                         Instance = new DataCollectionTestCaseEventSender();
+                        System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test case even sender done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                     }
                 }
             }

@@ -95,7 +95,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
             {
                 if (testRequestManagerInstance == null)
                 {
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test requeste manager create {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                     testRequestManagerInstance = new TestRequestManager();
+                    System.IO.File.AppendAllText(@"C:\temp\t.txt", $"test request manager done {System.DateTime.Now.ToString("HH:mm:ss.fff")}\n");
                 }
 
                 return testRequestManagerInstance;

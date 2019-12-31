@@ -7,7 +7,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
     using System.Diagnostics;
     using System.Diagnostics.Contracts;
     using System.Globalization;
-
+    using System.IO;
     using Microsoft.VisualStudio.TestPlatform.Client.DesignMode;
     using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
     using Microsoft.VisualStudio.TestPlatform.CommandLine;
@@ -185,9 +185,14 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
         /// <returns> The <see cref="ArgumentProcessorResult.Success"/> if initialization is successful. </returns>
         public ArgumentProcessorResult Execute()
         {
-            try
+            try 
             {
+
+                File.AppendAllText(@"C:\temp\t.txt", $"connectiong to client from port argument processor {DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+
                 this.designModeClient?.ConnectToClientAndProcessRequests(this.commandLineOptions.Port, this.testRequestManager);
+                File.AppendAllText(@"C:\temp\t.txt", $"connected to client from port argument processor {DateTime.Now.ToString("HH:mm:ss.fff")}\n");
+
             }
             catch (TimeoutException ex)
             {
