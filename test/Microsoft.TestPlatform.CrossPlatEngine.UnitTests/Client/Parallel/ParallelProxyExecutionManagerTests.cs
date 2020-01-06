@@ -334,7 +334,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
                                 timespan = TimeSpan.FromMilliseconds(200);
                             }
 
-                            var completeArgs = new TestRunCompleteEventArgs(new
+                            var completeArgs = new TestRunCompleteEventArgs(
+                                new
                                 TestRunStatistics(5, stats), isCanceled, isAborted, null, runAttachments, timespan);
                             handler.HandleTestRunComplete(completeArgs, null, runAttachments, executorUris);
                         });
@@ -414,7 +415,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
 
         private void SetupHandleTestRunComplete(ManualResetEventSlim completeEvent)
         {
-            this.mockHandler.Setup(mh => mh.HandleTestRunComplete(It.IsAny<TestRunCompleteEventArgs>(),
+            this.mockHandler.Setup(mh => mh.HandleTestRunComplete(
+                It.IsAny<TestRunCompleteEventArgs>(),
                     It.IsAny<TestRunChangedEventArgs>(),
                     It.IsAny<ICollection<AttachmentSet>>(),
                     It.IsAny<ICollection<string>>()))

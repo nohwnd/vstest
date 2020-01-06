@@ -24,17 +24,17 @@ namespace Microsoft.TestPlatform.Build.Tasks
 
         public override bool Execute()
         {
-            if (string.Equals(LogType, "BuildStarted", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(this.LogType, "BuildStarted", StringComparison.OrdinalIgnoreCase))
             {
-                Log.LogMessage(MessageImportance.Normal, Resources.BuildStarted);
+                this.Log.LogMessage(MessageImportance.Normal, Resources.BuildStarted);
             }
-            else if (string.Equals(LogType, "BuildCompleted", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(this.LogType, "BuildCompleted", StringComparison.OrdinalIgnoreCase))
             {
-                Log.LogMessage(MessageImportance.Normal, Resources.BuildCompleted + Environment.NewLine);
+                this.Log.LogMessage(MessageImportance.Normal, Resources.BuildCompleted + Environment.NewLine);
             }
-            else if (string.Equals(LogType, "NoIsTestProjectProperty", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(this.LogType, "NoIsTestProjectProperty", StringComparison.OrdinalIgnoreCase))
             {
-                Log.LogMessage(MessageImportance.Low, Resources.NoIsTestProjectProperty);
+                this.Log.LogMessage(MessageImportance.Low, Resources.NoIsTestProjectProperty);
             }
             else
             {

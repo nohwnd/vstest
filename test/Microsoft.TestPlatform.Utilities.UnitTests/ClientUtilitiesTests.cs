@@ -41,7 +41,8 @@ namespace Microsoft.TestPlatform.Utilities.Tests
 
             var finalSettingsXml = doc.OuterXml;
 
-            var expectedRunSettingsXML = string.Concat("<RunSettings><RunSettingsDirectory>",
+            var expectedRunSettingsXML = string.Concat(
+                "<RunSettings><RunSettingsDirectory>",
                 Path.GetDirectoryName(currentAssemblyLocation),
                 "</RunSettingsDirectory></RunSettings>");
 
@@ -88,7 +89,8 @@ namespace Microsoft.TestPlatform.Utilities.Tests
 
             var finalSettingsXml = doc.OuterXml;
 
-            var expectedRunSettingsXML = string.Concat("<RunSettings><MSTest><SettingsFile>C:\\temp\\remote.testsettings</SettingsFile></MSTest><RunSettingsDirectory>",
+            var expectedRunSettingsXML = string.Concat(
+                "<RunSettings><MSTest><SettingsFile>C:\\temp\\remote.testsettings</SettingsFile></MSTest><RunSettingsDirectory>",
                 Path.GetDirectoryName(currentAssemblyLocation),
                 "</RunSettingsDirectory></RunSettings>");
 
@@ -109,7 +111,8 @@ namespace Microsoft.TestPlatform.Utilities.Tests
 
             var finalSettingsXml = doc.OuterXml;
 
-            var expectedRunSettingsXML = string.Concat("<RunSettings><MSTest><SettingsFile></SettingsFile></MSTest><RunSettingsDirectory>",
+            var expectedRunSettingsXML = string.Concat(
+                "<RunSettings><MSTest><SettingsFile></SettingsFile></MSTest><RunSettingsDirectory>",
                 Path.GetDirectoryName(currentAssemblyLocation),
                 "</RunSettingsDirectory></RunSettings>");
 
@@ -156,7 +159,8 @@ namespace Microsoft.TestPlatform.Utilities.Tests
 
             var finalSettingsXml = doc.OuterXml;
 
-            var expectedRunSettingsXML = string.Concat("<RunSettings><RunConfiguration><ResultsDirectory>C:\\temp\\results</ResultsDirectory></RunConfiguration><RunSettingsDirectory>",
+            var expectedRunSettingsXML = string.Concat(
+                "<RunSettings><RunConfiguration><ResultsDirectory>C:\\temp\\results</ResultsDirectory></RunConfiguration><RunSettingsDirectory>",
                 Path.GetDirectoryName(currentAssemblyLocation),
                 "</RunSettingsDirectory></RunSettings>");
 
@@ -177,7 +181,8 @@ namespace Microsoft.TestPlatform.Utilities.Tests
 
             var finalSettingsXml = doc.OuterXml;
 
-            var expectedRunSettingsXML = string.Concat("<RunSettings><RunConfiguration><ResultsDirectory></ResultsDirectory></RunConfiguration><RunSettingsDirectory>",
+            var expectedRunSettingsXML = string.Concat(
+                "<RunSettings><RunConfiguration><ResultsDirectory></ResultsDirectory></RunConfiguration><RunSettingsDirectory>",
                 Path.GetDirectoryName(currentAssemblyLocation),
                 "</RunSettingsDirectory></RunSettings>");
 

@@ -134,7 +134,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                 // To determine whether to infer framework and platform.
                 ExtractFrameworkAndPlatform();
 
-                //Add default runsettings values if not exists in given runsettings file.
+                // Add default runsettings values if not exists in given runsettings file.
                 this.runSettingsManager.AddDefaultRunSettings();
 
                 this.commandLineOptions.SettingsFile = argument;

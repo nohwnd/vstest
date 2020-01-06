@@ -97,6 +97,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
                 while (reader.Read())
                 {
                 }
+
                 file.Dispose();
                 return true;
             }

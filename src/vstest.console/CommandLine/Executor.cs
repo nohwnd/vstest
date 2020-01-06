@@ -54,7 +54,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
         /// <summary>
         /// Default constructor.
         /// </summary>
-        public Executor(IOutput output) : this(output, TestPlatformEventSource.Instance)
+        public Executor(IOutput output)
+            : this(output, TestPlatformEventSource.Instance)
         {
         }
 
@@ -176,6 +177,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
             for (var index = 0; index < args.Length; index++)
             {
                 var arg = args[index];
+
                 // If argument is '--', following arguments are key=value pairs for run settings.
                 if (arg.Equals("--"))
                 {
@@ -183,6 +185,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
                     processors.Add(cliRunSettingsProcessor);
                     break;
                 }
+
                 var processor = processorFactory.CreateArgumentProcessor(arg);
 
                 if (processor != null)
@@ -255,6 +258,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
             {
                 processors.Insert(0, processorFactory.CreateArgumentProcessor(HelpArgumentProcessor.CommandName));
             }
+
             return result;
         }
 
@@ -294,6 +298,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
                     }
                 }
             }
+
             return result;
         }
 
@@ -368,6 +373,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
             {
                 continueExecution = false;
             }
+
             return continueExecution;
         }
 

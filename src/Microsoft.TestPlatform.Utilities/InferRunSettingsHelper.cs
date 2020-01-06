@@ -373,6 +373,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
                 {
                     attributes.Add(node.Name);
                 }
+
                 return attributes;
             }
 
@@ -434,7 +435,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
             AddNodeIfNotPresent<string>(runSettingsDocument, TargetPlatformNodePath, TargetPlatformNodeName, platform, overwrite);
         }
 
-        public static bool TryGetDeviceXml(XPathNavigator runSettingsNavigator, out String deviceXml)
+        public static bool TryGetDeviceXml(XPathNavigator runSettingsNavigator, out string deviceXml)
         {
             ValidateArg.NotNull(runSettingsNavigator, "runSettingsNavigator");
 
@@ -445,6 +446,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
                 deviceXml = targetDeviceNode.InnerXml;
                 return true;
             }
+
             return false;
         }
 
@@ -658,10 +660,10 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
         /// Returns the sources matching the specified platform and framework settings.
         /// For incompatible sources, warning is added to incompatibleSettingWarning.
         /// </summary>
-        public static IEnumerable<String> FilterCompatibleSources(Architecture chosenPlatform, Framework chosenFramework, IDictionary<String, Architecture> sourcePlatforms, IDictionary<String, Framework> sourceFrameworks, out String incompatibleSettingWarning)
+        public static IEnumerable<string> FilterCompatibleSources(Architecture chosenPlatform, Framework chosenFramework, IDictionary<string, Architecture> sourcePlatforms, IDictionary<string, Framework> sourceFrameworks, out string incompatibleSettingWarning)
         {
             incompatibleSettingWarning = string.Empty;
-            List<String> compatibleSources = new List<String>();
+            List<string> compatibleSources = new List<string>();
             StringBuilder warnings = new StringBuilder();
             warnings.AppendLine();
             bool incompatiblityFound = false;
@@ -674,6 +676,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
                 {
                     string incompatiblityMessage;
                     var onlyFileName = Path.GetFileName(source);
+
                     // Add message for incompatible sources.
                     incompatiblityMessage = string.Format(CultureInfo.CurrentCulture, OMResources.SourceIncompatible, onlyFileName, actualFramework.Name, actualPlatform);
 
@@ -697,7 +700,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
         /// <summary>
         /// Returns true if source settings are incomaptible with target settings.
         /// </summary>
-        private static bool IsSettingIncompatible(Architecture sourcePlatform,
+        private static bool IsSettingIncompatible(
+            Architecture sourcePlatform,
             Architecture targetPlatform,
             Framework sourceFramework,
             Framework targetFramework)
@@ -729,6 +733,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
             {
                 return false;
             }
+
             return !sourceFramework.Name.Equals(targetFramework.Name, StringComparison.OrdinalIgnoreCase);
         }
     }

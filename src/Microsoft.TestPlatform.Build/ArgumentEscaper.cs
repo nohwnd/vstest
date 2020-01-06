@@ -1,19 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.TestPlatform.Build.Utils
 {
+    using System;
+    using System.Text;
+
     public static class ArgumentEscaper
     {
         /// <summary>
         /// Undo the processing which took place to create string[] args in Main,
         /// so that the next process will receive the same string[] args
-        /// 
+        ///
         /// See here for more info:
         /// http://blogs.msdn.com/b/twistylittlepassagesallalike/archive/2011/04/23/everyone-quotes-arguments-the-wrong-way.aspx
         /// </summary>
-        /// <param name="arg"></param>
+        /// <param name="arg">The value to pass.</param>
         /// <returns>Return original string passed by client</returns>
         public static string HandleEscapeSequenceInArgForProcessStart(string arg)
         {

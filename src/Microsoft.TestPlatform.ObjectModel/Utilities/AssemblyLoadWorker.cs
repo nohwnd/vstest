@@ -11,7 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
     using System.Reflection;
 
     /// <summary>
-    /// Does the real work of finding references using Assembly.ReflectionOnlyLoadFrom. 
+    /// Does the real work of finding references using Assembly.ReflectionOnlyLoadFrom.
     /// The caller is supposed to create AppDomain and create instance of given class in there.
     /// </summary>
     internal class AssemblyLoadWorker : MarshalByRefObject
@@ -77,8 +77,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
 
         /// <summary>
         /// Returns the full name of the referenced assemblies by the assembly on the specified path.
-        /// 
-        /// Returns null on failure and an empty array if there is no reference in the project. 
+        ///
+        /// Returns null on failure and an empty array if there is no reference in the project.
         /// </summary>
         /// <param name="path">Path to the assembly file to load from.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Being created in a separate app-domain"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
@@ -89,15 +89,16 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
             Assembly a = null;
             try
             {
-                // ReflectionOnlyLoadFrom does not use the probing paths and loads from the 
-                // specified path only and does not let code to be executed by the assembly 
-                // in the loaded context. 
+                // ReflectionOnlyLoadFrom does not use the probing paths and loads from the
+                // specified path only and does not let code to be executed by the assembly
+                // in the loaded context.
                 a = Assembly.ReflectionOnlyLoadFrom(path);
             }
             catch
             {
                 return null;
             }
+
             Debug.Assert(a != null);
 
             AssemblyName[] assemblies = a.GetReferencedAssemblies();
@@ -119,12 +120,12 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
             Assembly a = null;
             try
             {
-                // ReflectionOnlyLoadFrom does not use the probing paths and loads from the 
-                // specified path only and does not let code to be executed by the assembly 
-                // in the loaded context. 
+                // ReflectionOnlyLoadFrom does not use the probing paths and loads from the
+                // specified path only and does not let code to be executed by the assembly
+                // in the loaded context.
                 //
                 a = Assembly.ReflectionOnlyLoadFrom(path);
-                
+
                 Debug.Assert(a != null);
 
                 AssemblyName[] assemblies = a.GetReferencedAssemblies();
@@ -178,20 +179,20 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
         public void GetPlatformAndFrameworkSettings(string path, out string procArchType, out string frameworkVersion)
         {
             procArchType = Architecture.Default.ToString();
-            frameworkVersion = String.Empty;
-            
+            frameworkVersion = string.Empty;
+
             try
             {
-                // ReflectionOnlyLoadFrom does not use the probing paths and loads from the 
-                // specified path only and does not let code to be executed by the assembly 
-                // in the loaded context. 
+                // ReflectionOnlyLoadFrom does not use the probing paths and loads from the
+                // specified path only and does not let code to be executed by the assembly
+                // in the loaded context.
 
                 var a = Assembly.ReflectionOnlyLoadFrom(path);
                 Debug.Assert(a != null);
                 PortableExecutableKinds peKind;
                 ImageFileMachine machine;
                 a.ManifestModule.GetPEKind(out peKind, out machine);
-                
+
                 // conversion to string type is needed for below reason
                 // -- PortableExecutableKinds.Preferred32Bit and ImageFileMachine.ARM is available only
                 //    in .Net4.0 and above. Below code is compiled with .Net3.5 but runs in .Net4.0
@@ -230,9 +231,9 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
                     {
                         EqtTrace.Verbose("Unable to find the platform type for image:{0} with PEKind:{1}, Machine:{2}. Returning Default:{3}", path, peKindString, machineTypeString, "AnyCPU");
                     }
+
                     procArchType = "AnyCPU";
                 }
-
 
                 frameworkVersion = a.ImageRuntimeVersion.Substring(0, 4).ToUpperInvariant();
 
@@ -264,6 +265,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
                 {
                     EqtTrace.Error("AssemblyLoadWorker:GetPlatformAndFrameworkSettings() caught BadImageFormatException. Falling to native binary.");
                 }
+
                 procArchType = GetArchitectureForSource(path);
             }
             catch (Exception ex)
@@ -272,6 +274,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
                 {
                     EqtTrace.Error("AssemblyLoadWorker:GetPlatformAndFrameworkSettings() Returning default. Unhandled exception: {0}.", ex);
                 }
+
                 return;
             }
         }
@@ -281,7 +284,6 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
         {
             // For details refer to below code available on MSDN.
             // http://code.msdn.microsoft.com/CSCheckExeType-aab06100/sourcecode?fileId=22010&pathId=1874010322
-
             string archType = "AnyCPU";
             ushort machine = 0;
 
@@ -292,16 +294,17 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
             const int IMAGE_FILE_MACHINE_ARM = 0x01c0;  // ARM Little-Endian
             const int IMAGE_FILE_MACHINE_THUMB = 0x01c2;  // ARM Thumb/Thumb-2 Little-Endian
             const int IMAGE_FILE_MACHINE_ARMNT = 0x01c4; // ARM Thumb-2 Little-Endian
-            
+
             try
             {
-                //get the input stream
+                // get the input stream
                 using (Stream fs = new FileStream(imagePath, FileMode.Open, FileAccess.Read))
                 {
                     bool validImage = true;
 
                     BinaryReader reader = new BinaryReader(fs);
-                    //PE Header starts @ 0x3C (60). Its a 4 byte header.
+
+                    // PE Header starts @ 0x3C (60). Its a 4 byte header.
                     fs.Position = 0x3C;
                     peHeader = reader.ReadUInt32();
 
@@ -310,12 +313,13 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
                     {
                         validImage = false;
                     }
+
                     if (validImage)
                     {
-                        //Moving to PE Header start location...
+                        // Moving to PE Header start location...
                         fs.Position = peHeader;
 
-                        UInt32 signature = reader.ReadUInt32(); //peHeaderSignature
+                        uint signature = reader.ReadUInt32(); // peHeaderSignature
                         // 0x00004550 is the letters "PE" followed by two terminating zeroes.
                         if (signature != 0x00004550)
                         {
@@ -324,17 +328,17 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
 
                         if (validImage)
                         {
-                            //Read the image file header header.
+                            // Read the image file header header.
                             machine = reader.ReadUInt16();
-                            reader.ReadUInt16(); //NumberOfSections
-                            reader.ReadUInt32(); //TimeDateStamp
-                            reader.ReadUInt32(); //PointerToSymbolTable
-                            reader.ReadUInt32(); //NumberOfSymbols
-                            reader.ReadUInt16(); //SizeOfOptionalHeader
-                            reader.ReadUInt16(); //Characteristics
+                            reader.ReadUInt16(); // NumberOfSections
+                            reader.ReadUInt32(); // TimeDateStamp
+                            reader.ReadUInt32(); // PointerToSymbolTable
+                            reader.ReadUInt32(); // NumberOfSymbols
+                            reader.ReadUInt16(); // SizeOfOptionalHeader
+                            reader.ReadUInt16(); // Characteristics
 
                             // magic number.32bit or 64bit assembly.
-                            UInt16 magic = reader.ReadUInt16();
+                            ushort magic = reader.ReadUInt16();
                             if (magic != 0x010B && magic != 0x020B)
                             {
                                 validImage = false;
@@ -373,7 +377,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
             }
             catch (Exception ex)
             {
-                //Ignore all exception
+                // Ignore all exception
                 if (EqtTrace.IsErrorEnabled)
                 {
                     EqtTrace.Error("AssemblyLoadWorker:GetArchitectureForSource() Returning default:{0}. Unhandled exception: {1}.", "AnyCPU", ex.ToString());

@@ -19,7 +19,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         /// <param name="discoveryCriteria"> Discovery criteria to be used for test discovery. </param>
         public DiscoveryStartEventArgs(DiscoveryCriteria discoveryCriteria)
         {
-            DiscoveryCriteria = discoveryCriteria;
+            this.DiscoveryCriteria = discoveryCriteria;
         }
 
         /// <summary>

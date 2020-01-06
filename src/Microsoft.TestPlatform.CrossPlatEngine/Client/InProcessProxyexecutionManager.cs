@@ -58,6 +58,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
             {
                 var runConfiguration = XmlRunSettingsUtilities.GetRunConfigurationNode(testRunCriteria.TestRunSettings);
                 var testPackages = new List<string>(testRunCriteria.HasSpecificSources ? testRunCriteria.Sources :
+
                                                     // If the test execution is with a test filter, group them by sources
                                                     testRunCriteria.Tests.GroupBy(tc => tc.Source).Select(g => g.Key));
 

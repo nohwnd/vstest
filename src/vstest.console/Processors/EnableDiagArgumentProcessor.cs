@@ -32,7 +32,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
         /// <summary>
         /// Initializes a new instance of the <see cref="EnableDiagArgumentProcessor"/> class.
         /// </summary>
-        public EnableDiagArgumentProcessor() : this(new FileHelper())
+        public EnableDiagArgumentProcessor()
+            : this(new FileHelper())
         {
         }
 

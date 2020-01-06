@@ -39,12 +39,12 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         /// <summary>
         /// Sync object for various operations
         /// </summary>
-        private object syncObject = new Object();
+        private object syncObject = new object();
 
         /// <summary>
         /// Sync object for cancel operation
         /// </summary>
-        private object cancelSyncObject = new Object();
+        private object cancelSyncObject = new object();
 
         /// <summary>
         /// The run completion event which will be signalled on completion of test run.
@@ -75,8 +75,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         /// </summary>
         private IRequestData requestData;
 
-        internal TestRunRequest(IRequestData requestData, TestRunCriteria testRunCriteria, IProxyExecutionManager executionManager, ITestLoggerManager loggerManager) :
-            this(requestData, testRunCriteria, executionManager, loggerManager, JsonDataSerializer.Instance)
+        internal TestRunRequest(IRequestData requestData, TestRunCriteria testRunCriteria, IProxyExecutionManager executionManager, ITestLoggerManager loggerManager)
+            : this(requestData, testRunCriteria, executionManager, loggerManager, JsonDataSerializer.Instance)
         {
         }
 
@@ -155,7 +155,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
                     {
                         if (EqtTrace.IsVerboseEnabled)
                         {
-                            EqtTrace.Verbose(String.Format("TestRunRequest.ExecuteAsync: TestSessionTimeout is {0} milliseconds.", testSessionTimeout));
+                            EqtTrace.Verbose(string.Format("TestRunRequest.ExecuteAsync: TestSessionTimeout is {0} milliseconds.", testSessionTimeout));
                         }
 
                         this.timer = new Timer(this.OnTestSessionTimeout, null, TimeSpan.FromMilliseconds(testSessionTimeout), TimeSpan.FromMilliseconds(0));
@@ -189,10 +189,10 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         {
             if (EqtTrace.IsVerboseEnabled)
             {
-                EqtTrace.Verbose(String.Format("TestRunRequest.OnTestSessionTimeout: calling cancelation as test run exceeded testSessionTimeout {0} milliseconds", testSessionTimeout));
+                EqtTrace.Verbose(string.Format("TestRunRequest.OnTestSessionTimeout: calling cancelation as test run exceeded testSessionTimeout {0} milliseconds", testSessionTimeout));
             }
 
-            string message = String.Format(ClientResources.TestSessionTimeoutMessage, this.testSessionTimeout);
+            string message = string.Format(ClientResources.TestSessionTimeoutMessage, this.testSessionTimeout);
             var testMessagePayload = new CommunicationObjectModel.TestMessagePayload { MessageLevel = TestMessageLevel.Error, Message = message };
             var rawMessage = this.dataSerializer.SerializePayload(CommunicationObjectModel.MessageType.TestMessage, testMessagePayload);
 
@@ -428,6 +428,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
                             runCompleteArgs.IsCanceled,
                             runCompleteArgs.IsAborted,
                             runCompleteArgs.Error,
+
                             // This is required as TMI adapter is sending attachments as List which cannot be typecasted to Collection.
                             runContextAttachments != null ? new Collection<AttachmentSet>(runContextAttachments.ToList()) : null,
                             this.runRequestTimeTracker.Elapsed);

@@ -101,7 +101,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests
             Assert.AreEqual(1, errorMessageCount, "Invalid Arguments Combination should display error.");
             Assert.AreEqual(1, exitCode, "Invalid Arguments Combination execution should exit with error.");
 
-            Assert.IsFalse(mockOutput.Messages.First().Message.Contains(CommandLineResources.MicrosoftCommandLineTitle.Substring(0, 20)),
+            Assert.IsFalse(
+                mockOutput.Messages.First().Message.Contains(CommandLineResources.MicrosoftCommandLineTitle.Substring(0, 20)),
                 "First Printed message must be Microsoft Copyright");
 
             File.Delete(testSourceDllPath);

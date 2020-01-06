@@ -181,7 +181,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Discovery
 
             mockLogger.Setup(ml => ml.HandleDiscoveryComplete(It.IsAny<DiscoveryCompleteEventArgs>(), It.IsAny<IEnumerable<TestCase>>()))
                 .Callback(
-                    (DiscoveryCompleteEventArgs complete,
+                    (
+                        DiscoveryCompleteEventArgs complete,
                         IEnumerable<TestCase> tests) =>
                     {
                         receivedDiscoveryCompleteEventArgs = complete;
@@ -235,10 +236,10 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Discovery
                 new string[] { assemblyLocation },
                 () => { });
 
-            //Act
+            // Act
             this.discoveryManager.Initialize(new List<string> { assemblyLocation }, mockLogger.Object);
 
-            //when handler instance returns warning              
+            // when handler instance returns warning              
             sessionLogger.SendMessage(TestMessageLevel.Warning, "verify that the HandleLogMessage method getting invoked at least once");
 
             // Verify.

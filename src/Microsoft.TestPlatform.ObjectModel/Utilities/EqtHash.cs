@@ -23,6 +23,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
         public static Guid GuidFromString(string data)
         {
             Debug.Assert(data != null);
+
             // Do NOT change the algorithm ever as this will have compat implications
             // TC-TA team has a feature in VS where workitems are associated based on TestCase Ids
             // If Algorithm changes, then all the bugs/workitems filed in TFS Server against a given TestCase become unassociated if IDs change

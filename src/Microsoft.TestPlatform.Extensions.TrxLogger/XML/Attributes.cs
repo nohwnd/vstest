@@ -61,7 +61,8 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.XML
         /// <param name="location">
         /// The location.
         /// </param>
-        public StoreXmlSimpleFieldAttribute(string location) : base(location)
+        public StoreXmlSimpleFieldAttribute(string location)
+            : base(location)
         {
         }
 
@@ -71,7 +72,8 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.XML
         /// <param name="defaultValue">
         /// The default value.
         /// </param>
-        public StoreXmlSimpleFieldAttribute(object defaultValue) : this(null, defaultValue)
+        public StoreXmlSimpleFieldAttribute(object defaultValue)
+            : this(null, defaultValue)
         {
         }
 
@@ -124,7 +126,8 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.XML
         /// <param name="createDefaultInstance">
         /// The create default instance.
         /// </param>
-        public StoreXmlFieldAttribute(string location, bool createDefaultInstance) : base(location)
+        public StoreXmlFieldAttribute(string location, bool createDefaultInstance)
+            : base(location)
         {
             this.CreateDefaultInstance = createDefaultInstance;
         }
@@ -135,7 +138,8 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.XML
         /// <param name="location">
         /// The location.
         /// </param>
-        public StoreXmlFieldAttribute(string location) : this(location, true)
+        public StoreXmlFieldAttribute(string location)
+            : this(location, true)
         {
         }
     }

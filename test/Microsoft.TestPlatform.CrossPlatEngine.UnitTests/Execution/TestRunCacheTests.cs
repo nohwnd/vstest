@@ -47,21 +47,21 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
             }
         }
 
-        //[TestMethod]
-        //public void OnTestStartedShouldReportInProgressTestsForLongRunningUnitTest()
-        //{
+        // [TestMethod]
+        // public void OnTestStartedShouldReportInProgressTestsForLongRunningUnitTest()
+        // {
         //    var cacheTimeout = new TimeSpan(0, 0, 0, 3, 0);
         //    var tester = new TestCacheTester { ExpectedCacheSize = int.MaxValue };
 
-        //    var cache = new TestRunCache(int.MaxValue, cacheTimeout, tester.CacheHitOnTimerLimit);
+        // var cache = new TestRunCache(int.MaxValue, cacheTimeout, tester.CacheHitOnTimerLimit);
 
-        //    var tr = this.GetTestResult(0);
+        // var tr = this.GetTestResult(0);
         //    cache.OnTestStarted(tr.TestCase);
 
-        //    Assert.AreEqual(0, tester.TotalInProgressTestsReceived);
+        // Assert.AreEqual(0, tester.TotalInProgressTestsReceived);
 
-        //    Assert.AreEqual(1, tester.TotalInProgressTestsReceived);
-        //}
+        // Assert.AreEqual(1, tester.TotalInProgressTestsReceived);
+        // }
 
         [TestMethod]
         public void OnTestStartedShouldReportResultsOnCacheHit()

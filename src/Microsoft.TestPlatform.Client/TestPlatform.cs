@@ -48,7 +48,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="TestPlatform"/> class.
         /// </summary>
-        public TestPlatform() : this(new TestEngine(), new FileHelper(), TestRuntimeProviderManager.Instance)
+        public TestPlatform()
+            : this(new TestEngine(), new FileHelper(), TestRuntimeProviderManager.Instance)
         {
         }
 
@@ -196,7 +197,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client
                 var framework = config.TargetFramework;
 
                 EqtTrace.Error("TestPlatform.CreateTestRunRequest: No suitable testHostProvider found for runsettings : {0}", settingXml);
-                throw new TestPlatformException(String.Format(CultureInfo.CurrentCulture, ClientResources.NoTestHostProviderFound));
+                throw new TestPlatformException(string.Format(CultureInfo.CurrentCulture, ClientResources.NoTestHostProviderFound));
             }
         }
 

@@ -42,9 +42,9 @@ namespace Microsoft.VisualStudio.TestPlatform.DataCollector.PlatformTests
 
         private void SessionEnded_Handler(object sender, SessionEndEventArgs args)
         {
-            //logger.LogError(this.context.SessionDataCollectionContext, new Exception("my exception"));
-            //logger.LogWarning(this.context.SessionDataCollectionContext, "my arning");
-            //logger.LogException(context.SessionDataCollectionContext, new Exception("abc"), DataCollectorMessageLevel.Error);
+            // logger.LogError(this.context.SessionDataCollectionContext, new Exception("my exception"));
+            // logger.LogWarning(this.context.SessionDataCollectionContext, "my arning");
+            // logger.LogException(context.SessionDataCollectionContext, new Exception("abc"), DataCollectorMessageLevel.Error);
 
             this.logger.LogWarning(this.context.SessionDataCollectionContext, "SessionEnded");
         }

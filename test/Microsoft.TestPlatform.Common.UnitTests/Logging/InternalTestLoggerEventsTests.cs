@@ -58,6 +58,7 @@ namespace Microsoft.TestPlatform.Common.UnitTests.Logging
             };
 
             loggerEvents.EnableEvents();
+
             // Send the test mesage event.
             loggerEvents.RaiseTestRunMessage(new TestRunMessageEventArgs(TestMessageLevel.Informational, message));
 
@@ -87,6 +88,7 @@ namespace Microsoft.TestPlatform.Common.UnitTests.Logging
             };
 
             loggerEvents.EnableEvents();
+
             // Send the test result event.
             loggerEvents.RaiseTestResult(new TestResultEventArgs(result));
 
@@ -133,6 +135,7 @@ namespace Microsoft.TestPlatform.Common.UnitTests.Logging
             };
 
             loggerEvents.EnableEvents();
+
             // Send the test run complete event.
             loggerEvents.CompleteTestRun(null, false, false, null, null, new TimeSpan());
 
@@ -316,6 +319,7 @@ namespace Microsoft.TestPlatform.Common.UnitTests.Logging
             };
 
             loggerEvents.EnableEvents();
+
             // Send the discovered tests event.
             loggerEvents.RaiseDiscoveredTests(discoveredTestsEventArgs);
 
@@ -391,6 +395,7 @@ namespace Microsoft.TestPlatform.Common.UnitTests.Logging
             };
 
             loggerEvents.EnableEvents();
+
             // Send the discovery start event.
             loggerEvents.RaiseDiscoveryStart(discoveryStartEventArgs);
 
@@ -423,6 +428,7 @@ namespace Microsoft.TestPlatform.Common.UnitTests.Logging
             };
 
             loggerEvents.EnableEvents();
+
             // Send the discovery complete event.
             loggerEvents.RaiseDiscoveryComplete(discoveryCompleteEventArgs);
 
@@ -511,6 +517,7 @@ namespace Microsoft.TestPlatform.Common.UnitTests.Logging
             };
 
             loggerEvents.EnableEvents();
+
             // Send the test run start event.
             loggerEvents.RaiseTestRunStart(testRunStartEventArgs);
 
@@ -544,6 +551,7 @@ namespace Microsoft.TestPlatform.Common.UnitTests.Logging
             };
 
             loggerEvents.EnableEvents();
+
             // Send the discovery message event.
             loggerEvents.RaiseDiscoveryMessage(testRunMessageEventArgs);
 

@@ -39,7 +39,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
         /// <summary>
         /// Default constructor for manager for Visual Studio based extensions
         /// </summary>
-        public VSExtensionManager() : this(new FileHelper())
+        public VSExtensionManager()
+            : this(new FileHelper())
         {
         }
 
@@ -89,7 +90,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
                 object extensionManager;
                 object settingsManager;
 
-                settingsManager = SettingsManagerType.GetMethod("CreateForApplication", new Type[] { typeof(String) }).Invoke(null, new object[] { installContext.GetVisualStudioPath(vsInstallPath) });
+                settingsManager = SettingsManagerType.GetMethod("CreateForApplication", new Type[] { typeof(string) }).Invoke(null, new object[] { installContext.GetVisualStudioPath(vsInstallPath) });
                 if (settingsManager != null)
                 {
                     try
@@ -99,7 +100,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
 
                         if (extensionManager != null)
                         {
-                            installedExtensions = ExtensionManagerServiceType.GetMethod("GetEnabledExtensionContentLocations", new Type[] { typeof(String) }).Invoke(
+                            installedExtensions = ExtensionManagerServiceType.GetMethod("GetEnabledExtensionContentLocations", new Type[] { typeof(string) }).Invoke(
                                                        extensionManager, new object[] { extensionType }) as IEnumerable<string>;
                         }
                         else
@@ -143,6 +144,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
                 {
                     extensionManagerAssembly = Assembly.Load(new AssemblyName(ExtensionManagerAssemblyName));
                 }
+
                 return extensionManagerAssembly;
             }
         }
@@ -179,6 +181,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
                 {
                     extensionManagerServiceType = ExtensionManagerImplAssembly.GetType(ExtensionManagerService);
                 }
+
                 return extensionManagerServiceType;
             }
         }

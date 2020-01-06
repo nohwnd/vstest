@@ -83,6 +83,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
             {
                 EqtTrace.Verbose("ParallelProxyDiscoveryManager: Start discovery. Total sources: " + this.availableTestSources);
             }
+
             this.DiscoverTestsPrivate(eventHandler);
         }
 
@@ -217,7 +218,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
 
                         proxyDiscoveryManager.DiscoverTests(discoveryCriteria, this.GetHandlerForGivenManager(proxyDiscoveryManager));
                     })
-                    .ContinueWith(t =>
+                    .ContinueWith(
+                        t =>
                     {
                         // Just in case, the actual discovery couldn't start for an instance. Ensure that
                         // we call discovery complete since we have already fetched a source. Otherwise

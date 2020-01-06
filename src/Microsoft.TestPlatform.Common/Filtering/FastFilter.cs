@@ -49,7 +49,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                 : this.FilterProperties.Keys.Where(name => !properties.Contains(name)).ToArray();
         }
 
-        internal bool Evaluate(Func<string, Object> propertyValueProvider)
+        internal bool Evaluate(Func<string, object> propertyValueProvider)
         {
             ValidateArg.NotNull(propertyValueProvider, "propertyValueProvider");
 
@@ -101,13 +101,14 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
             {
                 result = PropertyValueRegex.Replace(value, PropertyValueRegexReplacement);
             }
+
             return result;
         }
 
         /// <summary>
         /// Returns property value for Property using propertValueProvider.
         /// </summary>
-        private static bool TryGetPropertyValue(string name, Func<string, Object> propertyValueProvider, out string singleValue, out string[] multiValues)
+        private static bool TryGetPropertyValue(string name, Func<string, object> propertyValueProvider, out string singleValue, out string[] multiValues)
         {
             var propertyValue = propertyValueProvider(name);
             if (null != propertyValue)

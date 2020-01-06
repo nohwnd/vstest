@@ -117,6 +117,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             {
                 throw new SettingsException(string.Format(CommandLineResources.CollectWithTestSettingErrorMessage, argument));
             }
+
             AddDataCollectorToRunSettings(argument, this.runSettingsManager);
         }
 
@@ -169,7 +170,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             }
         }
 
-        private static bool DoesDataCollectorSettingsExist(string friendlyName,
+        private static bool DoesDataCollectorSettingsExist(
+            string friendlyName,
             DataCollectionRunSettings dataCollectionRunSettings,
             out DataCollectorSettings dataCollectorSettings)
         {

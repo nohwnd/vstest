@@ -23,6 +23,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
             this.runSettingsProvider = new TestableRunSettingsProvider();
             this.executor = new ParallelArgumentExecutor(CommandLineOptions.Instance, this.runSettingsProvider);
         }
+
         [TestCleanup]
         public void TestCleanup()
         {

@@ -124,7 +124,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
             var testRequestManager = new TestRequestManager(CommandLineOptions.Instance, TestPlatformFactory.GetTestPlatform(), TestRunResultAggregator.Instance, this.mockTestPlatformEventSource.Object, this.inferHelper, this.mockMetricsPublisherTask, this.mockProcessHelper.Object);
             var executor = GetExecutor(testRequestManager);
 
-            Assert.ThrowsException<CommandLineException>(() => { executor.Initialize(String.Empty); });
+            Assert.ThrowsException<CommandLineException>(() => { executor.Initialize(string.Empty); });
         }
 
         [TestMethod]
@@ -501,7 +501,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
             list.Add(new TestCase("Test2", new Uri("http://FooTestUri2"), "Source2"));
             mockDiscoveryRequest.Setup(dr => dr.DiscoverAsync()).Raises(dr => dr.OnDiscoveredTests += null, new DiscoveredTestsEventArgs(list));
 
-            mockTestRunRequest.Setup(tr => tr.ExecuteAsync()).Returns(1).Raises(tr => tr.OnRunCompletion += null,
+            mockTestRunRequest.Setup(tr => tr.ExecuteAsync()).Returns(1).Raises(
+                tr => tr.OnRunCompletion += null,
                 new TestRunCompleteEventArgs(mockTestRunStats.Object, false, false, null, null, new TimeSpan()));
 
             mockTestPlatform.Setup(tp => tp.CreateTestRunRequest(It.IsAny<IRequestData>(), It.IsAny<TestRunCriteria>(), It.IsAny<TestPlatformOptions>())).Returns(mockTestRunRequest.Object);
@@ -530,7 +531,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
             list.Add(new TestCase("Test2", new Uri("http://FooTestUri2"), "Source2"));
             mockDiscoveryRequest.Setup(dr => dr.DiscoverAsync()).Raises(dr => dr.OnDiscoveredTests += null, new DiscoveredTestsEventArgs(list));
 
-            mockTestRunRequest.Setup(tr => tr.ExecuteAsync()).Returns(1).Raises(tr => tr.OnRunCompletion += null,
+            mockTestRunRequest.Setup(tr => tr.ExecuteAsync()).Returns(1).Raises(
+                tr => tr.OnRunCompletion += null,
                 new TestRunCompleteEventArgs(testRunStats, false, false, null, null, new TimeSpan()));
 
             mockTestPlatform.Setup(tp => tp.CreateTestRunRequest(It.IsAny<IRequestData>(), It.IsAny<TestRunCriteria>(), It.IsAny<TestPlatformOptions>())).Returns(mockTestRunRequest.Object);

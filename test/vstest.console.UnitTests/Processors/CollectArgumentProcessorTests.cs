@@ -72,7 +72,7 @@ namespace vstest.console.UnitTests.Processors
         [TestMethod]
         public void InitializeShouldNotThrowIfArgumentIsEmpty()
         {
-            Assert.ThrowsException<CommandLineException>(() => { this.executor.Initialize(String.Empty); });
+            Assert.ThrowsException<CommandLineException>(() => { this.executor.Initialize(string.Empty); });
         }
 
         [TestMethod]

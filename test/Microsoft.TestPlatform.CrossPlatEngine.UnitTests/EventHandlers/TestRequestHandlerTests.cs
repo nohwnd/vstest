@@ -156,6 +156,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                 // This test is no-op if diagnostics session is enabled
                 return;
             }
+
             EqtTrace.ErrorOnInitialization = "non-existent-error";
             var message = new Message { MessageType = MessageType.VersionCheck, Payload = 1 };
             this.ProcessRequestsAsync(this.mockTestHostManagerFactory.Object);

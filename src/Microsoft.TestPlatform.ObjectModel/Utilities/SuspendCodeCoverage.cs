@@ -27,7 +27,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
         /// Whether the object is disposed or not.
         /// </summary>
         private bool isDisposed = false;
-        
+
         #endregion
 
         /// <summary>

@@ -44,7 +44,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
         /// <summary>
         /// Initializes a new instance of the <see cref="TestRequestHandler" />.
         /// </summary>
-        public TestRequestHandler() : this(JsonDataSerializer.Instance, new CommunicationEndpointFactory())
+        public TestRequestHandler()
+            : this(JsonDataSerializer.Instance, new CommunicationEndpointFactory())
         {
         }
 
@@ -89,6 +90,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                     requestSenderConnected.Set();
                     throw connectedArgs.Fault;
                 }
+
                 this.channel = connectedArgs.Channel;
                 this.channel.MessageReceived += this.OnMessageReceived;
                 requestSenderConnected.Set();
@@ -196,7 +198,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                 waitHandle.Set();
             };
 
-            var data = dataSerializer.SerializePayload(MessageType.LaunchAdapterProcessWithDebuggerAttached,
+            var data = dataSerializer.SerializePayload(
+                MessageType.LaunchAdapterProcessWithDebuggerAttached,
                 testProcessStartInfo, protocolVersion);
 
             this.SendData(data);
@@ -234,6 +237,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                     {
                         this.SendLog(TestMessageLevel.Warning, EqtTrace.ErrorOnInitialization);
                     }
+
                     break;
 
                 case MessageType.DiscoveryInitialize:

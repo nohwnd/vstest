@@ -58,7 +58,8 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
         /// <param name="parentId">
         /// The parent Id.
         /// </param>
-        private TestListCategory(string name, TestListCategoryId id, TestListCategoryId parentId) : this(name, parentId)
+        private TestListCategory(string name, TestListCategoryId id, TestListCategoryId parentId)
+            : this(name, parentId)
         {
             EqtAssert.ParameterNotNull(id, "id");
             this.id = id;

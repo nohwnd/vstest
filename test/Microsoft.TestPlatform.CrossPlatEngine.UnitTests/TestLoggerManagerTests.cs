@@ -162,6 +162,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests
         {
             counter = 0;
             waitHandle.Reset();
+
             // setup TestLogger
             var testLoggerManager = new DummyTestLoggerManager();
             testLoggerManager.InitializeLoggerByUri(new Uri(loggerUri), new Dictionary<string, string>());
@@ -178,6 +179,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests
         {
             counter = 0;
             waitHandle.Reset();
+
             // setup TestLogger
             var testLoggerManager = new DummyTestLoggerManager();
             testLoggerManager.InitializeLoggerByUri(new Uri(loggerUri), new Dictionary<string, string>());
@@ -194,6 +196,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests
         {
             counter = 0;
             waitHandle.Reset();
+
             // setup TestLogger
             var testLoggerManager = new DummyTestLoggerManager();
             testLoggerManager.InitializeLoggerByUri(new Uri(loggerUri), new Dictionary<string, string>());
@@ -210,6 +213,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests
         {
             counter = 0;
             waitHandle.Reset();
+
             // setup TestLogger
             var testLoggerManager = new DummyTestLoggerManager();
             testLoggerManager.InitializeLoggerByUri(new Uri(loggerUri), new Dictionary<string, string>());
@@ -237,6 +241,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests
         {
             counter = 0;
             waitHandle.Reset();
+
             // setup TestLogger
             var testLoggerManager = new DummyTestLoggerManager();
             testLoggerManager.InitializeLoggerByUri(new Uri(loggerUri), new Dictionary<string, string>());
@@ -561,6 +566,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests
         {
             counter = 0;
             waitHandle.Reset();
+
             // setup TestLogger
             var testLoggerManager = new DummyTestLoggerManager();
             testLoggerManager.InitializeLoggerByUri(new Uri(loggerUri), new Dictionary<string, string>());
@@ -1702,12 +1708,14 @@ namespace TestPlatform.CrossPlatEngine.UnitTests
 
         internal class DummyTestLoggerManager : TestLoggerManager
         {
-            public DummyTestLoggerManager() : base(null, TestSessionMessageLogger.Instance, new InternalTestLoggerEvents(TestSessionMessageLogger.Instance))
+            public DummyTestLoggerManager()
+                : base(null, TestSessionMessageLogger.Instance, new InternalTestLoggerEvents(TestSessionMessageLogger.Instance))
             {
 
             }
 
-            public DummyTestLoggerManager(IRequestData requestData) : base(requestData, TestSessionMessageLogger.Instance, new InternalTestLoggerEvents(TestSessionMessageLogger.Instance))
+            public DummyTestLoggerManager(IRequestData requestData)
+                : base(requestData, TestSessionMessageLogger.Instance, new InternalTestLoggerEvents(TestSessionMessageLogger.Instance))
             {
 
             }

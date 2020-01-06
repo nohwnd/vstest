@@ -8032,7 +8032,7 @@ namespace SimpleClassLibrary
         }
         public void MSTest_D1_2676()
         {
-        }
+        }   
         public void MSTest_D1_2677()
         {
         }

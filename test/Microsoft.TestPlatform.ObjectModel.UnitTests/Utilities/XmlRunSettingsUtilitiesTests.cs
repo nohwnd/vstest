@@ -931,9 +931,11 @@ namespace Microsoft.TestPlatform.ObjectModel.UnitTests.Utilities
 
             var expectedConfigurationElement = new XmlDocument().CreateElement("ConfiGUration");
             expectedConfigurationElement.InnerXml = "<Key1>Value1</Key1><Key2>Value2</Key2>";
-            Assert.AreEqual(expectedConfigurationElement.Name,
+            Assert.AreEqual(
+                expectedConfigurationElement.Name,
                 loggerRunSettings.LoggerSettingsList.First().Configuration.Name);
-            Assert.AreEqual(expectedConfigurationElement.InnerXml,
+            Assert.AreEqual(
+                expectedConfigurationElement.InnerXml,
                 loggerRunSettings.LoggerSettingsList.First().Configuration.InnerXml);
         }
 
@@ -968,7 +970,8 @@ namespace Microsoft.TestPlatform.ObjectModel.UnitTests.Utilities
                 exceptionMessage = ex.Message;
             }
             
-            Assert.AreEqual(string.Format(
+            Assert.AreEqual(
+                string.Format(
                 Resources.InvalidSettingsXmlElement,
                 "Logger",
                 "ConfiGUrationInvalid"), exceptionMessage);
@@ -1005,7 +1008,8 @@ namespace Microsoft.TestPlatform.ObjectModel.UnitTests.Utilities
                 exceptionMessage = ex.Message;
             }
 
-            Assert.AreEqual(string.Format(
+            Assert.AreEqual(
+                string.Format(
                 Resources.InvalidSettingsXmlAttribute,
                 "Logger",
                 "invalidAttr"), exceptionMessage);
@@ -1127,9 +1131,11 @@ namespace Microsoft.TestPlatform.ObjectModel.UnitTests.Utilities
 
             var expectedConfigurationElement = new XmlDocument().CreateElement("ConfiGUration");
             expectedConfigurationElement.InnerXml = "<Key3>Value3</Key3><Key4>Value4</Key4>";
-            Assert.AreEqual(expectedConfigurationElement.Name,
+            Assert.AreEqual(
+                expectedConfigurationElement.Name,
                 loggerRunSettings.LoggerSettingsList.First().Configuration.Name);
-            Assert.AreEqual(expectedConfigurationElement.InnerXml,
+            Assert.AreEqual(
+                expectedConfigurationElement.InnerXml,
                 loggerRunSettings.LoggerSettingsList.First().Configuration.InnerXml);
         }
 

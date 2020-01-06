@@ -29,7 +29,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// <param name="context">Context information for the event</param>
         protected DataCollectionEventArgs(DataCollectionContext context)
         {
-            Context = context;
+            this.Context = context;
         }
 
         #endregion
@@ -62,7 +62,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         internal void UpdateDataCollectionContext(DataCollectionContext context)
         {
             Debug.Assert(context != null, "'context' cannot be null.");
-            Context = context;
+            this.Context = context;
         }
 
         #endregion

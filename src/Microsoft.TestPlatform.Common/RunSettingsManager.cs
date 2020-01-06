@@ -62,6 +62,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common
 
                 return runSettingsManagerInstance;
             }
+
             internal set
             {
                 runSettingsManagerInstance = value;

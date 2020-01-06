@@ -20,7 +20,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public SettingsException() : base()
+        public SettingsException()
+            : base()
         {
         }
 

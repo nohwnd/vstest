@@ -74,7 +74,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         /// </returns>
         public XmlElement ToXml()
         {
-            return ToXml(Constants.LoggerSettingName);
+            return this.ToXml(Constants.LoggerSettingName);
         }
 
         /// <summary>
@@ -97,9 +97,9 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
             AppendAttribute(doc, root, Constants.LoggerCodeBase, this.CodeBase);
             AppendAttribute(doc, root, Constants.LoggerEnabledName, this.IsEnabled.ToString());
 
-            if (Configuration != null)
+            if (this.Configuration != null)
             {
-                root.AppendChild(doc.ImportNode(Configuration, true));
+                root.AppendChild(doc.ImportNode(this.Configuration, true));
             }
 
             return root;
@@ -145,12 +145,13 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             catch (UriFormatException)
                             {
                                 throw new SettingsException(
-                                    String.Format(
+                                    string.Format(
                                         CultureInfo.CurrentCulture,
                                         Resources.Resources.InvalidUriInSettings,
                                         reader.Value,
                                         elementName));
                             }
+
                             break;
 
                         case Constants.LoggerAssemblyQualifiedNameLower:
@@ -219,6 +220,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                                 reader.Name));
                 }
             }
+
             reader.ReadEndElement();
 
             return settings;

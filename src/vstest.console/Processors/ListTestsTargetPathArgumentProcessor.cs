@@ -10,7 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
     using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
     /// <summary>
-    //  An argument processor to provide path to the file for listing fully qualified tests.
+    // An argument processor to provide path to the file for listing fully qualified tests.
     /// To be used only with ListFullyQualifiedTests
     /// </summary>
     internal class ListTestsTargetPathArgumentProcessor : IArgumentProcessor

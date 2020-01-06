@@ -54,8 +54,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
         /// <param name="requestData">The Request Data for providing services and data for Run.</param>
         /// <param name="requestSender">Test request sender instance.</param>
         /// <param name="testHostManager">Test host manager for this proxy.</param>
-        public ProxyExecutionManager(IRequestData requestData, ITestRequestSender requestSender, ITestRuntimeProvider testHostManager) : 
-            this(requestData, requestSender, testHostManager, JsonDataSerializer.Instance, new FileHelper())
+        public ProxyExecutionManager(IRequestData requestData, ITestRequestSender requestSender, ITestRuntimeProvider testHostManager)
+            : this(requestData, requestSender, testHostManager, JsonDataSerializer.Instance, new FileHelper())
         {
         }
 
@@ -110,6 +110,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
                 }
                 
                 var testSources = new List<string>(testRunCriteria.HasSpecificSources ? testRunCriteria.Sources :
+
                                                     // If the test execution is with a test filter, group them by sources
                                                     testRunCriteria.Tests.GroupBy(tc => tc.Source).Select(g => g.Key));
 

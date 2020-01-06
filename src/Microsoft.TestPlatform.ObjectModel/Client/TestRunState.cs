@@ -33,7 +33,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         /// </summary>
         Canceled = 4,
 
-         /// <summary>
+        /// <summary>
         /// Run is aborted
         /// </summary>
         Aborted = 5

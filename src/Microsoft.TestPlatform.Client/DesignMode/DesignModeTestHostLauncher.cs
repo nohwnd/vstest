@@ -45,7 +45,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
     internal class DesignModeDebugTestHostLauncher : DesignModeTestHostLauncher
     {
         /// <inheritdoc/>
-        public DesignModeDebugTestHostLauncher(IDesignModeClient designModeClient) : base(designModeClient)
+        public DesignModeDebugTestHostLauncher(IDesignModeClient designModeClient)
+            : base(designModeClient)
         {
         }
 

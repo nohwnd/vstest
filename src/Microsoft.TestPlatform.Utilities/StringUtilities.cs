@@ -34,6 +34,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
                     buffer.Append(c);
                 }
             }
+
             if (buffer.Length > 0 || input[input.Length - 1] == separator) yield return buffer.Flush();
         }
 

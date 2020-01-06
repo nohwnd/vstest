@@ -195,6 +195,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.DataCollection
             var manager = new InProcDataCollectionExtensionManager(invalidSettingsXml, this.mockTestEventsPublisher.Object, this.defaultCodebase, this.testPluginCache);
             Assert.IsFalse(manager.IsInProcDataCollectionEnabled, "InProcDataCollection must be disabled on invalid settings.");
         }
+
         [TestMethod]
         public void TriggerSessionStartShouldBeCalledWithCorrectTestSources()
         {
@@ -239,6 +240,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.DataCollection
         public void TriggerTestCaseStartShouldCallInProcDataCollector()
         {
             var testCase = new TestCase("x.y.z", new Uri("uri://dummy"), "x.dll");
+
             // random guid
             testCase.Id = new Guid("3871B3B0-2853-406B-BB61-1FE1764116FD");
             this.mockTestEventsPublisher.Raise(x => x.TestCaseStart += null, new TestCaseStartEventArgs(testCase));
@@ -253,6 +255,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.DataCollection
         public void TriggerTestCaseEndShouldtBeCalledMultipleTimesInDataDrivenScenario()
         {
             var testCase = new TestCase("x.y.z", new Uri("uri://dummy"), "x.dll");
+
             // random guid
             testCase.Id = new Guid("3871B3B0-2853-406B-BB61-1FE1764116FD");
             this.mockTestEventsPublisher.Raise(x => x.TestCaseStart += null, new TestCaseStartEventArgs(testCase));

@@ -12,7 +12,8 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
     /// </summary>
     internal class OrderedTestElement : TestElementAggregation, IXmlTestStoreCustom
     {
-        public OrderedTestElement(Guid id, string name, string adapter) : base(id, name, adapter) { }
+        public OrderedTestElement(Guid id, string name, string adapter)
+            : base(id, name, adapter) { }
 
         string IXmlTestStoreCustom.ElementName
         {

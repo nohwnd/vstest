@@ -87,7 +87,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
         /// <param name="requestData">Request Data for Providing Common Services/Data for Discovery and Execution.</param>
         /// <param name="messageLogger">Message Logger.</param>
         /// <param name="loggerEvents">Logger events.</param>
-        public TestLoggerManager(IRequestData requestData, IMessageLogger messageLogger, InternalTestLoggerEvents loggerEvents) : this(requestData, messageLogger, loggerEvents, new PlatformAssemblyLoadContext())
+        public TestLoggerManager(IRequestData requestData, IMessageLogger messageLogger, InternalTestLoggerEvents loggerEvents)
+            : this(requestData, messageLogger, loggerEvents, new PlatformAssemblyLoadContext())
         {
         }
 
@@ -598,7 +599,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
                 switch (logger)
                 {
                     case ITestLoggerWithParameters _:
-                        ((ITestLoggerWithParameters)logger).Initialize(loggerEvents,
+                        ((ITestLoggerWithParameters)logger).Initialize(
+                            loggerEvents,
                             UpdateLoggerParameters(parameters));
                         break;
 

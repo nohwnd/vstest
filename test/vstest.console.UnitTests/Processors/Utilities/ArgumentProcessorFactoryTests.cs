@@ -116,6 +116,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors.U
                     xplatspecialCommandNames.Add(string.Concat("--", specialCommand.Metadata.Value.CommandName.Remove(0, 1)));
                 }
             }
+
             var factory = ArgumentProcessorFactory.Create();
 
             CollectionAssert.AreEquivalent(

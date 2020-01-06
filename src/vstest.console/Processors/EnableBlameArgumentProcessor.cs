@@ -190,6 +190,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             {
                 this.runSettingsManager.AddDefaultRunSettings(); ;
             }
+
             var settings = this.runSettingsManager.ActiveRunSettings?.SettingsXml;
 
             // Get results directory from RunSettingsManager
@@ -308,6 +309,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                     dumpNode.Attributes.Append(attribute);
                 }
             }
+
             outernode.AppendChild(dumpNode);
         }
 

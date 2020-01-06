@@ -126,6 +126,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities
         private Architecture MapToArchitecture(ProcessorArchitecture processorArchitecture)
         {
             Architecture arch = Architecture.AnyCPU;
+
             // Mapping to Architecture based on https://msdn.microsoft.com/en-us/library/system.reflection.processorarchitecture(v=vs.110).aspx
 
             if (processorArchitecture.Equals(ProcessorArchitecture.Amd64)
@@ -154,7 +155,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities
         public Architecture GetArchitectureForSource(string imagePath)
         {
             // For details refer to below code available on MSDN.
-            //https://code.msdn.microsoft.com/windowsapps/CSCheckExeType-aab06100#content
+            // https://code.msdn.microsoft.com/windowsapps/CSCheckExeType-aab06100#content
 
             var archType = Architecture.AnyCPU;
             ushort machine = 0;
@@ -170,13 +171,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities
 
             try
             {
-                //get the input stream
+                // get the input stream
                 using (Stream fs = this.fileHelper.GetStream(imagePath, FileMode.Open, FileAccess.Read))
                 using (var reader = new BinaryReader(fs))
                 {
                     var validImage = true;
 
-                    //PE Header starts @ 0x3C (60). Its a 4 byte header.
+                    // PE Header starts @ 0x3C (60). Its a 4 byte header.
                     fs.Position = 0x3C;
                     peHeader = reader.ReadUInt32();
 
@@ -188,10 +189,10 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities
 
                     if (validImage)
                     {
-                        //Moving to PE Header start location...
+                        // Moving to PE Header start location...
                         fs.Position = peHeader;
 
-                        var signature = reader.ReadUInt32(); //peHeaderSignature
+                        var signature = reader.ReadUInt32(); // peHeaderSignature
                         // 0x00004550 is the letters "PE" followed by two terminating zeroes.
                         if (signature != 0x00004550)
                         {
@@ -200,14 +201,14 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities
 
                         if (validImage)
                         {
-                            //Read the image file header header.
+                            // Read the image file header header.
                             machine = reader.ReadUInt16();
-                            reader.ReadUInt16(); //NumberOfSections
-                            reader.ReadUInt32(); //TimeDateStamp
-                            reader.ReadUInt32(); //PointerToSymbolTable
-                            reader.ReadUInt32(); //NumberOfSymbols
-                            reader.ReadUInt16(); //SizeOfOptionalHeader
-                            reader.ReadUInt16(); //Characteristics
+                            reader.ReadUInt16(); // NumberOfSections
+                            reader.ReadUInt32(); // TimeDateStamp
+                            reader.ReadUInt32(); // PointerToSymbolTable
+                            reader.ReadUInt32(); // NumberOfSymbols
+                            reader.ReadUInt16(); // SizeOfOptionalHeader
+                            reader.ReadUInt16(); // Characteristics
 
                             // magic number.32bit or 64bit assembly.
                             var magic = reader.ReadUInt16();
@@ -248,7 +249,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities
             }
             catch (Exception ex)
             {
-                //Ignore all exception
+                // Ignore all exception
                 EqtTrace.Info(
                     "GetArchitectureForSource: Returning default:{0}. Unhandled exception: {1}.",
                     archType, ex);

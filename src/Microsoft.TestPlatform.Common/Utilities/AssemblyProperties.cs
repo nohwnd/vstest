@@ -19,7 +19,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Utilities
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyProperties"/> class.
         /// </summary>
-        public AssemblyProperties() : this(new FileHelper())
+        public AssemblyProperties()
+            : this(new FileHelper())
         {
         }
 

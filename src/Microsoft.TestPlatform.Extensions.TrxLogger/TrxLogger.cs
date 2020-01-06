@@ -40,8 +40,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger
         /// <summary>
         /// Initializes a new instance of the <see cref="TrxLogger"/> class. 
         /// </summary>
-        public TrxLogger():
-            this (new Utilities.Helpers.FileHelper())
+        public TrxLogger()
+            : this (new Utilities.Helpers.FileHelper())
         {
         }
 
@@ -144,7 +144,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger
 
             if (isLogFilePrefixParameterExists && isLogFileNameParameterExists)
             {
-                var trxParameterErrorMsg = string.Format(CultureInfo.CurrentCulture,
+                var trxParameterErrorMsg = string.Format(
+                    CultureInfo.CurrentCulture,
                         TrxLoggerResources.PrefixAndNameProvidedError);
 
                 EqtTrace.Error(trxParameterErrorMsg);
@@ -363,7 +364,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger
 
             List<string> errorMessages = new List<string>();
             List<CollectorDataEntry> collectorEntries = this.converter.ToCollectionEntries(e.AttachmentSets, this.testRun, this.testResultsDirPath);
-            IList<String> resultFiles = this.converter.ToResultFiles(e.AttachmentSets, this.testRun, this.testResultsDirPath, errorMessages);
+            IList<string> resultFiles = this.converter.ToResultFiles(e.AttachmentSets, this.testRun, this.testResultsDirPath, errorMessages);
 
             if (errorMessages.Count > 0)
             {
@@ -389,7 +390,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger
 
             helper.SaveObject(runSummary, rootElement, "ResultSummary", parameters);
 
-            //Save results to Trx file
+            // Save results to Trx file
             this.DeriveTrxFilePath();
             this.PopulateTrxFile(this.trxFilePath, rootElement);
         }
@@ -415,7 +416,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger
 
                 if (File.Exists(trxFilePath))
                 {
-                    var overwriteWarningMsg = string.Format(CultureInfo.CurrentCulture,
+                    var overwriteWarningMsg = string.Format(
+                        CultureInfo.CurrentCulture,
                         TrxLoggerResources.TrxLoggerResultsFileOverwriteWarning, trxFileName);
                     ConsoleOutput.Instance.Warning(false, overwriteWarningMsg);
                     EqtTrace.Warning(overwriteWarningMsg);
@@ -430,7 +432,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger
                     }
                 }
 
-                String resultsFileMessage = String.Format(CultureInfo.CurrentCulture, TrxLoggerResources.TrxLoggerResultsFile, trxFileName);
+                string resultsFileMessage = string.Format(CultureInfo.CurrentCulture, TrxLoggerResources.TrxLoggerResultsFile, trxFileName);
                 ConsoleOutput.Instance.Information(false, resultsFileMessage);
                 EqtTrace.Info(resultsFileMessage);
             }
@@ -476,7 +478,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger
 
             ObjectModel.TestCase testCase = rsTestResult.TestCase;
             string testCaseName = !string.IsNullOrEmpty(testCase.DisplayName) ? testCase.DisplayName : testCase.FullyQualifiedName;
-            string message = String.Format(CultureInfo.CurrentCulture, TrxLoggerResources.MessageForSkippedTests, testCaseName);
+            string message = string.Format(CultureInfo.CurrentCulture, TrxLoggerResources.MessageForSkippedTests, testCaseName);
             this.AddRunLevelInformationalMessage(message);
         }
 

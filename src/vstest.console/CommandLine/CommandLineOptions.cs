@@ -284,7 +284,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
         /// <param name="source">Path to source file to look for tests in.</param>
         public void AddSource(string source)
         {
-            if (String.IsNullOrWhiteSpace(source))
+            if (string.IsNullOrWhiteSpace(source))
             {
                 throw new TestSourceException(CommandLineResources.CannotBeNullOrEmpty);
             }
@@ -304,8 +304,10 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
                     throw new TestSourceException(
                         string.Format(CultureInfo.CurrentUICulture, CommandLineResources.InvalidArgument, source));
                 }
+
                 throw ex;
             }
+
             // Add the matching files to source list
             this.sources = this.sources.Union(matchingFiles).ToList();
         }

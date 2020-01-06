@@ -343,7 +343,8 @@ namespace TestPlatform.Common.UnitTests.ExtensionFramework
             /// Default constructor
             /// </summary>
             /// <param name="type"> The Type. </param>
-            public FaultyTestExecutorPluginInformation(Type type): base(type)
+            public FaultyTestExecutorPluginInformation(Type type)
+                : base(type)
             {
                 throw new Exception();
             }

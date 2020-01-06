@@ -16,7 +16,8 @@ namespace TestPlatform.TestUtilities
             var fileContent= File.ReadAllText(filePath);
             foreach(var substr in substrs)
             {
-                Assert.IsTrue(fileContent.Contains(substr),
+                Assert.IsTrue(
+                    fileContent.Contains(substr),
                 $"{filePath}: file doesn't contains {StringHighlighter} {substr} {StringHighlighter}");
             }
         }

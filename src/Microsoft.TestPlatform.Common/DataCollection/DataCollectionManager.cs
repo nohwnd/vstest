@@ -66,7 +66,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector
         /// <param name="messageSink">
         /// The message Sink.
         /// </param>
-        internal DataCollectionManager(IMessageSink messageSink) : this(new DataCollectionAttachmentManager(), messageSink)
+        internal DataCollectionManager(IMessageSink messageSink)
+            : this(new DataCollectionAttachmentManager(), messageSink)
         {
         }
 
@@ -406,6 +407,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector
                     return true;
                 }
             }
+
             return false;
         }
 

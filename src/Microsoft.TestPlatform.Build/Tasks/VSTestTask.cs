@@ -5,7 +5,6 @@ namespace Microsoft.TestPlatform.Build.Tasks
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;
     using Microsoft.TestPlatform.Build.Resources;
@@ -16,8 +15,6 @@ namespace Microsoft.TestPlatform.Build.Tasks
     {
         // The process which is invoking vstest.console
         private VSTestForwardingApp vsTestForwardingApp;
-
-        private const string vsTestAppName = "vstest.console.dll";
 
         public string TestFileFullPath
         {
@@ -54,6 +51,7 @@ namespace Microsoft.TestPlatform.Build.Tasks
             get;
             set;
         }
+
         public string[] VSTestLogger
         {
             get;
@@ -124,21 +122,21 @@ namespace Microsoft.TestPlatform.Build.Tasks
         public override bool Execute()
         {
             var traceEnabledValue = Environment.GetEnvironmentVariable("VSTEST_BUILD_TRACE");
-            Tracing.traceEnabled = !string.IsNullOrEmpty(traceEnabledValue) && traceEnabledValue.Equals("1", StringComparison.OrdinalIgnoreCase);
+            Tracing.TraceEnabled = !string.IsNullOrEmpty(traceEnabledValue) && traceEnabledValue.Equals("1", StringComparison.OrdinalIgnoreCase);
 
-            vsTestForwardingApp = new VSTestForwardingApp(this.VSTestConsolePath, this.CreateArgument());
+            this.vsTestForwardingApp = new VSTestForwardingApp(this.VSTestConsolePath, this.CreateArgument());
             if (!string.IsNullOrEmpty(this.VSTestFramework))
             {
                 Console.WriteLine(Resources.TestRunningSummary, this.TestFileFullPath, this.VSTestFramework);
             }
 
-            return vsTestForwardingApp.Execute() == 0;
+            return this.vsTestForwardingApp.Execute() == 0;
         }
 
         public void Cancel()
         {
             Tracing.Trace("VSTest: Killing the process...");
-            vsTestForwardingApp.Cancel();
+            this.vsTestForwardingApp.Cancel();
         }
 
         internal IEnumerable<string> CreateArgument()
@@ -243,8 +241,8 @@ namespace Microsoft.TestPlatform.Build.Tasks
             // Console logger was not specified by user, but verbosity was, hence add default console logger with verbosity as specified
             if (!string.IsNullOrWhiteSpace(this.VSTestVerbosity) && !isConsoleLoggerSpecifiedByUser)
             {
-                var normalTestLogging = new List<string>() {"n", "normal", "d", "detailed", "diag", "diagnostic"};
-                var quietTestLogging = new List<string>() {"q", "quiet"};
+                var normalTestLogging = new List<string>() { "n", "normal", "d", "detailed", "diag", "diagnostic" };
+                var quietTestLogging = new List<string>() { "q", "quiet" };
 
                 string vsTestVerbosity = "minimal";
                 if (normalTestLogging.Contains(this.VSTestVerbosity))
@@ -303,7 +301,7 @@ namespace Microsoft.TestPlatform.Build.Tasks
                 }
             }
 
-            if(!string.IsNullOrWhiteSpace(this.VSTestNoLogo))
+            if (!string.IsNullOrWhiteSpace(this.VSTestNoLogo))
             {
                 allArgs.Add("--nologo");
             }

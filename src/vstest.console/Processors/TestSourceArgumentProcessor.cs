@@ -36,6 +36,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                 {
                     this.metadata = new Lazy<IArgumentProcessorCapabilities>(() => new TestSourceArgumentProcessorCapabilities());
                 }
+
                 return this.metadata;
             }
         }

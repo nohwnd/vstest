@@ -49,7 +49,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
             return new TestRunCriteriaWithTests(testRunCriteria.Tests, inputPackages?.FirstOrDefault(), runSettings, executionContext);
         }
 
-        private static bool TryCheckTestSourceDifferFromPackage(ITestRuntimeProvider testRuntimeProvider, 
+        private static bool TryCheckTestSourceDifferFromPackage(
+            ITestRuntimeProvider testRuntimeProvider, 
             IEnumerable<string> inputPackages, out IEnumerable<string> actualTestSources)
         {
 

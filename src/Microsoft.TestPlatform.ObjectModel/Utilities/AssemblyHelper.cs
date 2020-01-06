@@ -43,9 +43,9 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
 
                 // In Dev10 by devenv uses its own app domain host which has default optimization to share everything.
                 // Set LoaderOptimization to MultiDomainHost which means:
-                //   Indicates that the application will probably host unique code in multiple domains, 
-                //   and the loader must share resources across application domains only for globally available (strong-named) 
-                //   assemblies that have been added to the global assembly cache. 
+                //   Indicates that the application will probably host unique code in multiple domains,
+                //   and the loader must share resources across application domains only for globally available (strong-named)
+                //   assemblies that have been added to the global assembly cache.
                 setupInfo.LoaderOptimization = LoaderOptimization.MultiDomainHost;
 
                 AppDomain ad = null;
@@ -144,10 +144,12 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
                         targetFramework = FrameworkVersion.None;
                         break;
                 }
+
                 if (EqtTrace.IsVerboseEnabled)
                 {
                     EqtTrace.Verbose("Inferred Multi-Targeting settings:{0} Platform:{1} FrameworkVersion:{2}", testSource, targetPlatform, targetFramework);
                 }
+
                 return new KeyValuePair<Architecture, FrameworkVersion>(targetPlatform, targetFramework);
 
             }
@@ -160,11 +162,10 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
             }
         }
 
-
         /// <summary>
         /// Returns the full name (AssemblyName.FullName) of the referenced assemblies by the assembly on the specified path.
-        /// 
-        /// Returns null on failure and an empty array if there is no reference in the project. 
+        ///
+        /// Returns null on failure and an empty array if there is no reference in the project.
         /// </summary>
         /// <param name="source">Full path to the assembly to get dependencies for.</param>
         public static string[] GetReferencedAssemblies(string source)
@@ -176,9 +177,9 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
 
             // In Dev10 by devenv uses its own app domain host which has default optimization to share everything.
             // Set LoaderOptimization to MultiDomainHost which means:
-            //   Indicates that the application will probably host unique code in multiple domains, 
-            //   and the loader must share resources across application domains only for globally available (strong-named) 
-            //   assemblies that have been added to the global assembly cache. 
+            //   Indicates that the application will probably host unique code in multiple domains,
+            //   and the loader must share resources across application domains only for globally available (strong-named)
+            //   assemblies that have been added to the global assembly cache.
             setupInfo.LoaderOptimization = LoaderOptimization.MultiDomainHost;
 
             AppDomain ad = null;
@@ -250,9 +251,9 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
 
             // In Dev10 by devenv uses its own app domain host which has default optimization to share everything.
             // Set LoaderOptimization to MultiDomainHost which means:
-            //   Indicates that the application will probably host unique code in multiple domains, 
-            //   and the loader must share resources across application domains only for globally available (strong-named) 
-            //   assemblies that have been added to the global assembly cache. 
+            //   Indicates that the application will probably host unique code in multiple domains,
+            //   and the loader must share resources across application domains only for globally available (strong-named)
+            //   assemblies that have been added to the global assembly cache.
             setupInfo.LoaderOptimization = LoaderOptimization.MultiDomainHost;
 
             if (File.Exists(path))
@@ -329,6 +330,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
                     {
                         EqtTrace.Verbose("AssemblyHelper.SetNETFrameworkCompatiblityMode: setting .NetFramework,Version=v4.0 compatiblity mode.");
                     }
+
                     setup.TargetFrameworkName = Constants.DotNetFramework40;
                 }
             }

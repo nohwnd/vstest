@@ -550,7 +550,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Discovery
         /// <summary>
         /// Sync object for various operations
         /// </summary>
-        private object syncObject = new Object();
+        private object syncObject = new object();
 
         /// <summary>
         /// Whether or not the test discovery is in progress.

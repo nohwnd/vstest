@@ -37,7 +37,7 @@ namespace Microsoft.TestPlatform.Protocol
             var testAssembly = Path.Combine(executingLocation, "UnitTestProject.dll");
             string testadapterPath = null;
             string operation = "Discovery";
-            string framework = String.Empty;
+            string framework = string.Empty;
 
             var separator = new char[] { ':' };
             foreach (var arg in args)
@@ -60,7 +60,7 @@ namespace Microsoft.TestPlatform.Protocol
                 }
             }
 
-            if(framework.Equals(DesktopFramework, StringComparison.OrdinalIgnoreCase) && String.IsNullOrEmpty(testadapterPath))
+            if(framework.Equals(DesktopFramework, StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(testadapterPath))
             {
                 Console.WriteLine("Please specify the test adapter path for running tests targeting net45 plus frameworks");
                 return 0;

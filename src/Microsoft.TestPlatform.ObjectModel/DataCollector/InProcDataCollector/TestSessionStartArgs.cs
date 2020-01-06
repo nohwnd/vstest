@@ -18,7 +18,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollector.InProcDa
         /// </summary>
         public TestSessionStartArgs()
         {
-            this.Configuration = String.Empty;
+            this.Configuration = string.Empty;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollector.InProcDa
         /// </param>
         public TestSessionStartArgs(IDictionary<string, object> properties)
         {
-            this.Configuration = String.Empty;
+            this.Configuration = string.Empty;
             this.Properties = properties;
         }
 

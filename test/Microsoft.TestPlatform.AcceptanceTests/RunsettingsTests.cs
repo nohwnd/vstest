@@ -48,10 +48,11 @@ namespace Microsoft.TestPlatform.AcceptanceTests
                                                          { "TargetFrameworkVersion", this.GetTargetFramworkForRunsettings() },
                                                          { "TestAdaptersPaths", this.GetTestAdapterPath() }
                                                  };
+
             // passing different platform
             var additionalArgs = "/Platform:x64";
 
-            var runSettingsArgs = String.Join(
+            var runSettingsArgs = string.Join(
                 " ",
                 new string[]
                     {
@@ -82,7 +83,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
             var additionalArgs = "/Parallel";
 
             // Pass non parallel
-            var runSettingsArgs = String.Join(
+            var runSettingsArgs = string.Join(
                 " ",
                 new string[]
                     {
@@ -159,7 +160,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
             var testhostProcessName = this.GetTestHostProcessName(targetPlatform);
             var expectedNumOfProcessCreated = GetExpectedNumOfProcessCreatedForWithoutParallel();
 
-            var runSettingsArgs = String.Join(
+            var runSettingsArgs = string.Join(
                 " ",
                 new string[]
                     {
@@ -190,7 +191,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
                                                          { "TestAdaptersPaths", this.GetTestAdapterPath() }
                                                  };
 
-            var runSettingsArgs = String.Join(
+            var runSettingsArgs = string.Join(
                 " ",
                 new string[]
                     {
@@ -518,7 +519,8 @@ namespace Microsoft.TestPlatform.AcceptanceTests
             return runsettingsPath;
         }
 
-        private void RunTestWithRunSettings(Dictionary<string, string> runConfigurationDictionary,
+        private void RunTestWithRunSettings(
+            Dictionary<string, string> runConfigurationDictionary,
             string runSettingsArgs, string additionalArgs, string testhostProcessName, int expectedNumOfProcessCreated)
         {
             var assemblyPaths =
@@ -558,7 +560,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
                 $"Number of {testhostProcessName} process created, expected: {expectedNumOfProcessCreated} actual: {numOfProcessCreatedTask.Result} args: {arguments} runner path: {this.GetConsoleRunnerPath()}");
             this.ValidateSummaryStatus(2, 2, 2);
 
-            //cleanup
+            // cleanup
             if (!string.IsNullOrWhiteSpace(runsettingsPath))
             {
                 File.Delete(runsettingsPath);
@@ -576,6 +578,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
             {
                 expectedNumOfProcessCreated = this.IsDesktopRunner() ? 2 : 3;
             }
+
             return expectedNumOfProcessCreated;
         }
     }

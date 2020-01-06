@@ -116,7 +116,8 @@ namespace vstest.console.UnitTests.TestPlatformHelpers
         {
             CommandLineOptions.Instance.IsDesignMode = true;
             this.mockLoggerEvents = new DummyLoggerEvents(TestSessionMessageLogger.Instance);
-            var requestManager = new TestRequestManager(CommandLineOptions.Instance,
+            var requestManager = new TestRequestManager(
+                CommandLineOptions.Instance,
                 new Mock<ITestPlatform>().Object,
                 TestRunResultAggregator.Instance,
                 new Mock<ITestPlatformEventSource>().Object,
@@ -198,7 +199,8 @@ namespace vstest.console.UnitTests.TestPlatformHelpers
 
             string testCaseFilterValue = "TestFilter";
             CommandLineOptions.Instance.TestCaseFilterValue = testCaseFilterValue;
-            this.testRequestManager = new TestRequestManager(CommandLineOptions.Instance,
+            this.testRequestManager = new TestRequestManager(
+                CommandLineOptions.Instance,
                 this.mockTestPlatform.Object,
                 TestRunResultAggregator.Instance,
                 this.mockTestPlatformEventSource.Object,
@@ -247,7 +249,8 @@ namespace vstest.console.UnitTests.TestPlatformHelpers
 
             string testCaseFilterValue = "TestFilter";
             CommandLineOptions.Instance.TestCaseFilterValue = testCaseFilterValue;
-            this.testRequestManager = new TestRequestManager(CommandLineOptions.Instance,
+            this.testRequestManager = new TestRequestManager(
+                CommandLineOptions.Instance,
                 this.mockTestPlatform.Object,
                 TestRunResultAggregator.Instance,
                 this.mockTestPlatformEventSource.Object,
@@ -779,7 +782,8 @@ namespace vstest.console.UnitTests.TestPlatformHelpers
                         actualDiscoveryCriteria = discoveryCriteria;
                     }).Returns(mockDiscoveryRequest.Object);
 
-            this.testRequestManager.DiscoverTests(payload,
+            this.testRequestManager.DiscoverTests(
+                payload,
                 new Mock<ITestDiscoveryEventsRegistrar>().Object, this.protocolConfig);
             this.mockAssemblyMetadataProvider.Verify(a => a.GetArchitecture(It.IsAny<string>()), Times.Once);
             this.mockAssemblyMetadataProvider.Verify(a => a.GetFrameWork(It.IsAny<string>()), Times.Once);
@@ -1153,7 +1157,8 @@ namespace vstest.console.UnitTests.TestPlatformHelpers
 
             string testCaseFilterValue = "TestFilter";
             payload.TestPlatformOptions = new TestPlatformOptions { TestCaseFilter = testCaseFilterValue };
-            this.testRequestManager = new TestRequestManager(CommandLineOptions.Instance,
+            this.testRequestManager = new TestRequestManager(
+                CommandLineOptions.Instance,
                 this.mockTestPlatform.Object,
                 TestRunResultAggregator.Instance,
                 this.mockTestPlatformEventSource.Object,
@@ -1845,7 +1850,8 @@ namespace vstest.console.UnitTests.TestPlatformHelpers
                         actualDiscoveryCriteria = discoveryCriteria;
                     }).Returns(mockDiscoveryRequest.Object);
 
-            this.testRequestManager.DiscoverTests(payload,
+            this.testRequestManager.DiscoverTests(
+                payload,
                 new Mock<ITestDiscoveryEventsRegistrar>().Object, this.protocolConfig);
 
             var loggerSettingsList = XmlRunSettingsUtilities.GetLoggerRunSettings(actualDiscoveryCriteria.RunSettings).LoggerSettingsList;
@@ -1909,7 +1915,8 @@ namespace vstest.console.UnitTests.TestPlatformHelpers
                         actualDiscoveryCriteria = discoveryCriteria;
                     }).Returns(mockDiscoveryRequest.Object);
 
-            this.testRequestManager.DiscoverTests(payload,
+            this.testRequestManager.DiscoverTests(
+                payload,
                 new Mock<ITestDiscoveryEventsRegistrar>().Object, this.protocolConfig);
 
             var loggerSettingsList = XmlRunSettingsUtilities.GetLoggerRunSettings(actualDiscoveryCriteria.RunSettings).LoggerSettingsList;
@@ -1944,7 +1951,8 @@ namespace vstest.console.UnitTests.TestPlatformHelpers
                         actualDiscoveryCriteria = discoveryCriteria;
                     }).Returns(mockDiscoveryRequest.Object);
 
-            this.testRequestManager.DiscoverTests(payload,
+            this.testRequestManager.DiscoverTests(
+                payload,
                 new Mock<ITestDiscoveryEventsRegistrar>().Object, this.protocolConfig);
 
             Assert.IsFalse(actualDiscoveryCriteria.RunSettings.Contains("LoggerRunSettings"));
@@ -2041,7 +2049,8 @@ namespace vstest.console.UnitTests.TestPlatformHelpers
                         actualDiscoveryCriteria = discoveryCriteria;
                     }).Returns(mockDiscoveryRequest.Object);
 
-            this.testRequestManager.DiscoverTests(payload,
+            this.testRequestManager.DiscoverTests(
+                payload,
                 new Mock<ITestDiscoveryEventsRegistrar>().Object, this.protocolConfig);
 
             var loggerSettingsList = XmlRunSettingsUtilities.GetLoggerRunSettings(actualDiscoveryCriteria.RunSettings).LoggerSettingsList;
@@ -2148,7 +2157,8 @@ namespace vstest.console.UnitTests.TestPlatformHelpers
                         actualDiscoveryCriteria = discoveryCriteria;
                     }).Returns(mockDiscoveryRequest.Object);
 
-            this.testRequestManager.DiscoverTests(payload,
+            this.testRequestManager.DiscoverTests(
+                payload,
                 new Mock<ITestDiscoveryEventsRegistrar>().Object, this.protocolConfig);
 
             var loggerSettingsList = XmlRunSettingsUtilities.GetLoggerRunSettings(actualDiscoveryCriteria.RunSettings).LoggerSettingsList;

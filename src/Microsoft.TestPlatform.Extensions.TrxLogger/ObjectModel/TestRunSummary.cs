@@ -92,7 +92,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
 
         private List<CollectorDataEntry> collectorDataEntries;
 
-        private IList<String> resultFiles;
+        private IList<string> resultFiles;
 
         #endregion
 
@@ -136,7 +136,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
             TestOutcome outcome,
             List<RunInfo> runMessages,
             string stdOut,
-            IList<String> resultFiles,
+            IList<string> resultFiles,
             List<CollectorDataEntry> dataCollectors)
         {
             this.totalTests = total;

@@ -149,8 +149,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
         public ListTestsArgumentExecutor(
             CommandLineOptions options,
             IRunSettingsProvider runSettingsProvider,
-            ITestRequestManager testRequestManager) :
-                this(options, runSettingsProvider, testRequestManager, ConsoleOutput.Instance)
+            ITestRequestManager testRequestManager)
+            : this(options, runSettingsProvider, testRequestManager, ConsoleOutput.Instance)
         {
         }
 
@@ -248,12 +248,14 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                 discoveryRequest.OnDiscoveredTests -= this.discoveryRequest_OnDiscoveredTests;
             }
 
-            private void discoveryRequest_OnDiscoveredTests(Object sender, DiscoveredTestsEventArgs args)
+            private void discoveryRequest_OnDiscoveredTests(object sender, DiscoveredTestsEventArgs args)
             {
                 // List out each of the tests.
                 foreach (var test in args.DiscoveredTestCases)
                 {
-                    this.output.WriteLine(String.Format(CultureInfo.CurrentUICulture,
+                    this.output.WriteLine(
+                        string.Format(
+                        CultureInfo.CurrentUICulture,
                                                     CommandLineResources.AvailableTestsFormat,
                                                     test.DisplayName),
                                        OutputLevel.Information);

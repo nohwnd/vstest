@@ -153,6 +153,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                     OutputSection(helpDescription);
                 }
             }
+
             OutputSection(CommandLineResources.Examples);
 
             // When Help has finished abort any subsequent argument processor operations
@@ -179,7 +180,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                     result = string.Format(
                         CultureInfo.CurrentUICulture,
                         argumentProcessor.Metadata.Value.HelpContentResourceName);
-                    //ResourceHelper.GetString(argumentProcessor.Metadata.HelpContentResourceName, assembly, CultureInfo.CurrentUICulture);
+
+                    // ResourceHelper.GetString(argumentProcessor.Metadata.HelpContentResourceName, assembly, CultureInfo.CurrentUICulture);
                 }
                 catch (Exception e)
                 {

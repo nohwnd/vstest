@@ -209,7 +209,7 @@ namespace Microsoft.TestPlatform.TestUtilities.PerfInstrumentation
             task.EventStopped = data.TimeStampRelativeMSec;
             var payLoadProperties = GetPayloadProperties(data);
 
-            //Merging dictionaries look for better way
+            // Merging dictionaries look for better way
             foreach (var k in payLoadProperties.Keys)
             {
                 if (!task.PayLoadProperties.ContainsKey(k))

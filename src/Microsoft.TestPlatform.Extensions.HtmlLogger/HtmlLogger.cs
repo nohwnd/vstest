@@ -179,7 +179,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.HtmlLogger
                     TestRunDetails.RunLevelMessageErrorAndWarning.Add(e.Message);
                     break;
                 default:
-                    EqtTrace.Info("htmlLogger.TestMessageHandler: The test message level is unrecognized: {0}",
+                    EqtTrace.Info(
+                        "htmlLogger.TestMessageHandler: The test message level is unrecognized: {0}",
                         e.Level.ToString());
                     break;
             }
@@ -330,7 +331,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.HtmlLogger
             }
             catch (Exception ex)
             {
-                EqtTrace.Error("HtmlLogger : Failed to populate html file. Exception : {0}",
+                EqtTrace.Error(
+                    "HtmlLogger : Failed to populate html file. Exception : {0}",
                     ex.ToString());
                 ConsoleOutput.Instance.Error(false, string.Concat(HtmlResource.HtmlLoggerError), ex.Message);
                 return;

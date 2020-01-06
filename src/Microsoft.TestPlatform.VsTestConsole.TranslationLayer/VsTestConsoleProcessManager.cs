@@ -74,11 +74,13 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                 EqtTrace.Error("Invalid File Path: {0}", vstestConsolePath);
                 throw new Exception(string.Format(CultureInfo.CurrentCulture, Resources.InvalidFilePath, vstestConsolePath));
             }
+
             this.vstestConsolePath = vstestConsolePath;
             isNetCoreRunner = vstestConsolePath.EndsWith(".dll");
         }
 
-        public VsTestConsoleProcessManager(string vstestConsolePath, string dotnetExePath) : this(vstestConsolePath)
+        public VsTestConsoleProcessManager(string vstestConsolePath, string dotnetExePath)
+            : this(vstestConsolePath)
         {
             this.dotnetExePath = dotnetExePath;
         }

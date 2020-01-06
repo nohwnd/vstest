@@ -33,8 +33,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
                 throw new ArgumentOutOfRangeException("level");
             }
 
-            Level = level;
-            Message = message;
+            this.Level = level;
+            this.Message = message;
         }
 
         #endregion
@@ -46,7 +46,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
         /// </summary>
         [DataMember]
         public string Message { get; set; }
-        
+
         /// <summary>
         /// Level of the message.
         /// </summary>

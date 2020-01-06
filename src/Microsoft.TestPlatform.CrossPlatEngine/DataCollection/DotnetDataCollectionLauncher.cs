@@ -46,7 +46,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection
         /// <param name="messageLogger">
         /// The message Logger.
         /// </param>
-        internal DotnetDataCollectionLauncher(IProcessHelper processHelper, IFileHelper fileHelper, IMessageLogger messageLogger) : base(processHelper, messageLogger)
+        internal DotnetDataCollectionLauncher(IProcessHelper processHelper, IFileHelper fileHelper, IMessageLogger messageLogger)
+            : base(processHelper, messageLogger)
         {
             this.processHelper = processHelper;
             this.fileHelper = fileHelper;

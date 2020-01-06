@@ -26,7 +26,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
         /// <summary>
         /// Create instance of <see cref="ConsoleParameters"/>
         /// </summary>
-        public ConsoleParameters() : this(new FileHelper())
+        public ConsoleParameters()
+            : this(new FileHelper())
         { }
 
         /// <summary>

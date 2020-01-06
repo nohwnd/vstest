@@ -43,7 +43,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DiscoveryCriteria"/> class. 
+        /// Initializes a new instance of the <see cref="DiscoveryCriteria"/> class.
         /// </summary>
         /// <param name="sources">
         /// Sources from which the tests should be discovered
@@ -109,14 +109,14 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         public Dictionary<string, IEnumerable<string>> AdapterSourceMap { get; private set; }
 
         /// <summary>
-        /// Gets the frequency of discovered test event. 
+        /// Gets the frequency of discovered test event.
         /// </summary>
         /// <remarks>
-        /// Discovered test event will be raised after discovering these number of tests. 
-        /// Note that this event is raised asynchronously and the underlying discovery process is not 
-        /// paused during the listener invocation. So if the event handler, you try to query the 
+        /// Discovered test event will be raised after discovering these number of tests.
+        /// Note that this event is raised asynchronously and the underlying discovery process is not
+        /// paused during the listener invocation. So if the event handler, you try to query the
         /// next set of tests, you may get more than 'FrequencyOfDiscoveredTestsEvent'.
-        /// </remarks>        
+        /// </remarks>
         [DataMember]
         public long FrequencyOfDiscoveredTestsEvent { get; private set; }
 
@@ -127,7 +127,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         public TimeSpan DiscoveredTestEventTimeout { get; private set; }
 
         /// <summary>
-        /// Gets the test settings used for the discovery request. 
+        /// Gets the test settings used for the discovery request.
         /// </summary>
         [DataMember]
         public string RunSettings { get; private set; }
@@ -136,6 +136,6 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         /// Gets or sets the criteria for filtering test cases.
         /// </summary>
         [DataMember]
-        public string TestCaseFilter {get; set;}
+        public string TestCaseFilter { get; set; }
     }
 }

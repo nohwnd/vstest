@@ -128,7 +128,8 @@ namespace Microsoft.TestPlatform.TestUtilities
         /// <param name="testAdapterPath">Path to test adapters.</param>
         /// <param name="framework">Dotnet Framework of test assembly.</param>
         /// <param name="runSettings">Run settings for execution.</param>
-        public void InvokeVsTestForExecution(string testAssembly,
+        public void InvokeVsTestForExecution(
+            string testAssembly,
             string testAdapterPath,
             string framework,
             string runSettings = "")
@@ -546,7 +547,8 @@ namespace Microsoft.TestPlatform.TestUtilities
                 process.StartInfo.FileName = path;
                 process.StartInfo.Arguments = args;
                 process.StartInfo.UseShellExecute = false;
-                //vstestconsole.StartInfo.WorkingDirectory = testEnvironment.PublishDirectory;
+
+                // vstestconsole.StartInfo.WorkingDirectory = testEnvironment.PublishDirectory;
                 process.StartInfo.RedirectStandardError = true;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.CreateNoWindow = true;

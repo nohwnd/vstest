@@ -65,7 +65,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
 
             this.mockTestDiscoveryEventsHandler.Verify(mt => mt.HandleDiscoveredTests(null), Times.Never);
 
-            this.mockParallelProxyDiscoveryManager.Verify(mp => mp.HandlePartialDiscoveryComplete(
+            this.mockParallelProxyDiscoveryManager.Verify(
+                mp => mp.HandlePartialDiscoveryComplete(
                 this.mockProxyDiscoveryManager.Object, totalTests, null, aborted), Times.Once);
         }
 
@@ -92,7 +93,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
 
             this.mockTestDiscoveryEventsHandler.Verify(mt => mt.HandleDiscoveredTests(lastChunk), Times.Once);
 
-            this.mockParallelProxyDiscoveryManager.Verify(mp => mp.HandlePartialDiscoveryComplete(
+            this.mockParallelProxyDiscoveryManager.Verify(
+                mp => mp.HandlePartialDiscoveryComplete(
                 this.mockProxyDiscoveryManager.Object, totalTests, null, aborted), Times.Once);
         }
 
@@ -140,7 +142,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
             // Verify
             this.mockTestDiscoveryEventsHandler.Verify(mt => mt.HandleDiscoveredTests(null), Times.Never);
 
-            this.mockParallelProxyDiscoveryManager.Verify(mp => mp.HandlePartialDiscoveryComplete(
+            this.mockParallelProxyDiscoveryManager.Verify(
+                mp => mp.HandlePartialDiscoveryComplete(
                 this.mockProxyDiscoveryManager.Object, totalTests, null, aborted), Times.Once);
 
             this.mockTestDiscoveryEventsHandler.Verify(mt => mt.HandleRawMessage(It.IsAny<string>()), Times.Once);
@@ -199,7 +202,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
             string log = "Hello";
             this.parallelDiscoveryEventsHandler.HandleLogMessage(TestMessageLevel.Error, log);
 
-            this.mockTestDiscoveryEventsHandler.Verify(mt =>
+            this.mockTestDiscoveryEventsHandler.Verify(
+                mt =>
                 mt.HandleLogMessage(TestMessageLevel.Error, log), Times.Once);
         }
     }

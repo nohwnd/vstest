@@ -110,7 +110,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
         /// <summary>
         /// Validate if underlying filter expression is valid for given set of supported properties.
         /// </summary>
-        public string[] ValidForProperties(IEnumerable<String> supportedProperties, Func<string, TestProperty> propertyProvider)
+        public string[] ValidForProperties(IEnumerable<string> supportedProperties, Func<string, TestProperty> propertyProvider)
         {
             return UseFastFilter ? this.fastFilter.ValidForProperties(supportedProperties) : this.filterExpression?.ValidForProperties(supportedProperties, propertyProvider);
         }
@@ -118,7 +118,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
         /// <summary>
         /// Evaluate filterExpression with given propertyValueProvider.
         /// </summary>
-        public bool Evaluate(Func<string, Object> propertyValueProvider)
+        public bool Evaluate(Func<string, object> propertyValueProvider)
         {
             ValidateArg.NotNull(propertyValueProvider, nameof(propertyValueProvider));
             

@@ -28,7 +28,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                 throw new ArgumentException(CommonResources.CannotBeNullOrEmpty, "friendlyName");
             }
 
-            FriendlyName = friendlyName;
+            this.FriendlyName = friendlyName;
         }
 
         #endregion

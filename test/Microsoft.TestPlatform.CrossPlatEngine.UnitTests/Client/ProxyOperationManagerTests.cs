@@ -505,9 +505,11 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
 
         private class TestableProxyOperationManager : ProxyOperationManager
         {
-            public TestableProxyOperationManager(IRequestData requestData,
+            public TestableProxyOperationManager(
+                IRequestData requestData,
                 ITestRequestSender requestSender,
-                ITestRuntimeProvider testHostManager) : base(requestData, requestSender, testHostManager)
+                ITestRuntimeProvider testHostManager)
+                : base(requestData, requestSender, testHostManager)
             {
             }
 
@@ -515,7 +517,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
                 IRequestData requestData,
                 ITestRequestSender requestSender,
                 ITestRuntimeProvider testHostManager,
-                CancellationTokenSource cancellationTokenSource) : base(requestData, requestSender, testHostManager)
+                CancellationTokenSource cancellationTokenSource)
+                : base(requestData, requestSender, testHostManager)
             {
                 this.CancellationTokenSource = cancellationTokenSource;
             }
@@ -529,7 +532,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
                 bool checkRequired,
                 IProcessHelper processHelper,
                 IFileHelper fileHelper,
-                IEnvironment environment) : base(processHelper, fileHelper, new DotnetHostHelper(fileHelper, environment), environment)
+                IEnvironment environment)
+                : base(processHelper, fileHelper, new DotnetHostHelper(fileHelper, environment), environment)
             {
                 this.isVersionCheckRequired = checkRequired;
             }

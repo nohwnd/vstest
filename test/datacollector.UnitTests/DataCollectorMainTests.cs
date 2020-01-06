@@ -68,6 +68,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector.UnitTests
 #else
             EqtTrace.TraceLevel = PlatformTraceLevel.Verbose;
 #endif
+
             // Action
             this.dataCollectorMain.Run(argsWithEmptyDiagArg); // Passing tracelevel as info and diag file path is empty.
 
@@ -84,6 +85,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector.UnitTests
 #else
             EqtTrace.TraceLevel = PlatformTraceLevel.Info;
 #endif
+
             // Action
             this.dataCollectorMain.Run(argsWithInvalidTraceLevel);
 
@@ -100,6 +102,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector.UnitTests
 #else
             EqtTrace.TraceLevel = PlatformTraceLevel.Verbose;
 #endif
+
             // Action
             this.dataCollectorMain.Run(args); // Trace level is set as info in args.
 

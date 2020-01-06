@@ -156,7 +156,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         }
 
         /// <summary>
-        /// Gets the valueType. 
+        /// Gets the valueType.
         /// </summary>
         /// <remarks>Only works for the valueType that is in the currently executing assembly or in Mscorlib.dll. The default valueType is of string valueType.</remarks>
         /// <returns>The valueType of the test property</returns>
@@ -205,15 +205,15 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                 else if (type == null && typeName.StartsWith("System.Int16"))
                 {
                     // For LineNumber property - Int is required
-                    type = typeof(System.Int16);
+                    type = typeof(short);
                 }
                 else if (type == null && typeName.StartsWith("System.Int32"))
                 {
-                    type = typeof(System.Int32);
+                    type = typeof(int);
                 }
                 else if (type == null && typeName.StartsWith("System.Int64"))
                 {
-                    type = typeof(System.Int64);
+                    type = typeof(long);
                 }
             }
             catch (Exception)
@@ -380,6 +380,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                     return s_properties.Remove(id);
                 }
             }
+
             return false;
         }
 

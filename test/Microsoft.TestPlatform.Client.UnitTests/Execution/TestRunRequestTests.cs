@@ -106,7 +106,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.UnitTests.Execution
         [TestMethod]
         public void AbortIfTestRunStateIsNotInProgressShouldNotCallExecutionManagerAbort()
         {
-            //ExecuteAsync has not been called, so State is not InProgress
+            // ExecuteAsync has not been called, so State is not InProgress
             testRunRequest.Abort();
             executionManager.Verify(dm => dm.Abort(It.IsAny<ITestRunEventsHandler>()), Times.Never);
         }

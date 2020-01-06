@@ -28,7 +28,6 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("8a200cda-4813-43a1-aa18-9faedc31d2af")]
 
-
 // Type forwarding utility classes defined earlier in object model to a core utilities assembly.
 [assembly: TypeForwardedTo(typeof(EqtTrace))]
 [assembly: TypeForwardedTo(typeof(ValidateArg))]

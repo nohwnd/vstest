@@ -53,6 +53,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
             {
                 arguments = string.Concat(arguments, " ", "/Framework:FrameworkCore10");
             }
+
             this.InvokeVsTest(arguments);
 
             if (runnerInfo.TargetFramework.Contains("netcore"))

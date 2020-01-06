@@ -29,7 +29,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                 throw new ArgumentException(CommonResources.CannotBeNullOrEmpty, "extensionUri");
             }
 
-            ExtensionUri = extensionUri;
+            this.ExtensionUri = extensionUri;
         }
 
         #endregion

@@ -16,12 +16,12 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
         /// <param name="processId">The process Id of the test execution process running the tests.</param>
         public TestRunStartedEventArgs(int processId)
         {
-            ProcessId = processId;
+            this.ProcessId = processId;
         }
 
         public override string ToString()
         {
-            return "ProcessId = " + ProcessId;
+            return "ProcessId = " + this.ProcessId;
         }
     }
 }

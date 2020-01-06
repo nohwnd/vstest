@@ -28,7 +28,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         /// Maximum number of cores that the engine can use to run tests in parallel
         /// </summary>
         private int maxCpuCount;
-        
+
         /// <summary>
         /// .Net framework which rocksteady should use for discovery/execution
         /// </summary>
@@ -45,7 +45,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         private long testSessionTimeout;
 
         /// <summary>
-        /// Directory in which rocksteady/adapter should keep their run specific data. 
+        /// Directory in which rocksteady/adapter should keep their run specific data.
         /// </summary>
         private string resultsDirectory;
 
@@ -65,7 +65,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         private bool disableParallelization;
 
         /// <summary>
-        /// True if test run is triggered 
+        /// True if test run is triggered
         /// </summary>
         private bool designMode;
 
@@ -89,9 +89,10 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RunConfiguration"/> class. 
+        /// Initializes a new instance of the <see cref="RunConfiguration"/> class.
         /// </summary>
-        public RunConfiguration() : base(Constants.RunConfigurationSettingsName)
+        public RunConfiguration()
+            : base(Constants.RunConfigurationSettingsName)
         {
             // Set defaults for target platform, framework version type and results directory.
             this.platform = Constants.DefaultPlatform;
@@ -190,7 +191,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
             }
         }
 
-        /// <summary> 
+        /// <summary>
         /// Gets or sets the design mode value.
         /// </summary>
         public bool DesignMode
@@ -207,7 +208,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
             }
         }
 
-        /// <summary> 
+        /// <summary>
         /// Gets or sets a value indicating whether to run tests in isolation or not.
         /// </summary>
         public bool InIsolation
@@ -316,7 +317,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         {
             get
             {
-                switch(this.framework?.Name)
+                switch (this.framework?.Name)
                 {
                     case Constants.DotNetFramework35:
                         return FrameworkVersion.Framework35;
@@ -564,7 +565,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                 root.AppendChild(binariesRoot);
             }
 
-            if(!string.IsNullOrEmpty(this.TargetDevice))
+            if (!string.IsNullOrEmpty(this.TargetDevice))
             {
                 XmlElement targetDevice = doc.CreateElement("TargetDevice");
                 targetDevice.InnerXml = this.TargetDevice;
@@ -600,7 +601,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             XmlRunSettingsUtilities.ThrowOnHasAttributes(reader);
 
                             string resultsDir = reader.ReadElementContentAsString();
-                            if(string.IsNullOrEmpty(resultsDir))
+                            if (string.IsNullOrEmpty(resultsDir))
                             {
                                 throw new SettingsException(
                                    string.Format(
@@ -621,7 +622,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             bool bCollectSourceInformation = true;
                             if (!bool.TryParse(collectSourceInformationStr, out bCollectSourceInformation))
                             {
-                                throw new SettingsException(String.Format(CultureInfo.CurrentCulture,
+                                throw new SettingsException(string.Format(
+                                    CultureInfo.CurrentCulture,
                                     Resources.Resources.InvalidSettingsIncorrectValue, Constants.RunConfigurationSettingsName, bCollectSourceInformation, elementName));
                             }
 
@@ -692,9 +694,11 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             bool designMode;
                             if (!bool.TryParse(designModeValueString, out designMode))
                             {
-                                throw new SettingsException(String.Format(CultureInfo.CurrentCulture,
+                                throw new SettingsException(string.Format(
+                                    CultureInfo.CurrentCulture,
                                     Resources.Resources.InvalidSettingsIncorrectValue, Constants.RunConfigurationSettingsName, designModeValueString, elementName));
                             }
+
                             runConfiguration.DesignMode = designMode;
                             break;
 
@@ -705,9 +709,11 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             bool inIsolation;
                             if (!bool.TryParse(inIsolationValueString, out inIsolation))
                             {
-                                throw new SettingsException(String.Format(CultureInfo.CurrentCulture,
+                                throw new SettingsException(string.Format(
+                                    CultureInfo.CurrentCulture,
                                     Resources.Resources.InvalidSettingsIncorrectValue, Constants.RunConfigurationSettingsName, inIsolationValueString, elementName));
                             }
+
                             runConfiguration.InIsolation = inIsolation;
                             break;
 
@@ -718,9 +724,11 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             bool disableAppDomainCheck;
                             if (!bool.TryParse(disableAppDomainValueString, out disableAppDomainCheck))
                             {
-                                throw new SettingsException(String.Format(CultureInfo.CurrentCulture,
+                                throw new SettingsException(string.Format(
+                                    CultureInfo.CurrentCulture,
                                     Resources.Resources.InvalidSettingsIncorrectValue, Constants.RunConfigurationSettingsName, disableAppDomainValueString, elementName));
                             }
+
                             runConfiguration.DisableAppDomain = disableAppDomainCheck;
                             break;
 
@@ -731,9 +739,11 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             bool disableParallelizationCheck;
                             if (!bool.TryParse(disableParallelizationValueString, out disableParallelizationCheck))
                             {
-                                throw new SettingsException(String.Format(CultureInfo.CurrentCulture,
+                                throw new SettingsException(string.Format(
+                                    CultureInfo.CurrentCulture,
                                     Resources.Resources.InvalidSettingsIncorrectValue, Constants.RunConfigurationSettingsName, disableParallelizationValueString, elementName));
                             }
+
                             runConfiguration.DisableParallelization = disableParallelizationCheck;
                             break;
 
@@ -757,7 +767,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             }
                             catch (ArgumentException)
                             {
-                                throw new SettingsException(string.Format(CultureInfo.CurrentCulture,
+                                throw new SettingsException(string.Format(
+                                    CultureInfo.CurrentCulture,
                                     Resources.Resources.InvalidSettingsIncorrectValue, Constants.RunConfigurationSettingsName, value, elementName));
                             }
 
@@ -785,7 +796,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             }
                             catch (ArgumentException)
                             {
-                                throw new SettingsException(string.Format(CultureInfo.CurrentCulture,
+                                throw new SettingsException(string.Format(
+                                    CultureInfo.CurrentCulture,
                                     Resources.Resources.InvalidSettingsIncorrectValue, Constants.RunConfigurationSettingsName, value, elementName));
                             }
 
@@ -809,12 +821,14 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             }
                             catch (ArgumentException)
                             {
-                                throw new SettingsException(string.Format(CultureInfo.CurrentCulture,
+                                throw new SettingsException(string.Format(
+                                    CultureInfo.CurrentCulture,
                                     Resources.Resources.InvalidSettingsIncorrectValue, Constants.RunConfigurationSettingsName, value, elementName));
                             }
                             catch (FormatException)
                             {
-                                throw new SettingsException(string.Format(CultureInfo.CurrentCulture,
+                                throw new SettingsException(string.Format(
+                                    CultureInfo.CurrentCulture,
                                     Resources.Resources.InvalidSettingsIncorrectValue, Constants.RunConfigurationSettingsName, value, elementName));
                             }
 
@@ -879,6 +893,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                                         Constants.RunConfigurationSettingsName,
                                         reader.Name));
                             }
+
                             reader.Skip();
                             break;
                     }

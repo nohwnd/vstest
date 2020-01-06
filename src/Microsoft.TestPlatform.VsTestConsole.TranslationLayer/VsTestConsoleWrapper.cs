@@ -58,8 +58,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
         /// <param name="vstestConsolePath">
         /// Path to the test runner <c>vstest.console.exe</c>.
         /// </param>
-        public VsTestConsoleWrapper(string vstestConsolePath) :
-            this(vstestConsolePath, ConsoleParameters.Default)
+        public VsTestConsoleWrapper(string vstestConsolePath)
+            : this(vstestConsolePath, ConsoleParameters.Default)
         {
         }
 
@@ -68,8 +68,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
         /// </summary>
         /// <param name="vstestConsolePath">Path to the test runner <c>vstest.console.exe</c>.</param>
         /// <param name="consoleParameters">The parameters to be passed onto the runner process</param>
-        public VsTestConsoleWrapper(string vstestConsolePath, ConsoleParameters consoleParameters) :
-            this(new VsTestConsoleRequestSender(), new VsTestConsoleProcessManager(vstestConsolePath), consoleParameters, TestPlatformEventSource.Instance, new ProcessHelper())
+        public VsTestConsoleWrapper(string vstestConsolePath, ConsoleParameters consoleParameters)
+            : this(new VsTestConsoleRequestSender(), new VsTestConsoleProcessManager(vstestConsolePath), consoleParameters, TestPlatformEventSource.Instance, new ProcessHelper())
         {
         }
 
@@ -80,8 +80,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
         /// <param name="vstestConsolePath">Path to the test runner <c>vstest.console.exe</c>.</param>
         /// <param name="dotnetExePath">Path to dotnet exe, needed for CI builds</param>
         /// <param name="consoleParameters">The parameters to be passed onto the runner process</param>
-        internal VsTestConsoleWrapper(string vstestConsolePath, string dotnetExePath, ConsoleParameters consoleParameters) :
-            this(new VsTestConsoleRequestSender(), new VsTestConsoleProcessManager(vstestConsolePath, dotnetExePath), consoleParameters, TestPlatformEventSource.Instance, new ProcessHelper())
+        internal VsTestConsoleWrapper(string vstestConsolePath, string dotnetExePath, ConsoleParameters consoleParameters)
+            : this(new VsTestConsoleRequestSender(), new VsTestConsoleProcessManager(vstestConsolePath, dotnetExePath), consoleParameters, TestPlatformEventSource.Instance, new ProcessHelper())
         {
 
         }

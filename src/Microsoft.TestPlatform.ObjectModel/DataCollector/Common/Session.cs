@@ -18,12 +18,12 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
 
         public SessionId()
         {
-            sessionId = Guid.NewGuid();
+            this.sessionId = Guid.NewGuid();
         }
 
         public SessionId(Guid id)
         {
-            sessionId = id;
+            this.sessionId = id;
         }
 
         [DataMember]
@@ -35,7 +35,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         [DataMember]
         public Guid Id
         {
-            get { return sessionId; }
+            get { return this.sessionId; }
         }
 
         public override bool Equals(object obj)
@@ -47,17 +47,17 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
                 return false;
             }
 
-            return sessionId.Equals(id.sessionId);
+            return this.sessionId.Equals(id.sessionId);
         }
 
         public override int GetHashCode()
         {
-            return sessionId.GetHashCode();
+            return this.sessionId.GetHashCode();
         }
 
         public override string ToString()
         {
-            return sessionId.ToString("B");
+            return this.sessionId.ToString("B");
         }
     }
 }

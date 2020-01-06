@@ -139,7 +139,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
 
             Assert.IsTrue(isExecutorCalled);
             mockTestRunEventsHandler.Verify(
-                treh => treh.HandleTestRunComplete(It.IsAny<TestRunCompleteEventArgs>(),
+                treh => treh.HandleTestRunComplete(
+                    It.IsAny<TestRunCompleteEventArgs>(),
                     It.IsAny<TestRunChangedEventArgs>(),
                     It.IsAny<ICollection<AttachmentSet>>(),
                     It.IsAny<ICollection<string>>()), Times.Once);
@@ -179,7 +180,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
 
             Assert.IsTrue(isExecutorCalled);
             mockTestRunEventsHandler.Verify(
-                treh => treh.HandleTestRunComplete(It.IsAny<TestRunCompleteEventArgs>(),
+                treh => treh.HandleTestRunComplete(
+                    It.IsAny<TestRunCompleteEventArgs>(),
                     It.IsAny<TestRunChangedEventArgs>(),
                     It.IsAny<ICollection<AttachmentSet>>(),
                     It.IsAny<ICollection<string>>()), Times.Once);
@@ -214,9 +216,9 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
             mockTestRunEventsHandler.Verify(treh => treh.HandleLogMessage(TestMessageLevel.Error, It.IsAny<string>()), Times.Once);
         }
 
-        //[TestMethod]
-        //public void InitializeShouldVerifyWarningMessageIfAdapterFailedToLoad()
-        //{
+        // [TestMethod]
+        // public void InitializeShouldVerifyWarningMessageIfAdapterFailedToLoad()
+        // {
         //    var assemblyLocation = typeof(ExecutionManagerTests).GetTypeInfo().Assembly.Location;
         //    var mockLogger = new Mock<ITestMessageEventHandler>();
         //    TestPluginCacheTests.SetupMockExtensions(
@@ -225,19 +227,19 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
         //    //Act
         //    this.executionManager.Initialize(new List<string> { assemblyLocation }, mockLogger.Object);           
 
-        //    //when handler instance returns warning       
+        // //when handler instance returns warning       
         //    sessionLogger.SendMessage(TestMessageLevel.Warning, "verify that it is downgraded to warning");
 
-        //    // Verify.
+        // // Verify.
         //    mockLogger.Verify(rd => rd.HandleLogMessage(TestMessageLevel.Warning, "verify that it is downgraded to warning"), Times.Once);
-        //}
+        // }
 
         [TestMethod]
         public void InitializeShouldVerifyTheHandlerInitializationWhenAdapterIsFailedToLoad()
         {
             var mockLogger = new Mock<ITestMessageEventHandler>();
 
-            //when handler instance is null
+            // when handler instance is null
             sessionLogger.SendMessage(It.IsAny<TestMessageLevel>(), "verify that the HandleLogMessage method will not be invoked when handler is not initialized");
 
             // Verify.

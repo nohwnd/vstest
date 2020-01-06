@@ -20,7 +20,8 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
             Guid id,
             string name,
             string adapter,
-            TestMethod testMethod) : base(id, name, adapter)
+            TestMethod testMethod)
+            : base(id, name, adapter)
         {
             Debug.Assert(!string.IsNullOrEmpty(adapter), "adapter is null");
             Debug.Assert(testMethod != null, "testMethod is null");

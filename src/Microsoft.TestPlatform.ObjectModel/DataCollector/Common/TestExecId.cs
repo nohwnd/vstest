@@ -19,12 +19,12 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
 
         public TestExecId()
         {
-            execId = Guid.NewGuid();
+            this.execId = Guid.NewGuid();
         }
 
         public TestExecId(Guid id)
         {
-            execId = id;
+            this.execId = id;
         }
 
         [DataMember]
@@ -36,7 +36,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         [DataMember]
         public Guid Id
         {
-            get { return execId; }
+            get { return this.execId; }
         }
 
         public override bool Equals(object obj)
@@ -48,17 +48,17 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
                 return false;
             }
 
-            return execId.Equals(id.execId);
+            return this.execId.Equals(id.execId);
         }
 
         public override int GetHashCode()
         {
-            return execId.GetHashCode();
+            return this.execId.GetHashCode();
         }
 
         public override string ToString()
         {
-            return execId.ToString("B");
+            return this.execId.ToString("B");
         }
     }
 }

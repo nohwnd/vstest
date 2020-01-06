@@ -34,7 +34,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilitie
         /// <summary>
         /// Metadata for the test plugin
         /// </summary>
-        public virtual ICollection<Object> Metadata
+        public virtual ICollection<object> Metadata
         {
             get
             {

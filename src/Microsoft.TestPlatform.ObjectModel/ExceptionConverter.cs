@@ -15,7 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     public class TestPlatformException : Exception
     {
-        public TestPlatformException(String message)
+        public TestPlatformException(string message)
             : base(message)
         {
         }
@@ -102,7 +102,9 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     public class ProcessExitedException : TestPlatformException
     {
-        public ProcessExitedException(string message) : base(message) { }
-        public ProcessExitedException(string message, Exception inner) : base(message, inner) { }
+        public ProcessExitedException(string message)
+            : base(message) { }
+        public ProcessExitedException(string message, Exception inner)
+            : base(message, inner) { }
     }
 }

@@ -47,20 +47,21 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
         /// <summary>
         /// Validate if underlying filter expression is valid for given set of supported properties.
         /// </summary>
-        public string[] ValidForProperties(IEnumerable<String> supportedProperties, Func<string, TestProperty> propertyProvider)
+        public string[] ValidForProperties(IEnumerable<string> supportedProperties, Func<string, TestProperty> propertyProvider)
         {
             string[] invalidProperties = null;
             if (null != this.filterWrapper && this.validForMatch)
             {
                 invalidProperties = this.filterWrapper.ValidForProperties(supportedProperties, propertyProvider);
             }
+
             return invalidProperties;
         }
 
         /// <summary>
         /// Match test case with filter criteria.
         /// </summary>
-        public bool MatchTestCase(TestCase testCase, Func<string, Object> propertyValueProvider)
+        public bool MatchTestCase(TestCase testCase, Func<string, object> propertyValueProvider)
         {
             ValidateArg.NotNull(testCase, nameof(testCase));
             ValidateArg.NotNull(propertyValueProvider, nameof(propertyValueProvider));
@@ -74,6 +75,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                 // can be null when parsing error occurs. Invalid filter results in no match.
                 return false;
             }
+
             return this.filterWrapper.Evaluate(propertyValueProvider);
         }
 

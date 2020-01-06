@@ -45,7 +45,8 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
             Action action = () => InferRunSettingsHelper.UpdateRunSettingsWithUserProvidedSwitches(xmlDocument, Architecture.X86, Framework.DefaultFramework, "temp");
 
             Assert.That.Throws<XmlException>(action)
-                        .WithMessage(string.Format("An error occurred while loading the settings.  Error: {0}.",
+                        .WithMessage(string.Format(
+                            "An error occurred while loading the settings.  Error: {0}.",
                                             "Could not find 'RunSettings' node."));
         }
 
@@ -58,8 +59,10 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
             Action action = () => InferRunSettingsHelper.UpdateRunSettingsWithUserProvidedSwitches(xmlDocument, Architecture.X86, Framework.DefaultFramework, "temp");
 
             Assert.That.Throws<XmlException>(action)
-                        .WithMessage(string.Format("An error occurred while loading the settings.  Error: {0}.",
-                                        string.Format("Invalid setting '{0}'. Invalid value '{1}' specified for '{2}'",
+                        .WithMessage(string.Format(
+                            "An error occurred while loading the settings.  Error: {0}.",
+                                        string.Format(
+                                            "Invalid setting '{0}'. Invalid value '{1}' specified for '{2}'",
                                             "RunConfiguration",
                                             "foo",
                                             "TargetPlatform")));
@@ -74,8 +77,10 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
             Action action = () => InferRunSettingsHelper.UpdateRunSettingsWithUserProvidedSwitches(xmlDocument, Architecture.X86, Framework.DefaultFramework, "temp");
 
             Assert.That.Throws<XmlException>(action)
-                        .WithMessage(string.Format("An error occurred while loading the settings.  Error: {0}.",
-                                        string.Format("Invalid setting '{0}'. Invalid value '{1}' specified for '{2}'",
+                        .WithMessage(string.Format(
+                            "An error occurred while loading the settings.  Error: {0}.",
+                                        string.Format(
+                                            "Invalid setting '{0}'. Invalid value '{1}' specified for '{2}'",
                                         "RunConfiguration",
                                         "foo",
                                         "TargetFrameworkVersion")));
@@ -145,7 +150,8 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
 
             StringAssert.Contains(xml, "<TargetFrameworkVersion>.NETFramework,Version=v4.0</TargetFrameworkVersion>");
         }
-        //TargetFrameworkMoniker
+
+        // TargetFrameworkMoniker
 
         [TestMethod]
         public void UpdateRunSettingsShouldAllowTargetFrameworkMonikerValue()
@@ -669,9 +675,11 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
                     </RunSettings>";
 
             // Act and validate
-            Assert.IsFalse(InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
+            Assert.IsFalse(
+                InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
                 runSettingsWithCodeCoverageAndInlineTestSettingsXml), "Invalid response");
-            Assert.IsTrue(InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
+            Assert.IsTrue(
+                InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
                 ConvertOutOfProcToInProcDataCollectionSettings(runSettingsWithCodeCoverageAndInlineTestSettingsXml)), "Invalid response");
         }
 
@@ -702,9 +710,11 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
                 </RunSettings>";
 
             // Act and validate
-            Assert.IsFalse(InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
+            Assert.IsFalse(
+                InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
                 runSettingsWithFakesAndCodeCoverageAndInlineTestSettingsXml), "Invalid response");
-            Assert.IsTrue(InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
+            Assert.IsTrue(
+                InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
                 ConvertOutOfProcToInProcDataCollectionSettings(runSettingsWithFakesAndCodeCoverageAndInlineTestSettingsXml)), "Invalid response");
         }
 
@@ -732,9 +742,11 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
                 </RunSettings>";
 
             // Act and validate
-            Assert.IsFalse(InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
+            Assert.IsFalse(
+                InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
                 runSettingsWithEnabledAndDisabledCollectorAndInlineTestSettingsXml), "Invalid response");
-            Assert.IsFalse(InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
+            Assert.IsFalse(
+                InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
                 ConvertOutOfProcToInProcDataCollectionSettings(runSettingsWithEnabledAndDisabledCollectorAndInlineTestSettingsXml)), "Invalid response");
         }
 
@@ -767,9 +779,11 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
                 </RunSettings>";
 
             // Act and validate
-            Assert.IsTrue(InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
+            Assert.IsTrue(
+                InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
                 runSettingsWithEnabledAndDisabledCollectorAndInlineTestSettingsXml), "Invalid response");
-            Assert.IsTrue(InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
+            Assert.IsTrue(
+                InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
                 ConvertOutOfProcToInProcDataCollectionSettings(runSettingsWithEnabledAndDisabledCollectorAndInlineTestSettingsXml)), "Invalid response");
         }
 
@@ -802,9 +816,11 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
                 </RunSettings>";
 
             // Act and validate
-            Assert.IsFalse(InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
+            Assert.IsFalse(
+                InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
                 runSettingsWithDisabledCollectionSettingsAndInlineTestSettingsXml), "Invalid response");
-            Assert.IsFalse(InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
+            Assert.IsFalse(
+                InferRunSettingsHelper.AreRunSettingsCollectorsInCompatibleWithTestSettings(
                 ConvertOutOfProcToInProcDataCollectionSettings(runSettingsWithDisabledCollectionSettingsAndInlineTestSettingsXml)), "Invalid response");
         }
 

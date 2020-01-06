@@ -237,6 +237,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors.U
                 get;
                 set;
             }
+
             public void SetActiveRunSettings(RunSettings runSettings)
             {
                 this.ActiveRunSettings = runSettings;

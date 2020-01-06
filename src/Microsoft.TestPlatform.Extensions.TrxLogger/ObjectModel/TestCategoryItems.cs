@@ -32,7 +32,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
             // Treat null as empty.
             if (category == null)
             {
-                category = String.Empty;
+                category = string.Empty;
             }
 
 
@@ -56,10 +56,10 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
         private string StripIllegalChars(string category)
         {
             string ret = category.Trim();
-            ret = ret.Replace("&", String.Empty);
-            ret = ret.Replace("|", String.Empty);
-            ret = ret.Replace("!", String.Empty);
-            ret = ret.Replace(",", String.Empty);
+            ret = ret.Replace("&", string.Empty);
+            ret = ret.Replace("|", string.Empty);
+            ret = ret.Replace("!", string.Empty);
+            ret = ret.Replace(",", string.Empty);
             return ret;
         }
 
@@ -78,8 +78,9 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
             {
                 return false;
             }
+
             Debug.Assert(this.category != null, "category is null");
-            return String.Equals(this.category, otherItem.category, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(this.category, otherItem.category, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -168,7 +169,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
             EqtAssert.ParameterNotNull(item, "item");
 
             // Don't add empty items.
-            if (!String.IsNullOrEmpty(item.TestCategory))
+            if (!string.IsNullOrEmpty(item.TestCategory))
             {
                 base.Add(item);
             }

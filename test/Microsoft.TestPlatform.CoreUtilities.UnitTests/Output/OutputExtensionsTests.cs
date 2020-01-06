@@ -153,6 +153,7 @@ namespace Microsoft.TestPlatform.CoreUtilities.UnitTests.Output
                 Assert.Inconclusive("Can't set Console foreground color. Might be because process output redirect to file.");
                 return true;
             }
+
             return false;
         }
     }

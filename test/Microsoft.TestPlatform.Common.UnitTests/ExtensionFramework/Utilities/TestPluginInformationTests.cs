@@ -42,7 +42,8 @@ namespace TestPlatform.Common.UnitTests.ExtensionFramework.Utilities
 
     public class TestableTestPluginInformation : TestPluginInformation
     {
-        public TestableTestPluginInformation(Type testExtensionType) : base(testExtensionType)
+        public TestableTestPluginInformation(Type testExtensionType)
+            : base(testExtensionType)
         {
         }
     }

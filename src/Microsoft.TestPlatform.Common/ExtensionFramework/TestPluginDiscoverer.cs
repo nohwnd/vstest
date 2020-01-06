@@ -32,7 +32,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
         /// <summary>
         /// Initializes a new instance of the <see cref="TestPluginDiscoverer"/> class. 
         /// </summary>
-        public TestPluginDiscoverer() : this(new FileHelper())
+        public TestPluginDiscoverer()
+            : this(new FileHelper())
         {
         }
 
@@ -138,6 +139,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
                 {
                     continue;
                 }
+
                 try
                 {
                     Assembly assembly = null;
@@ -194,6 +196,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
                         EqtTrace.Warning("LoaderExceptions: {0}", ex);
                     }
                 }
+
                 return;
             }
 

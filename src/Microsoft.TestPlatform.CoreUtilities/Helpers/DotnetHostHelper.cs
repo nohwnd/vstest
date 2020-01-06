@@ -25,7 +25,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Helpers
         /// <summary>
         /// Initializes a new instance of the <see cref="DotnetHostHelper"/> class.
         /// </summary>
-        public DotnetHostHelper() : this(new FileHelper(), new PlatformEnvironment())
+        public DotnetHostHelper()
+            : this(new FileHelper(), new PlatformEnvironment())
         {
         }
 
@@ -33,6 +34,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Helpers
         /// Initializes a new instance of the <see cref="DotnetHostHelper"/> class.
         /// </summary>
         /// <param name="fileHelper">File Helper</param>
+        /// <param name="environment">Environment</param>
         public DotnetHostHelper(IFileHelper fileHelper, IEnvironment environment)
         {
             this.fileHelper = fileHelper;
@@ -42,7 +44,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Helpers
         /// <inheritdoc />
         public string GetDotnetPath()
         {
-            if (!TryGetExecutablePath("dotnet", out string dotnetPath))
+            if (!this.TryGetExecutablePath("dotnet", out string dotnetPath))
             {
                 string errorMessage = string.Format(Resources.NoDotnetExeFound, "dotnet");
 
@@ -55,7 +57,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Helpers
 
         public string GetMonoPath()
         {
-            if (!TryGetExecutablePath(MONOEXENAME, out string monoPath))
+            if (!this.TryGetExecutablePath(MONOEXENAME, out string monoPath))
             {
                 string errorMessage = string.Format(Resources.NoDotnetExeFound, MONOEXENAME);
 

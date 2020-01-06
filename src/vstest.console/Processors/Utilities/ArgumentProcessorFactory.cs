@@ -129,10 +129,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
         /// <returns>The argument processor or null if one was not found.</returns>
         public IArgumentProcessor CreateArgumentProcessor(string argument)
         {
-            if (String.IsNullOrWhiteSpace(argument))
+            if (string.IsNullOrWhiteSpace(argument))
             {
                 throw new ArgumentException("Cannot be null or empty", "argument");
             }
+
             Contract.EndContractBlock();
 
             // Parse the input into its command and argument parts.
@@ -173,6 +174,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             {
                 throw new ArgumentException("Cannot be null or empty", "argument");
             }
+
             Contract.EndContractBlock();
 
             // Find the associated argument processor.
@@ -291,7 +293,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             string initArg = null)
         {
             var processorExecutor = processor.Executor;
-            var lazyArgumentProcessor = new Lazy<IArgumentExecutor>(() =>
+            var lazyArgumentProcessor = new Lazy<IArgumentExecutor>(
+                () =>
             {
                 IArgumentExecutor instance = null;
                 try
@@ -341,7 +344,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             string[] initArgs)
         {
             var processorExecutor = processor.Executor;
-            var lazyArgumentProcessor = new Lazy<IArgumentExecutor>(() =>
+            var lazyArgumentProcessor = new Lazy<IArgumentExecutor>(
+                () =>
             {
                 IArgumentsExecutor instance = null;
                 try

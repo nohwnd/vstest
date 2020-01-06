@@ -38,7 +38,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Execution
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
         /// </summary>
-        public ExecutionManager(IRequestData requestData) : this(TestPlatformEventSource.Instance, requestData)
+        public ExecutionManager(IRequestData requestData)
+            : this(TestPlatformEventSource.Instance, requestData)
         {
             this.sessionMessageLogger = TestSessionMessageLogger.Instance;
             this.sessionMessageLogger.TestRunMessage += this.TestSessionMessageHandler;
@@ -73,7 +74,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Execution
 
             this.LoadExtensions();
 
-            //unsubscrive session logger
+            // unsubscrive session logger
             this.sessionMessageLogger.TestRunMessage -= this.TestSessionMessageHandler;
 
             this.testPlatformEventSource.AdapterSearchStop();          

@@ -133,6 +133,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Logging
             {
                 return;
             }
+
             this.isDisposed = true;
 
             // Unregister for test run messages.
@@ -378,7 +379,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Logging
         /// </summary>
         private int GetMaxNumberOfJobsInQueue()
         {
-            return GetSetting(TestPlatformDefaults.MaxNumberOfEventsLoggerEventQueueCanHold,
+            return GetSetting(
+                TestPlatformDefaults.MaxNumberOfEventsLoggerEventQueueCanHold,
                               TestPlatformDefaults.DefaultMaxNumberOfEventsLoggerEventQueueCanHold);
         }
 
@@ -388,7 +390,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Logging
         /// </summary>
         private int GetMaxBytesQueueCanHold()
         {
-            return GetSetting(TestPlatformDefaults.MaxBytesLoggerEventQueueCanHold,
+            return GetSetting(
+                TestPlatformDefaults.MaxBytesLoggerEventQueueCanHold,
                 TestPlatformDefaults.DefaultMaxBytesLoggerEventQueueCanHold);
         }
 
@@ -414,6 +417,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Logging
                     enableBounds = TestPlatformDefaults.DefaultEnableBoundsOnLoggerEventQueue;
                 }
             }
+
             return enableBounds;
         }
 
@@ -430,10 +434,11 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Logging
             {
                 foreach (ObjectModel.TestResultMessage msg in args.Result.Messages)
                 {
-                    if (!String.IsNullOrEmpty(msg.Text))
+                    if (!string.IsNullOrEmpty(msg.Text))
                         size += msg.Text.Length;
                 }
             }
+
             return size;
         }
 

@@ -459,12 +459,14 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector.UnitTests
     {
         DataCollector dataCollector;
 
-        public TestableDataCollectionManager(IDataCollectionAttachmentManager datacollectionAttachmentManager, IMessageSink messageSink, DataCollector dataCollector) : this(datacollectionAttachmentManager, messageSink)
+        public TestableDataCollectionManager(IDataCollectionAttachmentManager datacollectionAttachmentManager, IMessageSink messageSink, DataCollector dataCollector)
+            : this(datacollectionAttachmentManager, messageSink)
         {
             this.dataCollector = dataCollector;
         }
 
-        internal TestableDataCollectionManager(IDataCollectionAttachmentManager datacollectionAttachmentManager, IMessageSink messageSink) : base(datacollectionAttachmentManager, messageSink)
+        internal TestableDataCollectionManager(IDataCollectionAttachmentManager datacollectionAttachmentManager, IMessageSink messageSink)
+            : base(datacollectionAttachmentManager, messageSink)
         {
         }
 
@@ -500,6 +502,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector.UnitTests
             {
                 return dataCollector;
             }
+
             return null;
         }
     }

@@ -79,8 +79,10 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
                         {
                             testOutcomeMap.Add(outcome, 0);
                         }
+
                         testOutcomeMap[outcome] += runStats.Stats[outcome];
                     }
+
                     totalTests += runStats.ExecutedTests;
                 }
             }

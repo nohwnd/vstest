@@ -98,6 +98,7 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
 
                 DebugBreak();
             }
+
             // else check for host debugging enabled
             else
             {

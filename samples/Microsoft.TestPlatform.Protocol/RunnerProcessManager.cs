@@ -107,7 +107,7 @@ namespace Microsoft.TestPlatform.Protocol
                 }
             }
 
-            string errorMessage = String.Format("Unable to find dotnet.exe");
+            string errorMessage = string.Format("Unable to find dotnet.exe");
             Console.WriteLine("Error : {0}", errorMessage);
             throw new FileNotFoundException(errorMessage);
         }

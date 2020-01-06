@@ -331,7 +331,7 @@ namespace TestPlatform.Common.UnitTests.ExtensionFramework
         [TestMethod]
         public void GetTestExtensionsShouldShouldThrowIfDiscovererThrows()
         {
-            //todo : make ITestDiscoverer interface and then mock it in order to make this test case pass.
+            // todo : make ITestDiscoverer interface and then mock it in order to make this test case pass.
 
             var extensionAssembly = typeof(TestPluginCacheTests).GetTypeInfo().Assembly.Location;
             Assert.ThrowsException<Exception>(() => this.testablePluginCache.GetTestExtensions<TestDiscovererPluginInformation, ITestDiscoverer>(extensionAssembly));
@@ -450,7 +450,8 @@ namespace TestPlatform.Common.UnitTests.ExtensionFramework
             this.UpdateExtensions(extensionsPath, skipExtensionFilters: false);
         }
 
-        public TestableTestPluginCache() : this(new List<string>())
+        public TestableTestPluginCache()
+            : this(new List<string>())
         {
         }
 

@@ -77,7 +77,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
 
             var expectedMap = new List<Tuple<Uri, string>>
             {
-                new Tuple<Uri, string>(new Uri("e://d"),
+                new Tuple<Uri, string>(
+                    new Uri("e://d"),
                     Microsoft.VisualStudio.TestPlatform.ObjectModel.Constants.UnspecifiedAdapterPath)
             };
 
@@ -105,9 +106,11 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
 
             var expectedMap = new List<Tuple<Uri, string>>
             {
-                new Tuple<Uri, string>(new Uri("e://d"),
+                new Tuple<Uri, string>(
+                    new Uri("e://d"),
                     Microsoft.VisualStudio.TestPlatform.ObjectModel.Constants.UnspecifiedAdapterPath),
-                new Tuple<Uri, string>(new Uri("e://d2"),
+                new Tuple<Uri, string>(
+                    new Uri("e://d2"),
                     Microsoft.VisualStudio.TestPlatform.ObjectModel.Constants.UnspecifiedAdapterPath)
             };
 
@@ -165,7 +168,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
 
             this.runTestsInstance.CallSendSessionStart();
 
-            mockTestCaseEventsHandler.Verify(x => x.SendSessionStart(It.Is<IDictionary<String, object>>(
+            mockTestCaseEventsHandler.Verify(x => x.SendSessionStart(It.Is<IDictionary<string, object>>(
                 y => y.ContainsKey("TestSources")
                 && ((IEnumerable<string>)y["TestSources"]).Contains("s.dll")
             )));
@@ -197,7 +200,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
 
         private class TestableRunTestsWithTests : RunTestsWithTests
         {
-            public TestableRunTestsWithTests(IEnumerable<TestCase> testCases,
+            public TestableRunTestsWithTests(
+                IEnumerable<TestCase> testCases,
                 string runSettings, TestExecutionContext testExecutionContext,
                 ITestCaseEventsHandler testCaseEventsHandler, ITestRunEventsHandler testRunEventsHandler,
                 IRequestData requestData)
@@ -219,7 +223,8 @@ requestData, testCases, null, runSettings, testExecutionContext,
                 return this.GetExecutorUriExtensionMap(testExecutorFrameworkHandle, runContext);
             }
 
-            public void CallInvokeExecutor(LazyExtension<ITestExecutor, ITestExecutorCapabilities> executor,
+            public void CallInvokeExecutor(
+                LazyExtension<ITestExecutor, ITestExecutorCapabilities> executor,
                 Tuple<Uri, string> executorUriExtensionTuple, RunContext runContext, IFrameworkHandle frameworkHandle)
             {
                 this.InvokeExecutor(executor, executorUriExtensionTuple, runContext, frameworkHandle);

@@ -194,7 +194,7 @@ namespace Microsoft.TestPlatform.Extensions.HtmlLogger.UnitTests
         [TestMethod]
         public void TestResultHandlerShouldSetDisplayNameIfDisplayNameIsNull()
         {
-            //this assert is for checking result display name equals to null
+            // this assert is for checking result display name equals to null
             var passTestCase1 = CreateTestCase("Pass1");
             var passTestResultExpected = new ObjectModel.TestResult(passTestCase1)
             {
@@ -210,7 +210,7 @@ namespace Microsoft.TestPlatform.Extensions.HtmlLogger.UnitTests
         [TestMethod]
         public void TestResultHandlerShouldSetDisplayNameIfDisplayNameIsNotNull()
         {
-            //this assert is for checking result display name not equals to null
+            // this assert is for checking result display name not equals to null
             var passTestCase1 = CreateTestCase("Pass1");
             var passTestResultExpected = new ObjectModel.TestResult(passTestCase1)
             {
@@ -241,6 +241,7 @@ namespace Microsoft.TestPlatform.Extensions.HtmlLogger.UnitTests
             };
 
             var eventArg = new Mock<TestResultEventArgs>(passTestResultExpected);
+
             // Act
             this.htmlLogger.TestResultHandler(new object(), eventArg.Object);
 

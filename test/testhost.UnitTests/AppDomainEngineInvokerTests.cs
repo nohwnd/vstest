@@ -65,7 +65,8 @@ namespace testhost.UnitTests
 
             Assert.IsNotNull(newAppDomain, "New AppDomain must be created.");
             Assert.IsNotNull(appDomainInvoker.ActualInvoker, "Invoker must be created.");
-            Assert.AreNotEqual(AppDomain.CurrentDomain.FriendlyName, 
+            Assert.AreNotEqual(
+                AppDomain.CurrentDomain.FriendlyName, 
                 (appDomainInvoker.ActualInvoker as MockEngineInvoker).DomainFriendlyName,
                 "Engine must be invoked in new domain.");
 
@@ -200,7 +201,8 @@ namespace testhost.UnitTests
 
         private class TestableEngineInvoker : AppDomainEngineInvoker<MockEngineInvoker>
         {
-            public TestableEngineInvoker(string testSourcePath) : base(testSourcePath)
+            public TestableEngineInvoker(string testSourcePath)
+                : base(testSourcePath)
             {
             }
 

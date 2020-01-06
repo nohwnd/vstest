@@ -26,28 +26,18 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         private static IPlatformEqtTrace traceImpl = new PlatformEqtTrace();
 
 #if NET451
-        public static void SetupRemoteEqtTraceListeners(AppDomain childDomain)
-        {
-            traceImpl.SetupRemoteEqtTraceListeners(childDomain);
-        }
-
-        public static void SetupListener(TraceListener listener)
-        {
-            traceImpl.SetupListener(listener);
-        }
-
         public static TraceLevel TraceLevel
         {
             get
             {
                 return (TraceLevel)traceImpl.GetTraceLevel();
             }
+
             set
             {
                 traceImpl.SetTraceLevel((PlatformTraceLevel)value);
             }
         }
-
 #endif
 
 #if NETSTANDARD2_0
@@ -57,6 +47,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
             {
                 return traceImpl.GetTraceLevel();
             }
+
             set
             {
                 traceImpl.SetTraceLevel(value);
@@ -78,6 +69,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
             {
                 return traceImpl.DoNotInitialize;
             }
+
             set
             {
                 traceImpl.DoNotInitialize = value;
@@ -133,6 +125,18 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                 return traceImpl.ShouldTrace(PlatformTraceLevel.Warning);
             }
         }
+
+#if NET451
+        public static void SetupRemoteEqtTraceListeners(AppDomain childDomain)
+        {
+            traceImpl.SetupRemoteEqtTraceListeners(childDomain);
+        }
+
+        public static void SetupListener(TraceListener listener)
+        {
+            traceImpl.SetupListener(listener);
+        }
+#endif
 
         /// <summary>
         /// Initializes the verbose tracing with custom log file

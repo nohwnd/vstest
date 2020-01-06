@@ -12,7 +12,8 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.UnitTests.Utility
         [TestMethod]
         public void ReplaceInvalidFileNameCharsShouldReplaceSpace()
         {
-            Assert.AreEqual("samadala_SAMADALA_2017-10-13_18_33_17",
+            Assert.AreEqual(
+                "samadala_SAMADALA_2017-10-13_18_33_17",
                 FileHelper.ReplaceInvalidFileNameChars("samadala_SAMADALA 2017-10-13 18_33_17"));
         }
     }

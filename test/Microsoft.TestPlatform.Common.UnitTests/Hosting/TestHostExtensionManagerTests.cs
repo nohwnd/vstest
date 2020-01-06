@@ -19,6 +19,7 @@ namespace TestPlatform.Common.UnitTests.Logging
         {
             TestPluginCacheTests.SetupMockExtensions();
         }
+
         [TestMethod]
         public void CreateShouldThrowExceptionIfMessageLoggerIsNull()
         {

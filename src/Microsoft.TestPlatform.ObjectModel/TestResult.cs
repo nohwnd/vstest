@@ -242,6 +242,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                 case "TestResult.StartTime":
                     this.StartTime = (DateTimeOffset)value; return;
             }
+
             base.ProtectedSetPropertyValue(property, value);
         }
 

@@ -23,7 +23,8 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
             string computerName,
             TestOutcome outcome,
             TestType testType,
-            TestListCategoryId testCategoryId) : base(runId, testId, executionId, parentExecutionId, resultName, computerName, outcome, testType, testCategoryId) { }
+            TestListCategoryId testCategoryId)
+            : base(runId, testId, executionId, parentExecutionId, resultName, computerName, outcome, testType, testCategoryId) { }
 
         /// <summary>
         /// Gets the inner results.
@@ -36,6 +37,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
                 {
                     innerResults = new List<ITestResult>();
                 }
+
                 return innerResults;
             }
         }

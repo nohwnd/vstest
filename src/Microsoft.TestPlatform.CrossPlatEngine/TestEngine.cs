@@ -39,7 +39,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
 
         #endregion
 
-        public TestEngine() : this(TestRuntimeProviderManager.Instance, new ProcessHelper())
+        public TestEngine()
+            : this(TestRuntimeProviderManager.Instance, new ProcessHelper())
         {
         }
 
@@ -250,6 +251,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
                 {
                     EqtTrace.Info("TestEngine.ShouldRunInNoIsolation: running test in isolation");
                 }
+
                 return false;
             }
 
@@ -286,6 +288,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
                 {
                     EqtTrace.Info("TestEngine.ShouldRunInNoIsolation: running test in process(inside vstest.console.exe process)");
                 }
+
                 return true;
             }
 

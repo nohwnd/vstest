@@ -93,7 +93,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
         /// <summary>
         /// Evaluate this condition for testObject.
         /// </summary>
-        internal bool Evaluate(Func<string, Object> propertyValueProvider)
+        internal bool Evaluate(Func<string, object> propertyValueProvider)
         {
             ValidateArg.NotNull(propertyValueProvider, nameof(propertyValueProvider));
             var result = false;
@@ -113,6 +113,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                             }
                         }
                     }
+
                     break;
 
 
@@ -132,6 +133,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                             }
                         }
                     }
+
                     break;
 
                 case Operation.Contains:
@@ -148,6 +150,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                             }
                         }
                     }
+
                     break;
 
                 case Operation.NotContains:
@@ -166,8 +169,10 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                             }
                         }
                     }
+
                     break;
             }
+
             return result;
         } 
 
@@ -200,6 +205,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                 {
                     ThrownFormatExceptionForInvalidCondition(conditionString);
                 }
+
                 parts[index] = parts[index].Trim();
             }
 
@@ -217,7 +223,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
         /// <summary>
         /// Check if condition validates any property in properties.
         /// </summary>
-        internal bool ValidForProperties(IEnumerable<String> properties, Func<string, TestProperty> propertyProvider)
+        internal bool ValidForProperties(IEnumerable<string> properties, Func<string, TestProperty> propertyProvider)
         {
             bool valid = false;
 
@@ -231,6 +237,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                     valid = this.ValidForContainsOperation(propertyProvider);
                 }
             }
+
             return valid;
         }
         
@@ -252,6 +259,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                             typeof(string[]) == propertyType;
                 }
             }
+
             return valid;
         }
 
@@ -274,13 +282,14 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                 case "!~":
                     return Operation.NotContains;
             }
+
             throw new FormatException(string.Format(CultureInfo.CurrentCulture, CommonResources.TestCaseFilterFormatException, string.Format(CultureInfo.CurrentCulture, CommonResources.InvalidOperator, operationString)));
         }
 
         /// <summary>
         /// Returns property value for Property using propertValueProvider.
         /// </summary>
-        private string[] GetPropertyValue(Func<string, Object> propertyValueProvider)
+        private string[] GetPropertyValue(Func<string, object> propertyValueProvider)
         {
             var propertyValue = propertyValueProvider(this.Name);
             if (null != propertyValue)
@@ -291,6 +300,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                     multiValue = new string[1];
                     multiValue[0] = propertyValue.ToString();
                 }
+
                 return multiValue;
             }
 
@@ -340,6 +350,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                                     yield return tokenBuilder.ToString();
                                     tokenBuilder.Clear();
                                 }
+
                                 yield return "=";
                                 break;
 
@@ -349,6 +360,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                                     yield return tokenBuilder.ToString();
                                     tokenBuilder.Clear();
                                 }
+
                                 // Determine if this is a "!=" or "!~" or just a single "!".
                                 var next = i + 1;
                                 if (next < s.Length && s[next] == '=')
@@ -367,6 +379,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                                 {
                                     yield return "!";
                                 }
+
                                 break;
 
                             case '~':
@@ -375,6 +388,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                                     yield return tokenBuilder.ToString();
                                     tokenBuilder.Clear();
                                 }
+
                                 yield return "~";
                                 break;
 
@@ -383,6 +397,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                                 break;
                         }
                     }
+
                     last = current;
                 }
 

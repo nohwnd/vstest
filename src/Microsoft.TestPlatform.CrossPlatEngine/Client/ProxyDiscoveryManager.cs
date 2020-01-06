@@ -61,7 +61,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
         ///     Test host Manager instance
         /// </param>
         /// <param name="dataSerializer"></param>
-        internal ProxyDiscoveryManager(IRequestData requestData,
+        internal ProxyDiscoveryManager(
+            IRequestData requestData,
             ITestRequestSender requestSender,
             ITestRuntimeProvider testHostManager,
             IDataSerializer dataSerializer,

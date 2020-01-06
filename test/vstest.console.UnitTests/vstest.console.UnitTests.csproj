@@ -11,6 +11,12 @@
     <AssemblyName>vstest.console.UnitTests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\vstest.console\vstest.console.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.TestPlatform.Utilities\Microsoft.TestPlatform.Utilities.csproj">
       <FromP2P>true</FromP2P>

@@ -57,11 +57,13 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
         private IProcessHelper processHelper;
 
 
-        public DefaultEngineInvoker() : this(new TestRequestHandler(), DataCollectionTestCaseEventSender.Create(), new ProcessHelper())
+        public DefaultEngineInvoker()
+            : this(new TestRequestHandler(), DataCollectionTestCaseEventSender.Create(), new ProcessHelper())
         {
         }
 
-        internal DefaultEngineInvoker(ITestRequestHandler requestHandler,
+        internal DefaultEngineInvoker(
+            ITestRequestHandler requestHandler,
             IDataCollectionTestCaseEventSender dataCollectionTestCaseEventSender, IProcessHelper processHelper)
         {
             this.processHelper = processHelper;
@@ -75,7 +77,8 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
 
             if (EqtTrace.IsInfoEnabled)
             {
-                EqtTrace.Info("DefaultEngineInvoker.Invoke: Testhost process started with args :{0}",
+                EqtTrace.Info(
+                    "DefaultEngineInvoker.Invoke: Testhost process started with args :{0}",
                     string.Join(",", argsDictionary));
 #if NET451
                 var appConfigText =
@@ -146,7 +149,8 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
 
         private void ConnectToDatacollector(int dcPort)
         {
-            EqtTrace.Info("DefaultEngineInvoker.ConnectToDatacollector: Connecting to datacollector, port: {0}",
+            EqtTrace.Info(
+                "DefaultEngineInvoker.ConnectToDatacollector: Connecting to datacollector, port: {0}",
                 dcPort);
             this.dataCollectionTestCaseEventSender.InitializeCommunication(dcPort);
 
@@ -177,7 +181,8 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
         {
             // Attach to exit of parent process
             var parentProcessId = CommandLineArgumentsHelper.GetIntArgFromDict(argsDictionary, ParentProcessIdArgument);
-            EqtTrace.Info("DefaultEngineInvoker.SetParentProcessExitCallback: Monitoring parent process with id: '{0}'",
+            EqtTrace.Info(
+                "DefaultEngineInvoker.SetParentProcessExitCallback: Monitoring parent process with id: '{0}'",
                 parentProcessId);
 
             // In remote scenario we cannot monitor parent process, so we expect user to pass parentProcessId as -1
@@ -187,7 +192,8 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
                     parentProcessId,
                     (obj) =>
                     {
-                        EqtTrace.Info("DefaultEngineInvoker.SetParentProcessExitCallback: ParentProcess '{0}' Exited.",
+                        EqtTrace.Info(
+                            "DefaultEngineInvoker.SetParentProcessExitCallback: ParentProcess '{0}' Exited.",
                             parentProcessId);
                         new PlatformEnvironment().Exit(1);
                     });

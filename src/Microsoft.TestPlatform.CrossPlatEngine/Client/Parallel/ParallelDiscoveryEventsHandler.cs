@@ -31,16 +31,18 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
 
         private IRequestData requestData;
 
-        public ParallelDiscoveryEventsHandler(IRequestData requestData,
+        public ParallelDiscoveryEventsHandler(
+            IRequestData requestData,
             IProxyDiscoveryManager proxyDiscoveryManager,
             ITestDiscoveryEventsHandler2 actualDiscoveryEventsHandler,
             IParallelProxyDiscoveryManager parallelProxyDiscoveryManager,
-            ParallelDiscoveryDataAggregator discoveryDataAggregator) :
-            this(requestData, proxyDiscoveryManager, actualDiscoveryEventsHandler, parallelProxyDiscoveryManager, discoveryDataAggregator, JsonDataSerializer.Instance)
+            ParallelDiscoveryDataAggregator discoveryDataAggregator)
+            : this(requestData, proxyDiscoveryManager, actualDiscoveryEventsHandler, parallelProxyDiscoveryManager, discoveryDataAggregator, JsonDataSerializer.Instance)
         {
         }
 
-        internal ParallelDiscoveryEventsHandler(IRequestData requestData,
+        internal ParallelDiscoveryEventsHandler(
+            IRequestData requestData,
             IProxyDiscoveryManager proxyDiscoveryManager,
             ITestDiscoveryEventsHandler2 actualDiscoveryEventsHandler,
             IParallelProxyDiscoveryManager parallelProxyDiscoveryManager,
@@ -105,7 +107,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
                 // we have to send raw messages as we block the discoverycomplete actual raw messages
                 this.ConvertToRawMessageAndSend(MessageType.DiscoveryComplete, testDiscoveryCompletePayload);
 
-                var finalDiscoveryCompleteEventArgs = new DiscoveryCompleteEventArgs(this.discoveryDataAggregator.TotalTests,
+                var finalDiscoveryCompleteEventArgs = new DiscoveryCompleteEventArgs(
+                    this.discoveryDataAggregator.TotalTests,
                     this.discoveryDataAggregator.IsAborted);
                 finalDiscoveryCompleteEventArgs.Metrics = aggregatedDiscoveryDataMetrics;
 

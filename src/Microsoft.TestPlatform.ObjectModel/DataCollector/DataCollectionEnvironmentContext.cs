@@ -36,9 +36,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// </summary>
         public DataCollectionEnvironmentContext(DataCollectionContext sessionDataCollectionContext)
         {
-            SessionDataCollectionContext = sessionDataCollectionContext;
+            this.SessionDataCollectionContext = sessionDataCollectionContext;
         }
-
 
         /// <summary>
         /// Creates an environment context for a local (hosted) agent and controller
@@ -73,11 +72,12 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         {
             get
             {
-                return sessionDataCollectionContext;
+                return this.sessionDataCollectionContext;
             }
+
             internal set
             {
-                sessionDataCollectionContext = value;
+                this.sessionDataCollectionContext = value;
             }
         }
 

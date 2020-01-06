@@ -130,6 +130,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
             {
                 EqtTrace.Verbose("ParallelProxyExecutionManager: Start execution. Total sources: " + this.availableTestSources);
             }
+
             return this.StartTestRunPrivate(eventHandler);
         }
 
@@ -316,7 +317,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
 
                     proxyExecutionManager.StartTestRun(testRunCriteria, this.GetHandlerForGivenManager(proxyExecutionManager));
                 })
-                .ContinueWith(t =>
+                .ContinueWith(
+                    t =>
                 {
                     // Just in case, the actual execution couldn't start for an instance. Ensure that
                     // we call execution complete since we have already fetched a source. Otherwise

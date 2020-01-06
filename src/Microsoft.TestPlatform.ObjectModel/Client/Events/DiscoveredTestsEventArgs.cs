@@ -13,8 +13,9 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     {
         public DiscoveredTestsEventArgs(IEnumerable<TestCase> discoveredTestCases)
         {
-            DiscoveredTestCases = discoveredTestCases;
+            this.DiscoveredTestCases = discoveredTestCases;
         }
+
         /// <summary>
         /// Tests discovered in this discovery request
         /// </summary>

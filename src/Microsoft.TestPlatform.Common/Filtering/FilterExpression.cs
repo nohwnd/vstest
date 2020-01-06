@@ -156,6 +156,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                     invalidProperties = invalidProperties.Concat(invalidRight).ToArray();
                 }
             }
+
             return invalidProperties;
         }
 
@@ -216,9 +217,11 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                                 operatorStack.Push(currentOperator);
                                 break;
                             }
+
                             stackTopOperator = operatorStack.Pop();
                             ProcessOperator(filterStack, stackTopOperator);
                         }
+
                         break;
 
                     case "(":
@@ -241,6 +244,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                             {
                                 throw new FormatException(string.Format(CultureInfo.CurrentCulture, CommonResources.TestCaseFilterFormatException, CommonResources.MissingOpenParenthesis));
                             }
+
                             temp = operatorStack.Pop();
                         }
 
@@ -256,6 +260,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                         break;
                 }
             }
+
             while (operatorStack.Count != 0)
             {
                 Operator temp = operatorStack.Pop();
@@ -277,7 +282,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
         /// </summary>
         /// <param name="propertyValueProvider"> The property Value Provider.</param>
         /// <returns> True if evaluation is successful. </returns>
-        internal bool Evaluate(Func<string, Object> propertyValueProvider)
+        internal bool Evaluate(Func<string, object> propertyValueProvider)
         {
             ValidateArg.NotNull(propertyValueProvider, nameof(propertyValueProvider));
 
@@ -300,6 +305,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                     filterResult = leftResult || rightResult;
                 }
             }
+
             return filterResult;
         }     
 
@@ -348,6 +354,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
                                     yield return tokenBuilder.ToString();
                                     tokenBuilder.Clear();
                                 }
+
                                 yield return current.ToString();
                                 break;
 

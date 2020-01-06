@@ -42,6 +42,7 @@ namespace Microsoft.TestPlatform.TestUtilities.PerfInstrumentation
 #if NET451
             this.perfAnalyzer.EnableProvider();
 #endif
+
             // Run Test
             this.InvokeVsTestForExecution(testAsset, testAdapterPath, ".NETFramework,Version=v4.5.1", runSettings);
 
@@ -69,6 +70,7 @@ namespace Microsoft.TestPlatform.TestUtilities.PerfInstrumentation
 #if NET451
             this.perfAnalyzer.EnableProvider();
 #endif
+
             // Run Test
             this.InvokeVsTestForDiscovery(testAsset, testAdapterPath, runSettings, ".NETFramework,Version=v4.5.1");
 

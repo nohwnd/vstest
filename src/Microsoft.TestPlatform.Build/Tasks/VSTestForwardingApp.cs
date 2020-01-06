@@ -3,16 +3,15 @@
 
 namespace Microsoft.TestPlatform.Build.Tasks
 {
-    using Microsoft.TestPlatform.Build.Utils;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
+    using Microsoft.TestPlatform.Build.Utils;
     using Trace;
 
     public class VSTestForwardingApp
     {
-        private const string hostExe = "dotnet";
+        private const string HostExe = "dotnet";
         private readonly List<string> allArgs = new List<string>();
         private int activeProcessId;
 
@@ -31,7 +30,7 @@ namespace Microsoft.TestPlatform.Build.Tasks
         {
             var processInfo = new ProcessStartInfo
                                   {
-                                      FileName = hostExe,
+                                      FileName = HostExe,
                                       Arguments = string.Join(" ", this.allArgs),
                                       UseShellExecute = false,
                                   };
@@ -54,9 +53,9 @@ namespace Microsoft.TestPlatform.Build.Tasks
         {
             try
             {
-                Process.GetProcessById(activeProcessId).Kill();
+                Process.GetProcessById(this.activeProcessId).Kill();
             }
-            catch(ArgumentException ex)
+            catch (ArgumentException ex)
             {
                 Tracing.Trace(string.Format("VSTest: Killing process throws ArgumentException with the following message {0}. It may be that process is not running", ex));
             }

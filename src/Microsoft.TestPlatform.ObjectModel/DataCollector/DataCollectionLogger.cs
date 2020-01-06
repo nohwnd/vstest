@@ -39,7 +39,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// </remarks>
         public void LogError(DataCollectionContext context, Exception exception)
         {
-            LogError(context, string.Empty, exception);
+            this.LogError(context, string.Empty, exception);
         }
 
         /// <summary>

@@ -88,6 +88,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
                 {
                     count++;
                     Assert.IsTrue(createdSampleClasses.Contains(sample), "Called object must be in the created list.");
+
                     // Make sure action is not called on same object multiple times
                     createdSampleClasses.Remove(sample);
                 });
@@ -154,8 +155,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
 
         private class MockParallelOperationManager : ParallelOperationManager<SampleConcurrentClass, SampleHandlerClass>
         {
-            public MockParallelOperationManager(Func<SampleConcurrentClass> createNewClient, int parallelLevel, bool sharedHosts) : 
-                base(createNewClient, parallelLevel, sharedHosts)
+            public MockParallelOperationManager(Func<SampleConcurrentClass> createNewClient, int parallelLevel, bool sharedHosts)
+                : base(createNewClient, parallelLevel, sharedHosts)
             {
             }
 

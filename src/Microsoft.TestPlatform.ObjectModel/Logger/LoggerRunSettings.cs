@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.Xml;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
-
 namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Globalization;
+    using System.Xml;
+    using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
+
     /// <summary>
     /// The logger run settings.
     /// </summary>
@@ -22,7 +22,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         /// <summary>
         /// Initializes a new instance of the <see cref="LoggerRunSettings"/> class.
         /// </summary>
-        public LoggerRunSettings() : base(Constants.LoggerRunSettingsName)
+        public LoggerRunSettings()
+            : base(Constants.LoggerRunSettingsName)
         {
             this.LoggerSettingsList = new Collection<LoggerSettings>();
             this.loggerRunSettingsName = Constants.LoggerRunSettingsName;
@@ -56,6 +57,39 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         }
 
         /// <summary>
+        /// Gets existing logger index.
+        /// </summary>
+        /// <param name="loggerSettings">Logger settings.</param>
+        /// <returns>Index of given logger settings.</returns>
+        public int GetExistingLoggerIndex(LoggerSettings loggerSettings)
+        {
+            var existingLoggerIndex = -1;
+
+            for (int i = 0; i < this.LoggerSettingsList.Count; i++)
+            {
+                var logger = this.LoggerSettingsList[i];
+
+                if (logger.FriendlyName != null &&
+                    loggerSettings.FriendlyName != null &&
+                    logger.FriendlyName.Equals(loggerSettings.FriendlyName, StringComparison.OrdinalIgnoreCase))
+                {
+                    existingLoggerIndex = i;
+                    break;
+                }
+
+                if (logger.Uri?.ToString() != null &&
+                    loggerSettings.Uri?.ToString() != null &&
+                    logger.Uri.ToString().Equals(loggerSettings.Uri.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    existingLoggerIndex = i;
+                    break;
+                }
+            }
+
+            return existingLoggerIndex;
+        }
+
+        /// <summary>
         /// The from xml.
         /// </summary>
         /// <param name="reader">
@@ -71,7 +105,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         {
             ValidateArg.NotNull(reader, "reader");
 
-            return FromXml(reader,
+            return FromXml(
+                reader,
                 Constants.LoggersSettingName,
                 Constants.LoggerSettingName);
         }
@@ -130,6 +165,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             reader.Name));
                 }
             }
+
             reader.ReadEndElement();
 
             return settings;
@@ -184,39 +220,6 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
             }
 
             return settings;
-        }
-
-        /// <summary>
-        /// Gets existing logger index.
-        /// </summary>
-        /// <param name="loggerSettings">Logger settings.</param>
-        /// <returns>Index of given logger settings.</returns>
-        public int GetExistingLoggerIndex(LoggerSettings loggerSettings)
-        {
-            var existingLoggerIndex = -1;
-
-            for (int i = 0; i < LoggerSettingsList.Count; i++)
-            {
-                var logger = LoggerSettingsList[i];
-
-                if (logger.FriendlyName != null &&
-                    loggerSettings.FriendlyName != null &&
-                    logger.FriendlyName.Equals(loggerSettings.FriendlyName, StringComparison.OrdinalIgnoreCase))
-                {
-                    existingLoggerIndex = i;
-                    break;
-                }
-
-                if (logger.Uri?.ToString() != null &&
-                    loggerSettings.Uri?.ToString() != null &&
-                    logger.Uri.ToString().Equals(loggerSettings.Uri.ToString(), StringComparison.OrdinalIgnoreCase))
-                {
-                    existingLoggerIndex = i;
-                    break;
-                }
-            }
-
-            return existingLoggerIndex;
         }
     }
 }

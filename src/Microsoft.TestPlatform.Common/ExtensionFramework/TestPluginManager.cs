@@ -90,6 +90,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
                     {
                         EqtTrace.Error("TestPluginManager.CreateTestExtension: Could not create instance of type: " + extensionType.ToString() + "  Exception: " + ex);
                     }
+
                     throw;
                 }
 #if NET451
@@ -99,6 +100,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
                     {
                         EqtTrace.Error("TestPluginManager.CreateTestExtension: Could not create instance of type: " + extensionType.ToString() + "  Exception: " + ex);
                     }
+
                     throw;
                 }
 #endif

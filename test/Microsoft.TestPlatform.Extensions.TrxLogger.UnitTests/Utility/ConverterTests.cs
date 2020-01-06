@@ -107,7 +107,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.UnitTests.Utility
 
             var unitTestElement = this.converter.ToTestElement(testCase.Id, Guid.Empty, Guid.Empty, testCase.DisplayName, TrxLoggerConstants.UnitTestType, testCase);
 
-            object[] expected = Enumerable.Empty<Object>().ToArray();
+            object[] expected = Enumerable.Empty<object>().ToArray();
 
             CollectionAssert.AreEqual(expected, unitTestElement.TestCategories.ToArray());
         }

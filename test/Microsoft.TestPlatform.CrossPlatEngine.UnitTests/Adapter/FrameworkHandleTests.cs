@@ -83,7 +83,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Adapter
 
             frameworkHandle.LaunchProcessWithDebuggerAttached(null, null, null, null);
 
-            mockTestRunEventsHandler.Verify(mt =>
+            mockTestRunEventsHandler.Verify(
+                mt =>
                 mt.LaunchProcessWithDebuggerAttached(It.IsAny<TestProcessStartInfo>()), Times.Once);
         }
 

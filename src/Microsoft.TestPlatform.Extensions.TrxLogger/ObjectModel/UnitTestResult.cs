@@ -19,6 +19,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
             string computerName,
             TestOutcome outcome,
             TestType testType,
-            TestListCategoryId testCategoryId) : base(runId, testId, executionId, parentExecutionId, resultName, computerName, outcome, testType, testCategoryId) { }
+            TestListCategoryId testCategoryId)
+            : base(runId, testId, executionId, parentExecutionId, resultName, computerName, outcome, testType, testCategoryId) { }
     }
 }

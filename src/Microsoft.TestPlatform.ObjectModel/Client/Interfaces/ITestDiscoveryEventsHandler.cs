@@ -18,7 +18,6 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         /// <param name="isAborted">True if the discovery operation is aborted.</param>
         void HandleDiscoveryComplete(long totalTests, IEnumerable<TestCase> lastChunk, bool isAborted);
 
-
         /// <summary>
         /// Dispatch DiscoveredTest event to listeners.
         /// </summary>

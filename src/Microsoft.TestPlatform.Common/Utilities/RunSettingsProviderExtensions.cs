@@ -233,7 +233,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Utilities
                 {
 #else
                 using (
-                    var reader = XmlReader.Create(new StringReader(settingsXml),
+                    var reader = XmlReader.Create(
+                        new StringReader(settingsXml),
                         new XmlReaderSettings() { CloseInput = true, DtdProcessing = DtdProcessing.Prohibit }))
                 {
 #endif
@@ -256,6 +257,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Utilities
                 }
 #endif
             }
+
             return doc;
         }
     }

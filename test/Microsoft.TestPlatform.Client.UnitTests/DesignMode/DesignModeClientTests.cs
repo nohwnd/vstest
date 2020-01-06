@@ -188,7 +188,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.UnitTests.DesignMode
                             It.IsAny<ITestRunEventsRegistrar>(),
                             It.IsAny<ProtocolConfig>()))
                 .Callback(
-                    (TestRunRequestPayload trp,
+                    (
+                        TestRunRequestPayload trp,
                      ITestHostLauncher testHostManager,
                      ITestRunEventsRegistrar testRunEventsRegistrar,
                      ProtocolConfig config) =>
@@ -250,7 +251,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.UnitTests.DesignMode
                     It.IsAny<ITestRunEventsRegistrar>(),
                     It.IsAny<ProtocolConfig>()))
                 .Callback(
-                    (TestRunRequestPayload trp,
+                    (
+                        TestRunRequestPayload trp,
                      ITestHostLauncher testHostManager,
                      ITestRunEventsRegistrar testRunEventsRegistrar,
                      ProtocolConfig config) =>

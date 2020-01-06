@@ -6,7 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
     using System;
     using System.Runtime.Serialization;
 #if NET451
-using System.Security.Permissions;
+    using System.Security.Permissions;
 #endif
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
@@ -46,7 +46,7 @@ using System.Security.Permissions;
         public TestPlatformFormatException(string message, string filterValue)
             : base(message)
         {
-            FilterValue = filterValue;
+            this.FilterValue = filterValue;
         }
 
         /// <summary>
@@ -67,6 +67,7 @@ using System.Security.Permissions;
             : base(info, context)
         {
             ValidateArg.NotNull(info, "info");
+
             // Save the basic properties.
             this.FilterValue = info.GetString("FilterValue");
         }

@@ -147,10 +147,11 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
 
             if (!Path.IsPathRooted(path))
             {
-                //If path is relative, we combine it with base path before canonicalizing.
-                //Else Path.GetFullPath is going to use the process worker directory (e.g. e:\binariesy.x86\bin\i386).
+                // If path is relative, we combine it with base path before canonicalizing.
+                // Else Path.GetFullPath is going to use the process worker directory (e.g. e:\binariesy.x86\bin\i386).
                 path = Path.Combine(basePath, path);
             }
+
             path = Path.GetFullPath(path);
             basePath = Path.GetFullPath(basePath);
 
@@ -204,6 +205,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
                 {
                     newPath.Append(Path.DirectorySeparatorChar);
                 }
+
                 newPath.Append(RelativeDirectorySeparator);
             }
 
@@ -217,6 +219,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
                 {
                     newPath.Append(Path.DirectorySeparatorChar);
                 }
+
                 newPath.Append(pathTokens[j]);
             }
 

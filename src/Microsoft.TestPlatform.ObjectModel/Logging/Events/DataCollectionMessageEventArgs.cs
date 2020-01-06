@@ -9,7 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
     /// <summary>
     /// EventArg used for raising data collector message event.
     /// </summary>
-    [DataContract]    
+    [DataContract]
     public class DataCollectionMessageEventArgs : TestRunMessageEventArgs
     {
         #region constructor
@@ -18,11 +18,12 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
         /// </summary>
         /// <param name="level">Level at which message should be logged.</param>
         /// <param name="message">Text message.</param>
-        public DataCollectionMessageEventArgs(TestMessageLevel level, string message) : base(level, message)
+        public DataCollectionMessageEventArgs(TestMessageLevel level, string message)
+            : base(level, message)
         {
         }
         #endregion
-        
+
         #region properties
 
         /// <summary>
@@ -34,7 +35,6 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
             get;
             set;
         }
-
 
         /// <summary>
         /// Uri of collector.
@@ -55,7 +55,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
             get;
             set;
         }
-        
+
         #endregion
     }
 }

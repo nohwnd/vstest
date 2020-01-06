@@ -46,7 +46,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
 
         #region Constructor
 
-        public VsTestConsoleRequestSender() : this(new SocketCommunicationManager(), JsonDataSerializer.Instance, TestPlatformEventSource.Instance)
+        public VsTestConsoleRequestSender()
+            : this(new SocketCommunicationManager(), JsonDataSerializer.Instance, TestPlatformEventSource.Instance)
         {
         }
 
@@ -156,6 +157,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             {
                 EqtTrace.Info($"VsTestConsoleRequestSender.InitializeExtensions: Initializing extensions with additional extensions path {string.Join(",", pathToAdditionalExtensions.ToList())}.");
             }
+
             this.communicationManager.SendMessage(MessageType.ExtensionsInitialize, pathToAdditionalExtensions, this.protocolVersion);
         }
 
@@ -166,6 +168,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.DiscoverTests: Starting test discovery.");
             }
+
             this.SendMessageAndListenAndReportTestCases(sources, runSettings, options, eventHandler);
         }
 
@@ -178,6 +181,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.DiscoverTestsAsync: Starting test discovery.");
             }
+
             await this.SendMessageAndListenAndReportTestCasesAsync(sources, runSettings, options, eventHandler);
         }
 
@@ -203,6 +207,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.StartTestRunAsync: Starting test run.");
             }
+
             await this.SendMessageAndListenAndReportTestResultsAsync(
                 MessageType.TestRunAllSourcesWithDefaultHost,
                 new TestRunRequestPayload() { Sources = sources.ToList(), RunSettings = runSettings, TestPlatformOptions = options },
@@ -217,6 +222,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.StartTestRun: Starting test run.");
             }
+
             this.SendMessageAndListenAndReportTestResults(
                 MessageType.TestRunAllSourcesWithDefaultHost,
                 new TestRunRequestPayload() { TestCases = testCases.ToList(), RunSettings = runSettings, TestPlatformOptions = options },
@@ -340,6 +346,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.CancelTestRun: Cancelling test run.");
             }
+
             this.communicationManager.SendMessage(MessageType.CancelTestRun);
         }
 
@@ -350,6 +357,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.AbortTestRun: Aborting test run.");
             }
+
             this.communicationManager.SendMessage(MessageType.AbortTestRun);
         }
 
@@ -360,6 +368,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.CancelDiscovery: Cancelling test discovery.");
             }
+
             this.communicationManager.SendMessage(MessageType.CancelDiscovery);
         }
 

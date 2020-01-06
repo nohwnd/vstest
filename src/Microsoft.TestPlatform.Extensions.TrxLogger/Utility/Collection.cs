@@ -91,6 +91,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
         #endregion
 
         #region Methods: ICollection<T>
+
         // TODO: Consider putting check for null to derived classes.
         public virtual void Add(T item)
         {
@@ -126,6 +127,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
                 this.container.Remove(item);
                 return true;
             }
+
             return false;
         }
 
@@ -198,6 +200,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
                     // All we can do here is to delegate to T. Cannot cast T to IXmlTestStoreCustom as T is a type, not an instance.
                     this.childElementName = typeof(T).Name;
                 }
+
                 return this.childElementName;
             }
         }

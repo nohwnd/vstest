@@ -38,6 +38,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
                         {
                             index += 1;
                         }
+
                         continue;
                     }
 

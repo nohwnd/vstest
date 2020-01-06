@@ -296,6 +296,7 @@ namespace Microsoft.TestPlatform.TestUtilities
                         {
                             dependencyProps.Add(props.Name, props.ReadElementContentAsString());
                         }
+
                         props.Read();
                     }
                 }

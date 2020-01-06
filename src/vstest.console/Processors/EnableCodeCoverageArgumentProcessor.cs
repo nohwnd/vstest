@@ -81,9 +81,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 
         public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.AutoUpdateRunSettings;
 
-        //public override string HelpContentResourceName => CommandLineResources.EnableCodeCoverageArgumentProcessorHelp;
+        // public override string HelpContentResourceName => CommandLineResources.EnableCodeCoverageArgumentProcessorHelp;
 
-        //public override HelpContentPriority HelpPriority => HelpContentPriority.EnableCodeCoverageArgumentProcessorHelpPriority;
+        // public override HelpContentPriority HelpPriority => HelpContentPriority.EnableCodeCoverageArgumentProcessorHelpPriority;
     }
 
     /// <summary>

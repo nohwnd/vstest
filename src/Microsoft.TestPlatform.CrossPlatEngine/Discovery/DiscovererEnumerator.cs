@@ -56,7 +56,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery
         /// <param name="discoveryResultCache"> The discovery result cache. </param>
         /// <param name="testPlatformEventSource">Telemetry events receiver</param>
         /// <param name="token">Cancellation Token to abort discovery</param>
-        public DiscovererEnumerator(IRequestData requestData,
+        public DiscovererEnumerator(
+            IRequestData requestData,
             DiscoveryResultCache discoveryResultCache,
             ITestPlatformEventSource testPlatformEventSource,
             CancellationToken token)
@@ -72,7 +73,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery
         /// <param name="testPlatformEventSource">Telemetry events receiver</param>
         /// <param name="assemblyProperties">Information on the assemblies being discovered</param>
         /// <param name="token">Cancellation Token to abort discovery</param>
-        public DiscovererEnumerator(IRequestData requestData,
+        public DiscovererEnumerator(
+            IRequestData requestData,
             DiscoveryResultCache discoveryResultCache,
             ITestPlatformEventSource testPlatformEventSource,
             IAssemblyProperties assemblyProperties,
@@ -183,11 +185,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery
         private void CollectTelemetryAtEnd(double totalTimeTakenByAdapters, double totalAdaptersUsed)
         {
             // Collecting Total Time Taken by Adapters
-            this.requestData.MetricsCollection.Add(TelemetryDataConstants.TimeTakenInSecByAllAdapters,
+            this.requestData.MetricsCollection.Add(
+                TelemetryDataConstants.TimeTakenInSecByAllAdapters,
                 totalTimeTakenByAdapters);
 
             // Collecting Total Adapters Used to Discover tests
-            this.requestData.MetricsCollection.Add(TelemetryDataConstants.NumberOfAdapterUsedToDiscoverTests,
+            this.requestData.MetricsCollection.Add(
+                TelemetryDataConstants.NumberOfAdapterUsedToDiscoverTests,
                 totalAdaptersUsed);
         }
 
@@ -233,13 +237,15 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery
                 totalAdaptersUsed++;
 
 
-                EqtTrace.Verbose("DiscovererEnumerator.DiscoverTestsFromSingleDiscoverer: Done loading tests for {0}",
+                EqtTrace.Verbose(
+                    "DiscovererEnumerator.DiscoverTestsFromSingleDiscoverer: Done loading tests for {0}",
                         discoverer.Value.GetType().FullName);
 
                 var discovererFromDeprecatedLocations = DiscovererEnumerator.IsDiscovererFromDeprecatedLocations(discoverer);
                 if (discovererFromDeprecatedLocations)
                 {
-                    logger.SendMessage(TestMessageLevel.Warning,
+                    logger.SendMessage(
+                        TestMessageLevel.Warning,
                         string.Format(CultureInfo.CurrentCulture, CrossPlatEngineResources.DeprecatedAdapterPath));
                 }
 
@@ -289,7 +295,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery
         private static bool IsDiscovererFromDeprecatedLocations(
             LazyExtension<ITestDiscoverer, ITestDiscovererCapabilities> discoverer)
         {
-            if (CrossPlatEngine.Constants.DefaultAdapters.Contains(discoverer.Metadata.DefaultExecutorUri.ToString(),
+            if (CrossPlatEngine.Constants.DefaultAdapters.Contains(
+                discoverer.Metadata.DefaultExecutorUri.ToString(),
                 StringComparer.OrdinalIgnoreCase))
             {
                 return false;
@@ -363,6 +370,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery
             if (allDiscoverers == null || !allDiscoverers.Any())
             {
                 var sourcesString = string.Join(" ", sources);
+
                 // No discoverer available, log a warning
                 logger.SendMessage(
                     TestMessageLevel.Warning,
@@ -465,7 +473,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery
         }
 
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        [SuppressMessage("Microsoft.Design",
+        [SuppressMessage(
+            "Microsoft.Design",
             "CA1006:DoNotNestGenericTypesInMemberSignatures")]
         private static IEnumerable<LazyExtension<ITestDiscoverer, ITestDiscovererCapabilities>> GetDiscoverers(
             string extensionAssembly,

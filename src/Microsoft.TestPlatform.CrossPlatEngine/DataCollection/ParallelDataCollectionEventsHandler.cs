@@ -20,22 +20,24 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection
     {
         private readonly ParallelRunDataAggregator runDataAggregator;
 
-        public ParallelDataCollectionEventsHandler(IRequestData requestData,
+        public ParallelDataCollectionEventsHandler(
+            IRequestData requestData,
             IProxyExecutionManager proxyExecutionManager, 
             ITestRunEventsHandler actualRunEventsHandler, 
             IParallelProxyExecutionManager parallelProxyExecutionManager, 
-            ParallelRunDataAggregator runDataAggregator) : 
-            this(requestData, proxyExecutionManager, actualRunEventsHandler, parallelProxyExecutionManager, runDataAggregator, JsonDataSerializer.Instance)
+            ParallelRunDataAggregator runDataAggregator)
+            : this(requestData, proxyExecutionManager, actualRunEventsHandler, parallelProxyExecutionManager, runDataAggregator, JsonDataSerializer.Instance)
         {
         }
 
-        internal ParallelDataCollectionEventsHandler(IRequestData requestData,
+        internal ParallelDataCollectionEventsHandler(
+            IRequestData requestData,
             IProxyExecutionManager proxyExecutionManager,
             ITestRunEventsHandler actualRunEventsHandler,
             IParallelProxyExecutionManager parallelProxyExecutionManager,
             ParallelRunDataAggregator runDataAggregator,
-            IDataSerializer dataSerializer) : 
-            base(requestData, proxyExecutionManager, actualRunEventsHandler, parallelProxyExecutionManager, runDataAggregator, dataSerializer)
+            IDataSerializer dataSerializer)
+            : base(requestData, proxyExecutionManager, actualRunEventsHandler, parallelProxyExecutionManager, runDataAggregator, dataSerializer)
         {
             this.runDataAggregator = runDataAggregator;
         }
@@ -75,7 +77,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection
                     }
                 }
 
-                var completedArgs = new TestRunCompleteEventArgs(this.runDataAggregator.GetAggregatedRunStats(),
+                var completedArgs = new TestRunCompleteEventArgs(
+                    this.runDataAggregator.GetAggregatedRunStats(),
                     this.runDataAggregator.IsCanceled,
                     this.runDataAggregator.IsAborted,
                     this.runDataAggregator.GetAggregatedException(),

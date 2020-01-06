@@ -144,7 +144,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
         }
 
         /// <summary>
-        /// Returns RunConfiguration from settingsXml. 
+        /// Returns RunConfiguration from settingsXml.
         /// </summary>
         /// <param name="settingsXml">The run settings.</param>
         /// <returns> The RunConfiguration node as defined in the settings xml.</returns>
@@ -283,7 +283,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
                         return null;
                     }
 
-                    // Reached here => DC element present. 
+                    // Reached here => DC element present.
                     return DataCollectionRunSettings.FromXml(reader);
                 }
             }
@@ -341,7 +341,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
         /// </summary>
         /// <param name="runSettings">The run Settings Xml.</param>
         /// <returns> The <see cref="LoggerRunSettings"/>. </returns>
-        public static LoggerRunSettings GetLoggerRunSettings(String runSettings)
+        public static LoggerRunSettings GetLoggerRunSettings(string runSettings)
         {
             return GetNodeValue(
                 runSettings,

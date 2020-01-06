@@ -489,6 +489,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
             {
                 return false;
             }
+
             Debug.Assert(this.id != null, "id is null");
             Debug.Assert(trm.id != null, "test result message id is null");
             return this.id.Equals(trm.id);

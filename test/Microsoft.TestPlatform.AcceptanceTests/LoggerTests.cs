@@ -121,6 +121,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
                 while (reader.Read())
                 {
                 }
+
                 return true;
             }
             catch (XmlException)
@@ -136,6 +137,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
             {
                 sb.Append(sr.ReadToEnd());
             }
+
             string filePathContent = sb.ToString();
             string[] divs = { "Total tests", "Passed", "Failed", "Skipped", "Run duration", "Pass percentage", "SampleUnitTestProject.UnitTest1.PassingTest" };
             foreach (string str in divs)

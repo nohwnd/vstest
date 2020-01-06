@@ -48,7 +48,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
             Guid testId,
             Guid executionId,
             Guid parentExecutionId,
-            String testName,
+            string testName,
             TestType testType,
             ObjectModel.TestCase rockSteadyTestCase)
         {
@@ -186,10 +186,10 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
         }
 
 
-        public IList<String> ToResultFiles(IEnumerable<ObjectModel.AttachmentSet> attachmentSets, TestRun testRun, string trxFileDirectory, 
+        public IList<string> ToResultFiles(IEnumerable<ObjectModel.AttachmentSet> attachmentSets, TestRun testRun, string trxFileDirectory, 
             List<string> errorMessages)
         {
-            List<String> resultFiles = new List<string>();
+            List<string> resultFiles = new List<string>();
             if (attachmentSets == null)
             {
                 return resultFiles;
@@ -201,7 +201,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
                 {
                     try
                     {
-                        IList<String> testResultFiles = ToResultFiles(attachmentSet, Guid.Empty, testRun, trxFileDirectory);
+                        IList<string> testResultFiles = ToResultFiles(attachmentSet, Guid.Empty, testRun, trxFileDirectory);
                         resultFiles.AddRange(testResultFiles);
                     }
                     catch (Exception e)
@@ -222,6 +222,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
                     }
                 }
             }
+
             return resultFiles;
         }
 
@@ -284,11 +285,11 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
                 }
                 else
                 {
-                    return Enumerable.Empty<String>().ToList();
+                    return Enumerable.Empty<string>().ToList();
                 }
             }
 
-            return Enumerable.Empty<String>().ToList();
+            return Enumerable.Empty<string>().ToList();
         }
 
         /// <summary>
@@ -535,6 +536,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
                 }
 
                 Debug.Assert(Path.IsPathRooted(sourceFile), "Source file is not rooted");
+
                 // copy the source file to the target location
                 string targetFileName = FileHelper.GetNextIterationFileName(testResultDirectory, Path.GetFileName(sourceFile), false);
 
@@ -586,7 +588,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
             int priority = int.MaxValue;
 
             ObjectModel.Trait priorityTrait = rockSteadyTestCase.Traits?.FirstOrDefault(t => t.Name.Equals("Priority"));
-            if (priorityTrait != null && Int32.TryParse(priorityTrait.Value, out int priorityValue))
+            if (priorityTrait != null && int.TryParse(priorityTrait.Value, out int priorityValue))
                 priority = priorityValue;
 
             return priority;
@@ -644,7 +646,7 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.Utility
             try
             {
                 string testCaseSource = Path.GetFileNameWithoutExtension(source);
-                if (!String.IsNullOrEmpty(testCaseSource))
+                if (!string.IsNullOrEmpty(testCaseSource))
                 {
                     return testCaseSource;
                 }

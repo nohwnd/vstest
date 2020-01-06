@@ -14,7 +14,8 @@ namespace Microsoft.TestPlatform.Extensions.TrxLogger.ObjectModel
     {
         protected Dictionary<Guid, TestLink> testLinks = new Dictionary<Guid, TestLink>();
 
-        public TestElementAggregation(Guid id, string name, string adapter) : base(id, name, adapter) { }
+        public TestElementAggregation(Guid id, string name, string adapter)
+            : base(id, name, adapter) { }
 
         /// <summary>
         /// Test links.

@@ -32,17 +32,19 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
 
         private IRequestData requestData;
 
-        public ParallelRunEventsHandler(IRequestData requestData,
+        public ParallelRunEventsHandler(
+            IRequestData requestData,
             IProxyExecutionManager proxyExecutionManager,
             ITestRunEventsHandler actualRunEventsHandler,
             IParallelProxyExecutionManager parallelProxyExecutionManager,
-            ParallelRunDataAggregator runDataAggregator) : 
-            this(requestData, proxyExecutionManager, actualRunEventsHandler, parallelProxyExecutionManager, runDataAggregator, JsonDataSerializer.Instance)
+            ParallelRunDataAggregator runDataAggregator)
+            : this(requestData, proxyExecutionManager, actualRunEventsHandler, parallelProxyExecutionManager, runDataAggregator, JsonDataSerializer.Instance)
         {
         }
 
 
-        internal ParallelRunEventsHandler(IRequestData requestData,
+        internal ParallelRunEventsHandler(
+            IRequestData requestData,
             IProxyExecutionManager proxyExecutionManager,
             ITestRunEventsHandler actualRunEventsHandler,
             IParallelProxyExecutionManager parallelProxyExecutionManager,
@@ -70,7 +72,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
 
             if (parallelRunComplete)
             {
-                var completedArgs = new TestRunCompleteEventArgs(this.runDataAggregator.GetAggregatedRunStats(),
+                var completedArgs = new TestRunCompleteEventArgs(
+                    this.runDataAggregator.GetAggregatedRunStats(),
                     this.runDataAggregator.IsCanceled,
                     this.runDataAggregator.IsAborted,
                     this.runDataAggregator.GetAggregatedException(),
@@ -88,7 +91,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
             }
         }
 
-        protected bool HandleSingleTestRunComplete(TestRunCompleteEventArgs testRunCompleteArgs,
+        protected bool HandleSingleTestRunComplete(
+            TestRunCompleteEventArgs testRunCompleteArgs,
             TestRunChangedEventArgs lastChunkArgs,
             ICollection<AttachmentSet> runContextAttachments,
             ICollection<string> executorUris)

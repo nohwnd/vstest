@@ -19,7 +19,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         /// <param name="testRunCriteria"> Test run criteria to be used for test run. </param>
         public TestRunStartEventArgs(TestRunCriteria testRunCriteria)
         {
-            TestRunCriteria = testRunCriteria;
+            this.TestRunCriteria = testRunCriteria;
         }
 
         /// <summary>

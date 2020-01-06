@@ -42,7 +42,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilitie
         /// <summary>
         /// Metadata for the test plugin
         /// </summary>
-        public override ICollection<Object> Metadata
+        public override ICollection<object> Metadata
         {
             get
             {

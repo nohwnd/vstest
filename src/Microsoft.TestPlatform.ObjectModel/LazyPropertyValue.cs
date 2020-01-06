@@ -40,10 +40,10 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         {
             get
             {
-                if (!isValueCreated)
+                if (!this.isValueCreated)
                 {
                     this.value = this.getValue();
-                    isValueCreated = true;
+                    this.isValueCreated = true;
                 }
 
                 return this.value;

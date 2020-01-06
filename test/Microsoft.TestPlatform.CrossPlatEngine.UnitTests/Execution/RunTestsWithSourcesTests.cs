@@ -99,7 +99,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
             var messageFormat =
                 "No test is available in {0}. Make sure that test discoverer & executors are registered and platform & framework version settings are appropriate and try again.";
             var message = string.Format(messageFormat, "a aa b ab");
-            this.mockTestRunEventsHandler.Verify(treh => treh.HandleLogMessage(TestMessageLevel.Warning, message),
+            this.mockTestRunEventsHandler.Verify(
+                treh => treh.HandleLogMessage(TestMessageLevel.Warning, message),
                 Times.Once);
         }
 
@@ -144,7 +145,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
                 new Mock<IFrameworkHandle>().Object, new RunContext());
 
             Assert.IsNotNull(executorUris);
-            CollectionAssert.Contains(executorUris.ToArray(),
+            CollectionAssert.Contains(
+                executorUris.ToArray(),
                 new Tuple<Uri, string>(new Uri("executor://RunTestWithSourcesDiscoverer"), assemblyLocation));
         }
 
@@ -203,7 +205,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
 
             Assert.IsTrue(isExecutorCalled);
             this.mockTestRunEventsHandler.Verify(
-                treh => treh.HandleTestRunComplete(It.IsAny<TestRunCompleteEventArgs>(),
+                treh => treh.HandleTestRunComplete(
+                    It.IsAny<TestRunCompleteEventArgs>(),
                     It.IsAny<TestRunChangedEventArgs>(),
                     It.IsAny<ICollection<AttachmentSet>>(),
                     It.IsAny<ICollection<string>>()), Times.Once);
@@ -270,7 +273,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
 
             this.runTestsInstance.CallSendSessionStart();
 
-            mockTestCaseEventsHandler.Verify(x => x.SendSessionStart(It.Is<IDictionary<String, object>>(
+            mockTestCaseEventsHandler.Verify(x => x.SendSessionStart(It.Is<IDictionary<string, object>>(
                 y => y.ContainsKey("TestSources") 
                 && ((IEnumerable<string>)y["TestSources"]).Contains("1.dll")
                 && ((IEnumerable<string>)y["TestSources"]).Contains("2.dll")
@@ -359,7 +362,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Execution
                 this.SendSessionEnd();
             }
 
-            public void CallInvokeExecutor(LazyExtension<ITestExecutor, ITestExecutorCapabilities> executor,
+            public void CallInvokeExecutor(
+                LazyExtension<ITestExecutor, ITestExecutorCapabilities> executor,
                 Tuple<Uri, string> executorUriExtensionTuple, RunContext runContext, IFrameworkHandle frameworkHandle)
             {
                 this.InvokeExecutor(executor, executorUriExtensionTuple, runContext, frameworkHandle);

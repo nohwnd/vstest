@@ -50,7 +50,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Discovery
             this.discovererEnumerator = new DiscovererEnumerator(this.mockRequestData.Object, this.discoveryResultCache, this.mockTestPlatformEventSource.Object, this.mockAssemblyProperties.Object, this.cancellationTokenSource.Token);
             this.runSettingsMock = new Mock<IRunSettings>();
             this.messageLoggerMock = new Mock<IMessageLogger>();
-            TestPluginCacheTests.SetupMockExtensions( new string[] { typeof(DiscovererEnumeratorTests).GetTypeInfo().Assembly.Location },
+            TestPluginCacheTests.SetupMockExtensions( 
+                new string[] { typeof(DiscovererEnumeratorTests).GetTypeInfo().Assembly.Location },
                 () => { });
             TestDiscoveryExtensionManager.Destroy();
         }

@@ -166,7 +166,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             }
                             catch (UriFormatException)
                             {
-                                throw new SettingsException(String.Format(CultureInfo.CurrentCulture, Resources.Resources.InvalidDataCollectorUriInSettings, reader.Value));
+                                throw new SettingsException(string.Format(CultureInfo.CurrentCulture, Resources.Resources.InvalidDataCollectorUriInSettings, reader.Value));
                             }
 
                             break;
@@ -191,7 +191,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
 
                         default:
                             throw new SettingsException(
-                                String.Format(
+                                string.Format(
                                     CultureInfo.CurrentCulture,
                                     Resources.Resources.InvalidSettingsXmlAttribute,
                                     Constants.DataCollectionRunSettingsName,
@@ -217,15 +217,17 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
 
                         default:
                             throw new SettingsException(
-                                String.Format(
+                                string.Format(
                                     CultureInfo.CurrentCulture,
                                     Resources.Resources.InvalidSettingsXmlElement,
                                     Constants.DataCollectionRunSettingsName,
                                     reader.Name));
                     }
                 }
+
                 reader.ReadEndElement();
             }
+
             return settings;
         }
 

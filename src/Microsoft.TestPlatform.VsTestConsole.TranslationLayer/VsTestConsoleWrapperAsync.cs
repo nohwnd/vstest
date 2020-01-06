@@ -50,8 +50,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
         /// <param name="vstestConsolePath">
         /// Path to the test runner <c>vstest.console.exe</c>.
         /// </param>
-        public VsTestConsoleWrapperAsync(string vstestConsolePath) :
-            this(vstestConsolePath, ConsoleParameters.Default)
+        public VsTestConsoleWrapperAsync(string vstestConsolePath)
+            : this(vstestConsolePath, ConsoleParameters.Default)
         {
         }
 
@@ -60,8 +60,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
         /// </summary>
         /// <param name="vstestConsolePath">Path to the test runner <c>vstest.console.exe</c>.</param>
         /// <param name="consoleParameters">The parameters to be passed onto the runner process</param>
-        public VsTestConsoleWrapperAsync(string vstestConsolePath, ConsoleParameters consoleParameters) :
-            this(new VsTestConsoleRequestSender(), new VsTestConsoleProcessManager(vstestConsolePath), consoleParameters, TestPlatformEventSource.Instance)
+        public VsTestConsoleWrapperAsync(string vstestConsolePath, ConsoleParameters consoleParameters)
+            : this(new VsTestConsoleRequestSender(), new VsTestConsoleProcessManager(vstestConsolePath), consoleParameters, TestPlatformEventSource.Instance)
         {
         }
 
@@ -95,6 +95,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             this.testPlatformEventSource.TranslationLayerInitializeStart();
 
             var timeout = EnvironmentHelper.GetConnectionTimeout();
+
             // Start communication
             var port = await this.requestSender.InitializeCommunicationAsync(timeout * 1000);
 

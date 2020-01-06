@@ -39,6 +39,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
         public static void UpdateRunSettingsWithParallelSettingIfNotConfigured(XPathNavigator navigator)
         {
             var node = navigator.SelectSingleNode(XpathOfMaxCpuCount);
+
             // run settings given by user takes precendence over parallel switch
             if (node == null)
             {

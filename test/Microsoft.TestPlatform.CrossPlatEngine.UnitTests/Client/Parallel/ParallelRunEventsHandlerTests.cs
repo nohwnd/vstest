@@ -91,7 +91,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
             string log = "Hello";
             this.parallelRunEventsHandler.HandleLogMessage(TestMessageLevel.Error, log);
 
-            this.mockTestRunEventsHandler.Verify(mt => 
+            this.mockTestRunEventsHandler.Verify(
+                mt => 
                 mt.HandleLogMessage(TestMessageLevel.Error, log), Times.Once);
         }
 
@@ -128,7 +129,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
 
             this.mockTestRunEventsHandler.Verify(mt => mt.HandleTestRunStatsChange(null), Times.Never);
 
-            this.mockParallelProxyExecutionManager.Verify(mp => mp.HandlePartialRunComplete(
+            this.mockParallelProxyExecutionManager.Verify(
+                mp => mp.HandlePartialRunComplete(
                 this.mockProxyExecutionManager.Object, completeArgs, null, null, null), Times.Once);
         }
 
@@ -152,7 +154,8 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
 
             this.mockTestRunEventsHandler.Verify(mt => mt.HandleTestRunStatsChange(lastChunk), Times.Once);
 
-            this.mockParallelProxyExecutionManager.Verify(mp => mp.HandlePartialRunComplete(
+            this.mockParallelProxyExecutionManager.Verify(
+                mp => mp.HandlePartialRunComplete(
                 this.mockProxyExecutionManager.Object, completeArgs, null, null, null), Times.Once);
         }
 
@@ -171,12 +174,14 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
 
             this.mockTestRunEventsHandler.Verify(mt => mt.HandleTestRunStatsChange(null), Times.Never);
 
-            this.mockParallelProxyExecutionManager.Verify(mp => mp.HandlePartialRunComplete(
+            this.mockParallelProxyExecutionManager.Verify(
+                mp => mp.HandlePartialRunComplete(
                 this.mockProxyExecutionManager.Object, completeArgs, null, null, null), Times.Once);
 
             this.mockTestRunEventsHandler.Verify(mt => mt.HandleRawMessage(It.IsAny<string>()), Times.Once);
 
-            this.mockTestRunEventsHandler.Verify(mt => mt.HandleTestRunComplete(
+            this.mockTestRunEventsHandler.Verify(
+                mt => mt.HandleTestRunComplete(
                 It.IsAny<TestRunCompleteEventArgs>(),
                 It.IsAny<TestRunChangedEventArgs>(), 
                 It.IsAny<ICollection<AttachmentSet>>(),

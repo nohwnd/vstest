@@ -114,7 +114,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
         [DataRow("abc.txt")]
         [DataRow("abc.txt;verbosity=normal")]
         [DataRow("abc.txt;tracelevel=info;newkey=newvalue")]
-        [DataRow("\"abc.txt\";verbosity=normal;newkey=newvalue")] //escaped double quotes are allowed for file path.
+        [DataRow("\"abc.txt\";verbosity=normal;newkey=newvalue")] // escaped double quotes are allowed for file path.
         [DataRow(";;abc.txt;;;;verbosity=normal;;;;")]
         public void EnableDiagArgumentProcessorExecutorShouldNotThrowIfValidArgument(string argument)
         {

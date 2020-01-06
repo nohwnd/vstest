@@ -432,6 +432,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
             {
                 InferRunSettingsHelper.UpdateTargetDevice(document, deviceXml);
             }
+
             return updateRequired;
         }
 
@@ -442,6 +443,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
             {
                 InferRunSettingsHelper.UpdateCollectSourceInformation(document, this.commandLineOptions.ShouldCollectSourceInformation);
             }
+
             return updateRequired;
         }
 
@@ -453,6 +455,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
             {
                 InferRunSettingsHelper.UpdateDesignMode(document, this.commandLineOptions.IsDesignMode);
             }
+
             return updateRequired;
         }
 
@@ -693,7 +696,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
             // Collecting TargetOS
             requestData.MetricsCollection.Add(TelemetryDataConstants.TargetOS, new PlatformEnvironment().OperatingSystemVersion);
 
-            //Collecting DisableAppDomain
+            // Collecting DisableAppDomain
             requestData.MetricsCollection.Add(TelemetryDataConstants.DisableAppDomain, runConfiguration.DisableAppDomain);
 
         }
@@ -796,7 +799,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
             };
         }
 
-        private List<String> GetSources(TestRunRequestPayload testRunRequestPayload)
+        private List<string> GetSources(TestRunRequestPayload testRunRequestPayload)
         {
             List<string> sources = new List<string>();
             if (testRunRequestPayload.Sources != null && testRunRequestPayload.Sources.Count > 0)
@@ -810,8 +813,10 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
                 {
                     sourcesSet.Add(testCase.Source);
                 }
+
                 sources = sourcesSet.ToList();
             }
+
             return sources;
         }
     }

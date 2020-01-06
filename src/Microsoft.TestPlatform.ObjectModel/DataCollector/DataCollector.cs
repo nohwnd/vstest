@@ -43,7 +43,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
 
             // Suppress Finalize in case a subclass implements a finalizer.
             GC.SuppressFinalize(this);

@@ -50,7 +50,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
             AcceptanceTestBase.SetTestEnvironment(this.testEnvironment, runnerInfo);
             var runSettingsFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".runsettings");
 
-            //test the iterationCount setting for WebTestRunConfiguration in run settings
+            // test the iterationCount setting for WebTestRunConfiguration in run settings
             var runSettingsXml = $@"<?xml version='1.0' encoding='utf-8'?>
                                 <RunSettings>
                                     <WebTestRunConfiguration iterationCount='5' />
@@ -61,8 +61,8 @@ namespace Microsoft.TestPlatform.AcceptanceTests
 
             IntegrationTestBase.CreateRunSettingsFile(runSettingsFilePath, runSettingsXml);
 
-            //minWebTestResultFileSizeInKB is set to 150 here as the web test has a iteration count set to 5
-            //therefore, the test will run for 5 iterations resulting in web test result file size of at least 150 KB
+            // minWebTestResultFileSizeInKB is set to 150 here as the web test has a iteration count set to 5
+            // therefore, the test will run for 5 iterations resulting in web test result file size of at least 150 KB
             WebTestRunAllTests(runnerInfo.RunnerFramework, runSettingsFilePath, 150);
         }
 

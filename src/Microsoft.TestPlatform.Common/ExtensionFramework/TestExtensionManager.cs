@@ -140,6 +140,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
                     break;
                 }
             }
+
             return testExtension;
         }
 

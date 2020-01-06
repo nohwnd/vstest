@@ -5,7 +5,8 @@ namespace Microsoft.TestPlatform.AcceptanceTests
 {
     public class RunnerInfo
     {
-        public RunnerInfo(string runnerType, string targetFramework): this(runnerType, targetFramework, "")
+        public RunnerInfo(string runnerType, string targetFramework)
+            : this(runnerType, targetFramework, "")
         {
         }
 
@@ -15,6 +16,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
             this.TargetFramework = targetFramework;
             this.InIsolationValue = inIsolation;
         }
+
         /// <summary>
         /// Gets the target framework.
         /// </summary>

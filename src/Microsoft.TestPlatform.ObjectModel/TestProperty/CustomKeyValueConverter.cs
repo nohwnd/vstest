@@ -37,7 +37,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         /// <inheritdoc/>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            // KeyValuePairs are used for traits. 
+            // KeyValuePairs are used for traits.
             var data = value as string;
             if (data != null)
             {

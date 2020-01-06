@@ -54,7 +54,6 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities.Helpers
             return new FileStream(filePath, mode, access, share);
         }
 
-
         /// <inheritdoc/>
         public IEnumerable<string> EnumerateFiles(
             string directory,

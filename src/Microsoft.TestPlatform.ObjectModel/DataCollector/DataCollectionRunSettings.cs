@@ -24,7 +24,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         /// <summary>
         /// Initializes a new instance of the <see cref="DataCollectionRunSettings"/> class.
         /// </summary>
-        public DataCollectionRunSettings() : base(Constants.DataCollectionRunSettingsName)
+        public DataCollectionRunSettings()
+            : base(Constants.DataCollectionRunSettingsName)
         {
             this.DataCollectorSettingsList = new Collection<DataCollectorSettings>();
             this.dataCollectionRootName = Constants.DataCollectionRunSettingsName;
@@ -127,7 +128,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         }
 
         public static DataCollectionRunSettings CreateDataCollectionRunSettings(
-            XmlReader reader, string dataCollectionName,            
+            XmlReader reader, string dataCollectionName,
             string dataCollectorsName, string dataCollectorName)
         {
             ValidateArg.NotNull<XmlReader>(reader, "reader");
@@ -156,10 +157,10 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                     if (reader.Name.Equals(dataCollectorsName))
                     {
                         var items = ReadListElementFromXml(reader, dataCollectorName);
-                            foreach (var item in items)
-                            {
-                                settings.DataCollectorSettingsList.Add(item);
-                            }
+                        foreach (var item in items)
+                        {
+                            settings.DataCollectorSettingsList.Add(item);
+                        }
                     }
                     else
                     {

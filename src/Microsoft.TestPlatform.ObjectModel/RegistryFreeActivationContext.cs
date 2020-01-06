@@ -23,7 +23,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         private string manifestFilePath = string.Empty;
 
         /// <summary>
-        /// Initializes a new instance of RegistryFreeActivationContext class. 
+        /// Initializes a new instance of RegistryFreeActivationContext class.
         /// </summary>
         ///<param name="manifest">Manifest file path.</param>
         public RegistryFreeActivationContext(string manifest)
@@ -32,7 +32,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         }
 
         /// <summary>
-        /// Finalize an instance of RegistryFreeActivationContext class. 
+        /// Finalize an instance of RegistryFreeActivationContext class.
         /// </summary>
         ~RegistryFreeActivationContext()
         {
@@ -44,7 +44,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         /// </summary>
         public void ActivateContext()
         {
-            if (cookie != IntPtr.Zero || hActCtx != IntPtr.Zero)
+            if (this.cookie != IntPtr.Zero || this.hActCtx != IntPtr.Zero)
             {
                 return;
             }
@@ -54,12 +54,13 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
 
             context.lpSource = this.manifestFilePath;
 
-            hActCtx = ActivationContextNativeMethods.CreateActCtx(ref context);
-            if (hActCtx == (IntPtr)(-1))
+            this.hActCtx = ActivationContextNativeMethods.CreateActCtx(ref context);
+            if (this.hActCtx == (IntPtr)(-1))
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error(), "Fail to create registry-free COM context");
             }
-            if (!ActivationContextNativeMethods.ActivateActCtx(hActCtx, out cookie))
+
+            if (!ActivationContextNativeMethods.ActivateActCtx(this.hActCtx, out this.cookie))
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error(), "Fail to activate registry-free COM context");
             }
@@ -67,21 +68,21 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
 
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (!this.disposed)
             {
                 if (disposing)
                 {
-                    // No managed resources to release 
+                    // No managed resources to release
                 }
 
                 this.DeactivateContext();
-                disposed = true;
+                this.disposed = true;
             }
         }
 
@@ -90,21 +91,21 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         /// </summary>
         private void DeactivateContext()
         {
-            if (cookie == IntPtr.Zero && hActCtx == IntPtr.Zero)
+            if (this.cookie == IntPtr.Zero && this.hActCtx == IntPtr.Zero)
             {
                 return;
             }
 
             try
             {
-                ActivationContextNativeMethods.DeactivateActCtx(0, cookie);
-                ActivationContextNativeMethods.ReleaseActCtx(hActCtx);
-                cookie = IntPtr.Zero;
-                hActCtx = IntPtr.Zero;
+                ActivationContextNativeMethods.DeactivateActCtx(0, this.cookie);
+                ActivationContextNativeMethods.ReleaseActCtx(this.hActCtx);
+                this.cookie = IntPtr.Zero;
+                this.hActCtx = IntPtr.Zero;
             }
             catch (Exception ex)
             {
-                // Log any exceptions during deactivation. 
+                // Log any exceptions during deactivation.
                 if (EqtTrace.IsErrorEnabled)
                 {
                     EqtTrace.Error(ex);
@@ -136,11 +137,11 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         public struct ACTCTX
         {
-            public Int32 cbSize;
-            public UInt32 dwFlags;
+            public int cbSize;
+            public uint dwFlags;
             public string lpSource;
-            public UInt16 wProcessorArchitecture;
-            public UInt16 wLangId;
+            public ushort wProcessorArchitecture;
+            public ushort wLangId;
             public string lpAssemblyDirectory;
             public string lpResourceName;
             public string lpApplicationName;

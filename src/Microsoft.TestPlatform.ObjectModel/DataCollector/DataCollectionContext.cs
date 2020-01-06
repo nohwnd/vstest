@@ -16,7 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
 
         // NOTE: These constructors are protected internal to allow 3rd parties to
         //       do unit testing of their data collectors.
-        // 
+        //
         //       We do not want to make the constructors of this class public as it
         //       would lead to a great deal of user error when they start creating
         //       their own data collection context instances to log errors/warnings
@@ -59,15 +59,16 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// or null if no executing test case is in context</param>
         protected internal DataCollectionContext(SessionId sessionId, TestExecId testExecId)
         {
-            //todo
-            //EqtAssert.ParameterNotNull(sessionId, "sessionId");
+            // todo
+            // EqtAssert.ParameterNotNull(sessionId, "sessionId");
 
             this.sessionId = sessionId;
             this.testExecId = testExecId;
-            this.hashCode = ComputeHashCode();
+            this.hashCode = this.ComputeHashCode();
         }
 
-        protected internal DataCollectionContext(SessionId sessionId, TestCase testCase) : this(sessionId, new TestExecId(testCase.Id))
+        protected internal DataCollectionContext(SessionId sessionId, TestCase testCase)
+            : this(sessionId, new TestExecId(testCase.Id))
         {
             this.TestCase = testCase;
 
@@ -90,7 +91,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         {
             get
             {
-                return sessionId;
+                return this.sessionId;
             }
         }
 
@@ -103,7 +104,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         {
             get
             {
-                return testExecId;
+                return this.testExecId;
             }
         }
 
@@ -113,7 +114,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         [DataMember]
         public bool HasTestCase
         {
-            get { return testExecId != null; }
+            get { return this.testExecId != null; }
         }
 
         #endregion
@@ -139,13 +140,13 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
                 return false;
             }
 
-            return sessionId.Equals(other.sessionId)
-                && (testExecId == null ? other.testExecId == null : testExecId.Equals(other.testExecId));
+            return this.sessionId.Equals(other.sessionId)
+                && (this.testExecId == null ? other.testExecId == null : this.testExecId.Equals(other.testExecId));
         }
 
         public override int GetHashCode()
         {
-            return hashCode;
+            return this.hashCode;
         }
 
         #endregion
@@ -156,11 +157,11 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         {
             int hashCode = 17;
 
-            hashCode = 31 * hashCode + sessionId.GetHashCode();
+            hashCode = 31 * hashCode + this.sessionId.GetHashCode();
 
-            if (testExecId != null)
+            if (this.testExecId != null)
             {
-                hashCode = 31 * hashCode + testExecId.GetHashCode();
+                hashCode = 31 * hashCode + this.testExecId.GetHashCode();
             }
 
             return hashCode;

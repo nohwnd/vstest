@@ -27,6 +27,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Utilities
                 settings.LoadSettingsXml(settingsXml);
                 settings.InitializeSettingsProviders(settingsXml);
             }
+
             return settings;
         }
 

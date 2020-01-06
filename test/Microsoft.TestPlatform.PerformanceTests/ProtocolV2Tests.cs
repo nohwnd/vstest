@@ -52,6 +52,7 @@ namespace Microsoft.TestPlatform.PerformanceTests
             {
                 Serialize(testCase, 2);
             }
+
             sw.Stop();
 
             VerifyPerformanceResult("TestCaseSerialize2", 2000, sw.ElapsedMilliseconds);
@@ -68,6 +69,7 @@ namespace Microsoft.TestPlatform.PerformanceTests
             {
                 Deserialize<TestCase>(json, 2);
             }
+
             sw.Stop();
 
             VerifyPerformanceResult("TestCaseDeserialize2", 2000, sw.ElapsedMilliseconds);
@@ -82,6 +84,7 @@ namespace Microsoft.TestPlatform.PerformanceTests
             {
                 Serialize(testResult, 2);
             }
+
             sw.Stop();
 
             VerifyPerformanceResult("TestResultSerialize2", 2000, sw.ElapsedMilliseconds);
@@ -98,6 +101,7 @@ namespace Microsoft.TestPlatform.PerformanceTests
             {
                 Deserialize<TestResult>(json, 2);
             }
+
             sw.Stop();
 
             VerifyPerformanceResult("TestResultDeserialize2", 2000, sw.ElapsedMilliseconds);

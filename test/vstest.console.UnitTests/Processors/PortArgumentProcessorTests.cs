@@ -137,7 +137,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
             this.executor.Initialize(port.ToString());
             var result = executor.Execute();
 
-            this.testDesignModeClient.Verify(td =>
+            this.testDesignModeClient.Verify(
+                td =>
                 td.ConnectToClientAndProcessRequests(port, this.testRequestManager.Object), Times.Once);
 
             Assert.AreEqual(ArgumentProcessorResult.Success, result);
@@ -149,7 +150,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
             this.executor = new PortArgumentExecutor(CommandLineOptions.Instance, this.testRequestManager.Object,
                 (parentProcessId, ph) => testDesignModeClient.Object, this.mockProcessHelper.Object);
 
-            testDesignModeClient.Setup(td => td.ConnectToClientAndProcessRequests(It.IsAny<int>(),
+            testDesignModeClient.Setup(td => td.ConnectToClientAndProcessRequests(
+                It.IsAny<int>(),
                 It.IsAny<ITestRequestManager>())).Callback(() => { throw new TimeoutException(); });
 
             int port = 2345;
@@ -168,7 +170,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
             parentProcessIdArgumentExecutor.Initialize(parentProcessId.ToString());
 
             int actualParentProcessId = -1;
-            this.executor = new PortArgumentExecutor(CommandLineOptions.Instance,
+            this.executor = new PortArgumentExecutor(
+                CommandLineOptions.Instance,
                 this.testRequestManager.Object,
                 (ppid, ph) =>
                 {
@@ -182,7 +185,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
             this.executor.Initialize(port.ToString());
             var result = executor.Execute();
 
-            testDesignModeClient.Verify(td =>
+            testDesignModeClient.Verify(
+                td =>
                 td.ConnectToClientAndProcessRequests(port, testRequestManager.Object), Times.Once);
 
             Assert.AreEqual(parentProcessId, actualParentProcessId, "Parent process Id must be set correctly on design mode initializer");

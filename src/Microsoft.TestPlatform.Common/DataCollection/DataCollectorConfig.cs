@@ -59,7 +59,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector
         }
 
         /// <inheritdoc />
-        public override ICollection<Object> Metadata
+        public override ICollection<object> Metadata
         {
             get
             {

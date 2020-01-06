@@ -45,11 +45,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
         /// <param name="input">Input to break up.</param>
         public CommandArgumentPair(string input)
         {
-            if (String.IsNullOrWhiteSpace(input))
+            if (string.IsNullOrWhiteSpace(input))
             {
                 throw new ArgumentException(CommandLineResources.CannotBeNullOrEmpty, "input");
             }
-            Contract.Ensures(!String.IsNullOrWhiteSpace(Command));
+
+            Contract.Ensures(!string.IsNullOrWhiteSpace(Command));
 
             this.Parse(input);
         }
@@ -61,7 +62,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
         /// <param name="argument">The argument portion of the input.</param>
         public CommandArgumentPair(string command, string argument)
         {
-            if (String.IsNullOrWhiteSpace(command))
+            if (string.IsNullOrWhiteSpace(command))
             {
                 throw new ArgumentException(CommandLineResources.CannotBeNullOrEmpty, "command");
             }
@@ -83,8 +84,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
         /// <param name="input">Input string to parse.</param>
         private void Parse(string input)
         {
-            Contract.Requires(!String.IsNullOrWhiteSpace(input));
-            Contract.Ensures(!String.IsNullOrWhiteSpace(Command));
+            Contract.Requires(!string.IsNullOrWhiteSpace(input));
+            Contract.Ensures(!string.IsNullOrWhiteSpace(Command));
             Contract.Ensures(Argument != null);
 
             // Find the index of the seperator (":")
@@ -94,7 +95,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
             {
                 // No seperator was found, so use the input as the command.
                 this.Command = input;
-                this.Argument = String.Empty;
+                this.Argument = string.Empty;
             }
             else
             {

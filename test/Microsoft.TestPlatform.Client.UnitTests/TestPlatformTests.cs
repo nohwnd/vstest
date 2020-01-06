@@ -534,11 +534,13 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.UnitTests
 
         private class TestableTestPlatform : TestPlatform
         {
-            public TestableTestPlatform(ITestEngine testEngine, ITestRuntimeProvider hostProvider) : base(testEngine, new FileHelper(), new TestableTestRuntimeProviderManager(hostProvider))
+            public TestableTestPlatform(ITestEngine testEngine, ITestRuntimeProvider hostProvider)
+                : base(testEngine, new FileHelper(), new TestableTestRuntimeProviderManager(hostProvider))
             {
             }
 
-            public TestableTestPlatform(ITestEngine testEngine, IFileHelper fileHelper, ITestRuntimeProvider hostProvider) : base(testEngine, fileHelper, new TestableTestRuntimeProviderManager(hostProvider))
+            public TestableTestPlatform(ITestEngine testEngine, IFileHelper fileHelper, ITestRuntimeProvider hostProvider)
+                : base(testEngine, fileHelper, new TestableTestRuntimeProviderManager(hostProvider))
             {
             }
         }

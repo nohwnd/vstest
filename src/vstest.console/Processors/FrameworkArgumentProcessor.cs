@@ -158,7 +158,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             }
             else
             {
-                this.runSettingsManager.UpdateRunSettingsNode(FrameworkArgumentExecutor.RunSettingsPath,
+                this.runSettingsManager.UpdateRunSettingsNode(
+                    FrameworkArgumentExecutor.RunSettingsPath,
                     validFramework.ToString());
             }
 

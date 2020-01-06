@@ -36,7 +36,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// </summary>
         internal RequestId()
         {
-            Id = Guid.NewGuid();
+            this.Id = Guid.NewGuid();
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// <param name="id">The GUID to use as the underlying ID</param>
         internal RequestId(Guid id)
         {
-            Id = id;
+            this.Id = id;
         }
 
         #endregion
@@ -75,7 +75,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
                 return false;
             }
 
-            return Id == other.Id;
+            return this.Id == other.Id;
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// <returns>The underlying GUID's hash code</returns>
         public override int GetHashCode()
         {
-            return Id.GetHashCode();
+            return this.Id.GetHashCode();
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// <returns>A lower-case string in registry format representing the underlying GUID</returns>
         public override string ToString()
         {
-            return Id.ToString("B");
+            return this.Id.ToString("B");
         }
 
         #endregion
@@ -112,7 +112,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
             return
                 other != null && (
                         object.ReferenceEquals(this, other) ||
-                        Id == other.Id
+                        this.Id == other.Id
                     );
         }
 
@@ -127,7 +127,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// <returns>An indication of the two request IDs' relative values</returns>
         public int CompareTo(RequestId other)
         {
-            return other == null ? 1 : Id.CompareTo(other.Id);
+            return other == null ? 1 : this.Id.CompareTo(other.Id);
         }
 
         #endregion
@@ -155,7 +155,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
                 throw new ArgumentException(string.Format(Resources.Common_ObjectMustBeOfType, new object[] { typeof(RequestId).Name }), "obj");
             }
 
-            return Id.CompareTo(other.Id);
+            return this.Id.CompareTo(other.Id);
         }
 
         #endregion

@@ -10,7 +10,8 @@ namespace vstest.console.UnitTests.TestDoubles
 
     internal class DummyLoggerEvents : InternalTestLoggerEvents
     {
-        public DummyLoggerEvents(TestSessionMessageLogger testSessionMessageLogger) : base(testSessionMessageLogger)
+        public DummyLoggerEvents(TestSessionMessageLogger testSessionMessageLogger)
+            : base(testSessionMessageLogger)
         {
         }
 

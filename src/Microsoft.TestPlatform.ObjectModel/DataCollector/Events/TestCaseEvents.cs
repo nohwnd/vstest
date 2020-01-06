@@ -23,7 +23,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestCaseEventArgs"/> class. 
+        /// Initializes a new instance of the <see cref="TestCaseEventArgs"/> class.
         /// </summary>
         /// <param name="context">
         /// Context information for the test case
@@ -50,7 +50,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestCaseEventArgs"/> class. 
+        /// Initializes a new instance of the <see cref="TestCaseEventArgs"/> class.
         /// </summary>
         /// <param name="context">
         /// Context information for the test case
@@ -76,6 +76,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
             this.TestElement = testElement;
             this.TestCaseId = testElement.Id;
             this.TestCaseName = testElement.DisplayName;
+
             // IsChildTestCase = testElement != null &&
             // !testElement.ParentExecId.Equals(TestExecId.Empty);
         }
@@ -133,7 +134,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     [DataContract]
     public sealed class TestCaseStartEventArgs : TestCaseEventArgs
     {
-        #region Constructor       
+        #region Constructor
 
         /// <summary>
         /// Default constructor for serialization/deserialization
@@ -148,12 +149,13 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// <param name="testElement">
         /// The test element.
         /// </param>
-        public TestCaseStartEventArgs(TestCase testElement) : this(new DataCollectionContext(new SessionId(Guid.Empty)), testElement)
+        public TestCaseStartEventArgs(TestCase testElement)
+            : this(new DataCollectionContext(new SessionId(Guid.Empty)), testElement)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestCaseStartEventArgs"/> class. 
+        /// Initializes a new instance of the <see cref="TestCaseStartEventArgs"/> class.
         /// Initializes the instance by storing the given information.
         /// </summary>
         /// <param name="context">
@@ -176,7 +178,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestCaseStartEventArgs"/> class. 
+        /// Initializes a new instance of the <see cref="TestCaseStartEventArgs"/> class.
         /// Initializes the instance by storing the given information
         /// </summary>
         /// <param name="context">
@@ -231,12 +233,13 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         /// Default constructor with default DataCollectionContext.
         /// DataCollectionContext with empty session signifies that is it irrelevent in the current context.
         /// </remarks>
-        public TestCaseEndEventArgs(TestCase testElement, TestOutcome testOutcome) : this(new DataCollectionContext(new SessionId(Guid.Empty)), testElement, testOutcome)
+        public TestCaseEndEventArgs(TestCase testElement, TestOutcome testOutcome)
+            : this(new DataCollectionContext(new SessionId(Guid.Empty)), testElement, testOutcome)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestCaseEndEventArgs"/> class. 
+        /// Initializes a new instance of the <see cref="TestCaseEndEventArgs"/> class.
         /// Initializes the instance by storing the given information.
         /// </summary>
         /// <param name="context">
@@ -264,7 +267,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestCaseEndEventArgs"/> class. 
+        /// Initializes a new instance of the <see cref="TestCaseEndEventArgs"/> class.
         /// </summary>
         /// <param name="context">
         /// Context information for the test case
@@ -288,7 +291,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestCaseEndEventArgs"/> class. 
+        /// Initializes a new instance of the <see cref="TestCaseEndEventArgs"/> class.
         /// Initializes the instance by storing the given information
         /// </summary>
         /// <param name="context">
@@ -365,7 +368,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestResultEventArgs"/> class. 
+        /// Initializes a new instance of the <see cref="TestResultEventArgs"/> class.
         /// Initializes the instance by storing the given information.
         /// </summary>
         /// <param name="context">
@@ -389,7 +392,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestResultEventArgs"/> class. 
+        /// Initializes a new instance of the <see cref="TestResultEventArgs"/> class.
         /// Initializes the instance by storing the given information
         /// </summary>
         /// <param name="context">

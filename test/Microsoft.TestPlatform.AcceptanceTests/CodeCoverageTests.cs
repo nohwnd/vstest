@@ -80,10 +80,12 @@ namespace Microsoft.TestPlatform.AcceptanceTests
             out string trxFilePath)
         {
             var assemblyPaths = this.GetAssetFullPath(assemblyName);
-            string runSettings = Path.Combine(IntegrationTestEnvironment.TestPlatformRootDirectory,
+            string runSettings = Path.Combine(
+                IntegrationTestEnvironment.TestPlatformRootDirectory,
                 @"scripts\vstest-codecoverage.runsettings");
 
-            string traceDataCollectorDir = Path.Combine(IntegrationTestEnvironment.TestPlatformRootDirectory,
+            string traceDataCollectorDir = Path.Combine(
+                IntegrationTestEnvironment.TestPlatformRootDirectory,
                 $@"src\DataCollectors\TraceDataCollector\bin\{IntegrationTestEnvironment.BuildConfiguration}\netstandard2.0");
 
             string diagFileName = Path.Combine(this.resultsDirectory, "diaglog.txt");
@@ -156,17 +158,20 @@ namespace Microsoft.TestPlatform.AcceptanceTests
             {
                 doc.Load(trxStream);
                 var deploymentElements = doc.GetElementsByTagName("Deployment");
-                Assert.IsTrue(deploymentElements.Count == 1,
+                Assert.IsTrue(
+                    deploymentElements.Count == 1,
                     "None or more than one Deployment tags found in trx file:{0}", trxFilePath);
                 var deploymentDir = deploymentElements[0].Attributes.GetNamedItem("runDeploymentRoot")?.Value;
-                Assert.IsTrue(string.IsNullOrEmpty(deploymentDir) == false,
+                Assert.IsTrue(
+                    string.IsNullOrEmpty(deploymentDir) == false,
                     "runDeploymentRoot attatribute not found in trx file:{0}", trxFilePath);
                 var collectors = doc.GetElementsByTagName("Collector");
 
                 string fileName = string.Empty;
                 for (int i = 0; i < collectors.Count; i++)
                 {
-                    if (string.Equals(collectors[i].Attributes.GetNamedItem("collectorDisplayName").Value,
+                    if (string.Equals(
+                        collectors[i].Attributes.GetNamedItem("collectorDisplayName").Value,
                         "Code Coverage", StringComparison.OrdinalIgnoreCase))
                     {
                         fileName = collectors[i].FirstChild?.FirstChild?.FirstChild?.Attributes.GetNamedItem("href")

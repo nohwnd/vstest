@@ -48,6 +48,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLineUtilities
                             // show up if there is mismatch with user provided platform.
                             arch = Architecture.AnyCPU;
                         }
+
                         sourcePlatforms[source]=(Architecture)arch;
 
                         if (Architecture.AnyCPU.Equals(arch))
@@ -153,6 +154,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLineUtilities
                         fx = new FrameworkName(Framework.DefaultFramework.Name);
                     }
                 }
+
                 sourceFrameworkVersions[source] = Framework.FromString(fx.FullName);
 
                 if (finalFx == null)
@@ -175,6 +177,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLineUtilities
                     finalFx = new FrameworkName(Framework.DefaultFramework.Name);
                 }
             }
+
             return finalFx;
         }
 

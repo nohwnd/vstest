@@ -37,11 +37,11 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilitie
         /// <summary>
         /// Metadata for the testhost plugin
         /// </summary>
-        public override ICollection<Object> Metadata
+        public override ICollection<object> Metadata
         {
             get
             {
-                return new Object[] { this.ExtensionUri, this.FriendlyName };
+                return new object[] { this.ExtensionUri, this.FriendlyName };
             }
         }
 

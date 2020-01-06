@@ -118,7 +118,8 @@ namespace TestPlatform.Common.UnitTests.ExtensionFramework
 
     internal class DummyTestExtensionManager : TestExtensionManager<ITestLogger, ITestLoggerCapabilities>
     {
-        public DummyTestExtensionManager(IEnumerable<LazyExtension<ITestLogger, Dictionary<string, object>>> unfilteredTestExtensions, IEnumerable<LazyExtension<ITestLogger, ITestLoggerCapabilities>> testExtensions, IMessageLogger logger) : base(unfilteredTestExtensions, testExtensions, logger)
+        public DummyTestExtensionManager(IEnumerable<LazyExtension<ITestLogger, Dictionary<string, object>>> unfilteredTestExtensions, IEnumerable<LazyExtension<ITestLogger, ITestLoggerCapabilities>> testExtensions, IMessageLogger logger)
+            : base(unfilteredTestExtensions, testExtensions, logger)
         {
         }
     }

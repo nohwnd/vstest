@@ -90,7 +90,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection
         /// <param name="processHelper">
         ///     The process helper.
         /// </param>
-        internal ProxyDataCollectionManager(IRequestData requestData, string settingsXml, IEnumerable<string> sources, IProcessHelper processHelper) : this(requestData, settingsXml, sources, new DataCollectionRequestSender(), processHelper, DataCollectionLauncherFactory.GetDataCollectorLauncher(processHelper, settingsXml))
+        internal ProxyDataCollectionManager(IRequestData requestData, string settingsXml, IEnumerable<string> sources, IProcessHelper processHelper)
+            : this(requestData, settingsXml, sources, new DataCollectionRequestSender(), processHelper, DataCollectionLauncherFactory.GetDataCollectorLauncher(processHelper, settingsXml))
         {
         }
 

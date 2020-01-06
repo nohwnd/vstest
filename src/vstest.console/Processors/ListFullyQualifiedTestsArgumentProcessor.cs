@@ -150,8 +150,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
         public ListFullyQualifiedTestsArgumentExecutor(
             CommandLineOptions options,
             IRunSettingsProvider runSettingsProvider,
-            ITestRequestManager testRequestManager) :
-                this(options, runSettingsProvider, testRequestManager, ConsoleOutput.Instance)
+            ITestRequestManager testRequestManager)
+            : this(options, runSettingsProvider, testRequestManager, ConsoleOutput.Instance)
         {
         }
 
@@ -262,7 +262,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                 discoveryRequest.OnDiscoveredTests -= this.discoveryRequest_OnDiscoveredTests;
             }
 
-            private void discoveryRequest_OnDiscoveredTests(Object sender, DiscoveredTestsEventArgs args)
+            private void discoveryRequest_OnDiscoveredTests(object sender, DiscoveredTestsEventArgs args)
             {
                 if (args == null)
                 {
@@ -334,7 +334,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 
                 if (filterWrapper.ParseError != null)
                 {
-                    var fe = new FormatException(String.Format("Invalid Test Case Filter: {0}", filterString));
+                    var fe = new FormatException(string.Format("Invalid Test Case Filter: {0}", filterString));
                     EqtTrace.Error("TestCaseFilter.ValidateFilter : Filtering failed with exception : " + fe.Message);
                     throw fe;
                 }
@@ -402,7 +402,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                         }
                     }
 
-                    //always return value as a list of string
+                    // always return value as a list of string
                     if (testPropertyValue != null)
                     {
                         var multiValue = new List<string> { testPropertyValue.ToString() };
@@ -443,7 +443,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                     }
                 }
 
-                //This is hack for NUnit,Xunit to understand test category -> This method is called only for NUnit/Xunit
+                // This is hack for NUnit,Xunit to understand test category -> This method is called only for NUnit/Xunit
                 if (!traitDictionary.ContainsKey(TestCategory) && traitDictionary.ContainsKey(Category))
                 {
                     traitDictionary.TryGetValue(Category, out var categoryValue);
@@ -466,6 +466,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 
                     return propertyValueArray;
                 }
+
                 return null;
             }
         }

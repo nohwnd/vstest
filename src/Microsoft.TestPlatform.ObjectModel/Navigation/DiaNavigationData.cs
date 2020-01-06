@@ -4,10 +4,9 @@
 namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
 {
 
-
     using System.Diagnostics.CodeAnalysis;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.Navigation;
-    
+
     /// <summary>
     /// A struct that stores the infomation needed by the navigation: file name, line number, column number.
     /// </summary>

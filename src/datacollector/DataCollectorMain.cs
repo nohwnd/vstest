@@ -45,8 +45,8 @@ namespace Microsoft.VisualStudio.TestPlatform.DataCollector
         private IEnvironment environment;
         private IDataCollectionRequestHandler requestHandler;
 
-        public DataCollectorMain():
-            this(
+        public DataCollectorMain()
+            : this(
                 new ProcessHelper(),
                 new PlatformEnvironment(),
                 DataCollectionRequestHandler.Create(new SocketCommunicationManager(), new MessageSink())
