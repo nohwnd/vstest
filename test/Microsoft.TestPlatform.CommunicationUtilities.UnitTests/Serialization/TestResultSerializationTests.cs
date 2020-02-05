@@ -9,8 +9,6 @@ namespace Microsoft.TestPlatform.CommunicationUtilities.UnitTests.Serialization
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Newtonsoft.Json.Linq;
-
     using TestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
 
     [TestClass]

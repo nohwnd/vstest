@@ -18,8 +18,8 @@ namespace Microsoft.TestPlatform.AcceptanceTests
         {
             SetTestEnvironment(this.testEnvironment, runnerInfo);
 
-            var diableAppdomainTest1 = testEnvironment.GetTestAsset("DisableAppdomainTest1.dll", "net451");
-            var diableAppdomainTest2 = testEnvironment.GetTestAsset("DisableAppdomainTest2.dll", "net451");
+            var diableAppdomainTest1 = testEnvironment.GetTestAsset("DisableAppdomainTest1.dll", "net461");
+            var diableAppdomainTest2 = testEnvironment.GetTestAsset("DisableAppdomainTest2.dll", "net461");
 
             RunTests(runnerInfo.RunnerFramework, string.Format("{0}\" \"{1}", diableAppdomainTest1, diableAppdomainTest2), 2);
         }
@@ -30,7 +30,7 @@ namespace Microsoft.TestPlatform.AcceptanceTests
         {
             SetTestEnvironment(this.testEnvironment, runnerInfo);
 
-            var newtonSoftDependnecyTest = testEnvironment.GetTestAsset("NewtonSoftDependency.dll", "net451");
+            var newtonSoftDependnecyTest = testEnvironment.GetTestAsset("NewtonSoftDependency.dll", "net461");
 
             RunTests(runnerInfo.RunnerFramework, newtonSoftDependnecyTest, 1);
         }
@@ -48,8 +48,8 @@ namespace Microsoft.TestPlatform.AcceptanceTests
                                                          { "DisableAppDomain", "true" }
                                                  };
 
-            var diableAppdomainTest1 = testEnvironment.GetTestAsset("DisableAppdomainTest1.dll", "net451");
-            var diableAppdomainTest2 = testEnvironment.GetTestAsset("DisableAppdomainTest2.dll", "net451");
+            var diableAppdomainTest1 = testEnvironment.GetTestAsset("DisableAppdomainTest1.dll", "net461");
+            var diableAppdomainTest2 = testEnvironment.GetTestAsset("DisableAppdomainTest2.dll", "net461");
             var arguments = PrepareArguments(
                 testAssembly,
                 string.Empty,

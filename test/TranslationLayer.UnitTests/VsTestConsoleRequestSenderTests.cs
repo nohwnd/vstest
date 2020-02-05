@@ -24,8 +24,6 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer.UnitTests
 
     using Moq;
 
-    using Newtonsoft.Json.Linq;
-
     using TestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
 
     [TestClass]

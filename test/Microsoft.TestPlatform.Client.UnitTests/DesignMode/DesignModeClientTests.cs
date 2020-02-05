@@ -24,8 +24,6 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.UnitTests.DesignMode
 
     using Moq;
 
-    using Newtonsoft.Json.Linq;
-
     [TestClass]
     public class DesignModeClientTests
     {

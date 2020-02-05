@@ -3,8 +3,7 @@
 
 namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
 {
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
+    using System.Text.Json;
 
     /// <summary>
     /// Construct used for communication

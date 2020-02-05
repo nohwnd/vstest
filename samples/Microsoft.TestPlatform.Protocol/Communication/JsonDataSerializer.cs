@@ -5,9 +5,7 @@ namespace Microsoft.TestPlatform.Protocol
 {
     using System.IO;
 
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
-    using Newtonsoft.Json.Serialization;
+    using System.Text.Json;
 
     /// <summary>
     /// JsonDataSerializer serializes and deserializes data using Json format

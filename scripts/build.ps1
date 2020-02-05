@@ -93,7 +93,7 @@ $env:MSBUILD_VERSION = "15.0"
 Write-Verbose "Setup build configuration."
 $TPB_Solution = "TestPlatform.sln"
 $TPB_TestAssets_Solution = Join-Path $env:TP_ROOT_DIR "test\TestAssets\TestAssets.sln"
-$TPB_TargetFramework = "net451"
+$TPB_TargetFramework = "net461"
 $TPB_TargetFrameworkCore20 = "netcoreapp2.1"
 $TPB_TargetFrameworkUap = "uap10.0"
 $TPB_TargetFrameworkNS2_0 = "netstandard2.0"
@@ -395,13 +395,13 @@ function Publish-Package
     }
 
     # Copy dependency of Microsoft.TestPlatform.TestHostRuntimeProvider
-    $newtonsoft = Join-Path $env:TP_PACKAGES_DIR "newtonsoft.json\9.0.1\lib\net45\Newtonsoft.Json.dll"
-    Write-Verbose "Copy-Item $newtonsoft $fullCLRPackageDir -Force"
-    Copy-Item $newtonsoft $fullCLRPackageDir -Force
+    $systemtextjson = Join-Path $env:TP_PACKAGES_DIR "system.text.json\4.7.0\lib\net45\System.Text.Json.dll"
+    Write-Verbose "Copy-Item $systemtextjson $fullCLRPackageDir -Force"
+    Copy-Item $systemtextjson $fullCLRPackageDir -Force
 
-    $newtonsoft = Join-Path $env:TP_PACKAGES_DIR "newtonsoft.json\9.0.1\lib\netstandard1.0\Newtonsoft.Json.dll"
-    Write-Verbose "Copy-Item $newtonsoft $coreCLR20PackageDir -Force"
-    Copy-Item $newtonsoft $coreCLR20PackageDir -Force
+    $systemtextjson = Join-Path $env:TP_PACKAGES_DIR "system.text.json\4.7.0\lib\netstandard2.0\System.Text.Json.dll"
+    Write-Verbose "Copy-Item $systemtextjson $coreCLR20PackageDir -Force"
+    Copy-Item $systemtextjson $coreCLR20PackageDir -Force
 
     # For libraries that are externally published, copy the output into artifacts. These will be signed and packaged independently.
     Copy-PackageItems "Microsoft.TestPlatform.Build"
@@ -630,8 +630,8 @@ function Create-NugetPackages
     # Call nuget pack on these components.
     $nugetExe = Join-Path $env:TP_PACKAGES_DIR -ChildPath "Nuget.CommandLine" | Join-Path -ChildPath $env:NUGET_EXE_Version | Join-Path -ChildPath "tools\NuGet.exe"
 
-    # Pass Newtonsoft.Json version to nuget pack to keep the version consistent across all nuget packages.
-    $JsonNetVersion = ([xml](Get-Content $env:TP_ROOT_DIR\scripts\build\TestPlatform.Dependencies.props)).Project.PropertyGroup.JsonNetVersion
+    # Pass System.Text.Json version to nuget pack to keep the version consistent across all nuget packages.
+    $SystemTextJsonVersion = ([xml](Get-Content $env:TP_ROOT_DIR\scripts\build\TestPlatform.Dependencies.props)).Project.PropertyGroup.SystemTextJsonVersion
 
     # package them from stagingDir
     foreach ($file in $nuspecFiles) {
@@ -641,7 +641,7 @@ function Create-NugetPackages
         }
 
         Write-Verbose "$nugetExe pack $stagingDir\$file -OutputDirectory $packageOutputDir -Version $TPB_Version -Properties Version=$TPB_Version $additionalArgs"
-        & $nugetExe pack $stagingDir\$file -OutputDirectory $packageOutputDir -Version $TPB_Version -Properties Version=$TPB_Version`;JsonNetVersion=$JsonNetVersion`;Runtime=$TPB_TargetRuntime`;NetCoreTargetFramework=$TPB_TargetFrameworkCore20 $additionalArgs
+        & $nugetExe pack $stagingDir\$file -OutputDirectory $packageOutputDir -Version $TPB_Version -Properties Version=$TPB_Version`;SystemTextJsonVersion=$SystemTextJsonVersion`;Runtime=$TPB_TargetRuntime`;NetCoreTargetFramework=$TPB_TargetFrameworkCore20 $additionalArgs
 
         Set-ScriptFailedOnError
     }
@@ -677,8 +677,8 @@ function Copy-CodeCoverage-Package-Artifacts
 function Copy-PackageItems($packageName)
 {
     # Packages published separately are copied into their own artifacts directory
-    # E.g. src\Microsoft.TestPlatform.ObjectModel\bin\Debug\net451\* is copied
-    # to artifacts\Debug\Microsoft.TestPlatform.ObjectModel\net451
+    # E.g. src\Microsoft.TestPlatform.ObjectModel\bin\Debug\net461\* is copied
+    # to artifacts\Debug\Microsoft.TestPlatform.ObjectModel\net461
     $binariesDirectory = [System.IO.Path]::Combine("src", "$packageName", "bin", "$TPB_Configuration")
     $binariesDirectory = $(Join-Path $binariesDirectory "*")
     $publishDirectory = $(Join-Path $env:TP_OUT_DIR "$TPB_Configuration\$packageName")
@@ -860,7 +860,7 @@ function Build-SpecificProjects
 {
     Write-Log "Build-SpecificProjects: Started for pattern: $ProjectNamePatterns"
     # FrameworksAndOutDirs format ("<target_framework>", "<output_dir>").
-    $FrameworksAndOutDirs =( ("net451", "net451\win7-x64"), ("netstandard2.0", "netcoreapp2.1"), ("netcoreapp2.1", "netcoreapp2.1"))
+    $FrameworksAndOutDirs =( ("net461", "net461\win7-x64"), ("netstandard2.0", "netcoreapp2.1"), ("netcoreapp2.1", "netcoreapp2.1"))
     $dotnetPath = Get-DotNetPath
 
     # Get projects to build.

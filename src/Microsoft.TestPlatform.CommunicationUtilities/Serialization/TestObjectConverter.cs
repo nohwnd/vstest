@@ -8,8 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serializati
 
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
+    using System.Text.Json;
 
     /// <summary>
     /// JSON converter for the <see cref="TestObject"/> and derived entities.

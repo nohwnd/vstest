@@ -5,7 +5,6 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serializati
 {
     using System;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-    using Newtonsoft.Json.Serialization;
 
     /// <summary>
     /// JSON contract resolver for mapping test platform types for v1 serialization.

@@ -8,7 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
 
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.ClientProtocol;
 
-    using Newtonsoft.Json;
+    using System.Text.Json;
 
     /// <summary>
     /// The test run criteria with sources.

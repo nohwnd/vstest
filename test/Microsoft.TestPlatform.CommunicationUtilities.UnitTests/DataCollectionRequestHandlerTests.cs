@@ -26,7 +26,6 @@ namespace Microsoft.TestPlatform.CommunicationUtilities.UnitTests
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Moq;
-    using Newtonsoft.Json.Linq;
     using VisualStudio.TestPlatform.CoreUtilities.Helpers;
 
     using CommunicationUtilitiesResources = Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Resources.Resources;

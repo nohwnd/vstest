@@ -22,7 +22,7 @@
     <FileSystemGlobbingVersion>1.1.1</FileSystemGlobbingVersion>
 
     <NuGetFrameworksVersion>5.0.0</NuGetFrameworksVersion>
-    <JsonNetVersion>9.0.1</JsonNetVersion>
+    <SystemTextJsonVersion>4.7.0</SystemTextJsonVersion>
     <MoqVersion>4.7.63</MoqVersion>
     <TestPlatformExternalsVersion>16.0.0-preview-2148743</TestPlatformExternalsVersion>
 

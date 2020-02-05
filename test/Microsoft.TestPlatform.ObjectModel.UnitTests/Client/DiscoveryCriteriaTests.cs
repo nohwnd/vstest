@@ -9,7 +9,7 @@ namespace Microsoft.TestPlatform.ObjectModel.UnitTests.Client
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Newtonsoft.Json;
+    using System.Text.Json;
 
     [TestClass]
     public class DiscoveryCriteriaTests

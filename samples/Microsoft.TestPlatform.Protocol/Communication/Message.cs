@@ -3,8 +3,7 @@
 
 namespace Microsoft.TestPlatform.Protocol
 {
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
+    using System.Text.Json;
 
     public class Message
     {

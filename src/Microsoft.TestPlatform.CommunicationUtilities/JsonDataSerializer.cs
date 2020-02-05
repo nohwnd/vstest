@@ -8,9 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
     using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serialization;
 
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
-    using Newtonsoft.Json.Serialization;
+    using System.Text.Json;
 
     /// <summary>
     /// JsonDataSerializes serializes and deserializes data using Json format
@@ -48,7 +46,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
             // MemoryTraceWriter can help diagnose serialization issues. Enable it for
             // debug builds only.
             // Note that MemoryTraceWriter is not thread safe, please don't use it in parallel
-            // test runs. See https://github.com/JamesNK/Newtonsoft.Json/issues/1279
+            // test runs. See https://github.com/JamesNK/System.Text.Json/issues/1279
             payloadSerializer.TraceWriter = new MemoryTraceWriter();
             payloadSerializer2.TraceWriter = new MemoryTraceWriter();
 #endif

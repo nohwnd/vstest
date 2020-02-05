@@ -5,7 +5,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serializati
 {
     using System;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
-    using Newtonsoft.Json;
+    using System.Text.Json;
 
     /// <summary>
     /// JSON converter for converting ITestRunStatistics to TestRunStatistics

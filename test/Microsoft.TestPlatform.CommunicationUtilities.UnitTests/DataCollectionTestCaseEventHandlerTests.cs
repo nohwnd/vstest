@@ -18,8 +18,6 @@ namespace Microsoft.TestPlatform.CommunicationUtilities.UnitTests
 
     using Moq;
 
-    using Newtonsoft.Json.Linq;
-
     [TestClass]
     public class DataCollectionTestCaseEventHandlerTests
     {
