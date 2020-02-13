@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TestPlatformRoot Condition="$(TestPlatformRoot) == ''">..\..\</TestPlatformRoot>
+  </PropertyGroup>
+  <Import Project="$(TestPlatformRoot)scripts/build/TestPlatform.Settings.targets" />
+  <PropertyGroup>
+    <AssemblyName>Microsoft.VisualStudio.TestPlatform.ObjectModel.Primitives</AssemblyName>
+    <RootNamespace>Microsoft.VisualStudio.TestPlatform.ObjectModel</RootNamespace>
+    <TargetFrameworks>netstandard1.0</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(DotNetBuildFromSource)' == 'true' ">netstandard2.0</TargetFrameworks>
+    <PackageId>Microsoft.TestPlatform.ObjectModel</PackageId>
+  </PropertyGroup>
+    <Import Project="$(TestPlatformRoot)scripts\build\TestPlatform.targets" />
+    <ItemGroup>
+      <EmbeddedResource Include="Resources\Resources.resx">
+        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        <Generator>ResXFileCodeGenerator</Generator>
+      </EmbeddedResource>
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+      <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Update="Resources\Resources.Designer.cs">
+        <DependentUpon>Resources.resx</DependentUpon>
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+      </Compile>
+    </ItemGroup>
+
+
+</Project>

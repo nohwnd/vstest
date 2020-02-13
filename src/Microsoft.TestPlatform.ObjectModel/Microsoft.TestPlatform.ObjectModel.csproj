@@ -29,12 +29,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.TestPlatform.CoreUtilities\Microsoft.TestPlatform.CoreUtilities.csproj" />
+    <ProjectReference Include="..\Microsoft.TestPlatform.ObjectModel.Primitives\Microsoft.TestPlatform.ObjectModel.Primitives.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NuGet.Frameworks" Version="$(NuGetFrameworksVersion)" />
-    <PackageReference Include="System.Reflection.Metadata">
-      <Version>1.6.0</Version>
-    </PackageReference>
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\CommonResources.Designer.cs">
@@ -61,6 +59,10 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Logging\Interfaces\" />
+    <Folder Include="TestProperty\" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <RootNamespace>Microsoft.VisualStudio.TestPlatform.ObjectModel</RootNamespace>
