@@ -62,7 +62,7 @@ namespace Microsoft.TestPlatform.Protocol
 
             if(framework.Equals(DesktopFramework, StringComparison.OrdinalIgnoreCase) && String.IsNullOrEmpty(testadapterPath))
             {
-                Console.WriteLine("Please specify the test adapter path for running tests targeting net45 plus frameworks");
+                Console.WriteLine("Please specify the test adapter path for running tests targeting net472 plus frameworks");
                 return 0;
             }
 

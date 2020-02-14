@@ -43,7 +43,7 @@ namespace Microsoft.TestPlatform.CommunicationUtilities.PlatformTests
         public void Dispose()
         {
             this.tcpListener.Stop();
-#if NET451
+#if NET472
             // tcpClient.Close() calls tcpClient.Dispose().
             this.tcpClient?.Close();
 #else

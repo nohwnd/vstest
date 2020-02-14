@@ -11,7 +11,7 @@ Param(
     [System.String] $TargetRuntime = "win7-x64",
 
     [Parameter(Mandatory=$false)]
-    [ValidateSet("netcoreapp2.1", "net451", "net452")]
+    [ValidateSet("netcoreapp2.1", "net472", "net4722")]
     [Alias("f")]
     [System.String] $TargetFramework,
 
@@ -39,12 +39,12 @@ $env:TP_OUT_DIR = Join-Path $env:TP_ROOT_DIR "artifacts"
 #
 # Test configuration
 #
-$TPT_TargetFrameworkFullCLR = "net451"
+$TPT_TargetFrameworkFullCLR = "net472"
 $TPT_TargetFramework20Core = "netcoreapp2.1"
 Write-Verbose "Setup build configuration."
 $Script:TPT_Configuration = $Configuration
 $Script:TPT_SourceFolders =  @(Join-Path $env:TP_ROOT_DIR "test\TestAssets")
-$Script:TPT_TargetFrameworks =@($TPT_TargetFramework20Core, $TPT_TargetFrameworkFullCLR, "net452")
+$Script:TPT_TargetFrameworks =@($TPT_TargetFramework20Core, $TPT_TargetFrameworkFullCLR, "net4722")
 $Script:TPT_TargetFramework = $TargetFramework
 $Script:TPT_TargetRuntime = $TargetRuntime
 $Script:TPT_Pattern = $Pattern
@@ -165,7 +165,7 @@ function Get-ConsoleRunnerPath($runner, $targetFrameWork)
     }
     if($runner -eq "xunit.runner.console")
     {
-        return "$env:TP_PACKAGES_DIR\xunit.runner.console\$($Script:TPT_DependencyProps.Project.PropertyGroup.XUnitConsoleRunnerVersion)\tools\net452\xunit.console.exe"
+        return "$env:TP_PACKAGES_DIR\xunit.runner.console\$($Script:TPT_DependencyProps.Project.PropertyGroup.XUnitConsoleRunnerVersion)\tools\net4722\xunit.console.exe"
     }
     if($runner -eq "nunit.consolerunner")
     {

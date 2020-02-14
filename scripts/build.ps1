@@ -93,7 +93,7 @@ $env:MSBUILD_VERSION = "15.0"
 Write-Verbose "Setup build configuration."
 $TPB_Solution = "TestPlatform.sln"
 $TPB_TestAssets_Solution = Join-Path $env:TP_ROOT_DIR "test\TestAssets\TestAssets.sln"
-$TPB_TargetFramework = "net451"
+$TPB_TargetFramework = "net472"
 $TPB_TargetFrameworkCore20 = "netcoreapp2.1"
 $TPB_TargetFrameworkUap = "uap10.0"
 $TPB_TargetFrameworkNS2_0 = "netstandard2.0"
@@ -395,7 +395,7 @@ function Publish-Package
     }
 
     # Copy dependency of Microsoft.TestPlatform.TestHostRuntimeProvider
-    $newtonsoft = Join-Path $env:TP_PACKAGES_DIR "newtonsoft.json\9.0.1\lib\net45\Newtonsoft.Json.dll"
+    $newtonsoft = Join-Path $env:TP_PACKAGES_DIR "newtonsoft.json\9.0.1\lib\net472\Newtonsoft.Json.dll"
     Write-Verbose "Copy-Item $newtonsoft $fullCLRPackageDir -Force"
     Copy-Item $newtonsoft $fullCLRPackageDir -Force
 
@@ -423,8 +423,8 @@ function Publish-Package
         New-Item $testPlatformDirectory -Type Directory -Force | Out-Null
     }
 
-    $visualStudioTelemetryDirectory = Join-Path $env:TP_PACKAGES_DIR "Microsoft.VisualStudio.Telemetry\15.6.815-master284DF69C\lib\net45"
-    $visualStudioUtilitiesDirectory = Join-Path $env:TP_PACKAGES_DIR "Microsoft.VisualStudio.Utilities.Internal\14.0.74-masterCEEA65A3\lib\net45"
+    $visualStudioTelemetryDirectory = Join-Path $env:TP_PACKAGES_DIR "Microsoft.VisualStudio.Telemetry\15.6.815-master284DF69C\lib\net472"
+    $visualStudioUtilitiesDirectory = Join-Path $env:TP_PACKAGES_DIR "Microsoft.VisualStudio.Utilities.Internal\14.0.74-masterCEEA65A3\lib\net472"
 
     Copy-Item "$visualStudioTelemetryDirectory\Microsoft.VisualStudio.Telemetry.dll" $testPlatformDirectory -Force
     Copy-Item "$visualStudioUtilitiesDirectory\Microsoft.VisualStudio.Utilities.Internal.dll" $testPlatformDirectory -Force
@@ -677,8 +677,8 @@ function Copy-CodeCoverage-Package-Artifacts
 function Copy-PackageItems($packageName)
 {
     # Packages published separately are copied into their own artifacts directory
-    # E.g. src\Microsoft.TestPlatform.ObjectModel\bin\Debug\net451\* is copied
-    # to artifacts\Debug\Microsoft.TestPlatform.ObjectModel\net451
+    # E.g. src\Microsoft.TestPlatform.ObjectModel\bin\Debug\net472\* is copied
+    # to artifacts\Debug\Microsoft.TestPlatform.ObjectModel\net472
     $binariesDirectory = [System.IO.Path]::Combine("src", "$packageName", "bin", "$TPB_Configuration")
     $binariesDirectory = $(Join-Path $binariesDirectory "*")
     $publishDirectory = $(Join-Path $env:TP_OUT_DIR "$TPB_Configuration\$packageName")
@@ -860,7 +860,7 @@ function Build-SpecificProjects
 {
     Write-Log "Build-SpecificProjects: Started for pattern: $ProjectNamePatterns"
     # FrameworksAndOutDirs format ("<target_framework>", "<output_dir>").
-    $FrameworksAndOutDirs =( ("net451", "net451\win7-x64"), ("netstandard2.0", "netcoreapp2.1"), ("netcoreapp2.1", "netcoreapp2.1"))
+    $FrameworksAndOutDirs =( ("net472", "net472\win7-x64"), ("netstandard2.0", "netcoreapp2.1"), ("netcoreapp2.1", "netcoreapp2.1"))
     $dotnetPath = Get-DotNetPath
 
     # Get projects to build.
@@ -923,14 +923,14 @@ Write-Log "Test platform build variables: "
 Get-Variable | Where-Object -FilterScript { $_.Name.StartsWith("TPB_") } | Format-Table
 Install-DotNetCli
 Restore-Package
-Update-LocalizedResources
+# Update-LocalizedResources
 Invoke-Build
 Publish-Package
-Publish-PatchedDotnet
-Publish-Tests
-Create-VsixPackage
-Create-NugetPackages
-Generate-Manifest
+# Publish-PatchedDotnet
+# Publish-Tests
+# Create-VsixPackage
+# Create-NugetPackages
+# Generate-Manifest
 Write-Log "Build complete. {$(Get-ElapsedTime($timer))}"
 if ($Script:ScriptFailed) { Exit 1 } else { Exit 0 }
  

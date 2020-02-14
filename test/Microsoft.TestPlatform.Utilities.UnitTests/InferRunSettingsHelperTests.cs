@@ -396,17 +396,17 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
             #region Arrange
             sourceArchitectures["AnyCPU1net46.dll"] = Architecture.AnyCPU;
             sourceArchitectures["x64net47.exe"] = Architecture.X64;
-            sourceArchitectures["x86net45.dll"] = Architecture.X86;
+            sourceArchitectures["x86net472.dll"] = Architecture.X86;
 
             sourceFrameworks["AnyCPU1net46.dll"] = frameworkNet46;
             sourceFrameworks["x64net47.exe"] = frameworkNet47;
-            sourceFrameworks["x86net45.dll"] = frameworkNet45;
+            sourceFrameworks["x86net472.dll"] = frameworkNet45;
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine();
             sb.AppendLine(GetSourceIncompatibleMessage("AnyCPU1net46.dll"));
             sb.AppendLine(GetSourceIncompatibleMessage("x64net47.exe"));
-            sb.AppendLine(GetSourceIncompatibleMessage("x86net45.dll"));
+            sb.AppendLine(GetSourceIncompatibleMessage("x86net472.dll"));
 
             var expected = string.Format(CultureInfo.CurrentCulture, OMResources.DisplayChosenSettings, frameworkNet47, Constants.DefaultPlatform, sb.ToString(), @"http://go.microsoft.com/fwlink/?LinkID=236877&clcid=0x409");
             #endregion
@@ -422,22 +422,22 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
         [TestMethod]
         public void FilterCompatibleSourcesShouldIdentifyCompatibleSources()
         {
-            sourceArchitectures["x64net45.exe"] = Architecture.X64;
-            sourceArchitectures["x86net45.dll"] = Architecture.X86;
+            sourceArchitectures["x64net472.exe"] = Architecture.X64;
+            sourceArchitectures["x86net472.dll"] = Architecture.X86;
 
-            sourceFrameworks["x64net45.exe"] = frameworkNet45;
-            sourceFrameworks["x86net45.dll"] = frameworkNet45;
+            sourceFrameworks["x64net472.exe"] = frameworkNet45;
+            sourceFrameworks["x86net472.dll"] = frameworkNet45;
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine();
-            sb.AppendLine(GetSourceIncompatibleMessage("x64net45.exe"));
+            sb.AppendLine(GetSourceIncompatibleMessage("x64net472.exe"));
 
             var expected = string.Format(CultureInfo.CurrentCulture, OMResources.DisplayChosenSettings, frameworkNet45, Constants.DefaultPlatform, sb.ToString(), @"http://go.microsoft.com/fwlink/?LinkID=236877&clcid=0x409");
 
             string warningMessage = string.Empty;
             var compatibleSources = InferRunSettingsHelper.FilterCompatibleSources(Constants.DefaultPlatform, frameworkNet45, sourceArchitectures, sourceFrameworks, out warningMessage);
 
-            // only "x86net45.dll" is the compatible source
+            // only "x86net472.dll" is the compatible source
             Assert.AreEqual(1, compatibleSources.Count());
             Assert.AreEqual(expected, warningMessage);
         }
@@ -445,13 +445,13 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
         [TestMethod]
         public void FilterCompatibleSourcesShouldNotComposeWarningIfSettingsAreCorrect()
         {
-            sourceArchitectures["x86net45.dll"] = Architecture.X86;
-            sourceFrameworks["x86net45.dll"] = frameworkNet45;
+            sourceArchitectures["x86net472.dll"] = Architecture.X86;
+            sourceFrameworks["x86net472.dll"] = frameworkNet45;
 
             string warningMessage = string.Empty;
             var compatibleSources = InferRunSettingsHelper.FilterCompatibleSources(Constants.DefaultPlatform, frameworkNet45, sourceArchitectures, sourceFrameworks, out warningMessage);
 
-            // only "x86net45.dll" is the compatible source
+            // only "x86net472.dll" is the compatible source
             Assert.AreEqual(1, compatibleSources.Count());
             Assert.IsTrue(string.IsNullOrEmpty(warningMessage));
         }
@@ -459,8 +459,8 @@ namespace Microsoft.TestPlatform.Utilities.UnitTests
         [TestMethod]
         public void FilterCompatibleSourcesShouldRetrunWarningMessageIfNoConflict()
         {
-            sourceArchitectures["x64net45.exe"] = Architecture.X64;
-            sourceFrameworks["x64net45.exe"] = frameworkNet45;
+            sourceArchitectures["x64net472.exe"] = Architecture.X64;
+            sourceFrameworks["x64net472.exe"] = frameworkNet45;
 
             string warningMessage = string.Empty;
             var compatibleSources = InferRunSettingsHelper.FilterCompatibleSources(Architecture.X64, frameworkNet45, sourceArchitectures, sourceFrameworks, out warningMessage);

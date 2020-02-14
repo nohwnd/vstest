@@ -60,7 +60,7 @@ namespace Microsoft.TestPlatform.ObjectModel.UnitTests
         [TestMethod]
         public void FrameworkFromStringShouldWorkForShortNames()
         {
-            var fx = Framework.FromString("net451");
+            var fx = Framework.FromString("net472");
             Assert.AreEqual(".NETFramework,Version=v4.5.1", fx.Name);
             Assert.AreEqual("4.5.1.0", fx.Version);
 
@@ -72,7 +72,7 @@ namespace Microsoft.TestPlatform.ObjectModel.UnitTests
         [TestMethod]
         public void DefaultFrameworkShouldBeNet40OnDesktop()
         {
-#if NET451
+#if NET472
             Assert.AreEqual(".NETFramework,Version=v4.0", Framework.DefaultFramework.Name);
 #endif
         }
@@ -80,7 +80,7 @@ namespace Microsoft.TestPlatform.ObjectModel.UnitTests
         [TestMethod]
         public void DefaultFrameworkShouldBeNetCoreApp10OnNonDesktop()
         {
-#if !NET451
+#if !NET472
             Assert.AreEqual(".NETCoreApp,Version=v1.0", Framework.DefaultFramework.Name);
 #endif
         }
