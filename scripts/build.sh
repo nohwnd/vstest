@@ -188,15 +188,9 @@ function install_cli()
         log "install_cli: Get the latest dotnet cli toolset..."
         $install_script --install-dir "$TP_TOOLS_DIR/dotnet" --no-path --channel "master" --version $DOTNET_CLI_VERSION
 
-        # Get netcoreapp1.1 shared components
-        log "install_cli: Get the shared netcoreapp1.0 runtime..."
-        $install_script --install-dir "$TP_TOOLS_DIR/dotnet" --no-path --channel "preview" --version "1.0.5" --shared-runtime
-        log "install_cli: Get the shared netcoreapp1.1 runtime..."
-        $install_script --install-dir "$TP_TOOLS_DIR/dotnet" --no-path --channel "release/1.1.0" --version "1.1.2" --shared-runtime
-        log "install_cli: Get the shared netcoreapp2.0 runtime..."
-        $install_script --install-dir "$TP_TOOLS_DIR/dotnet" --no-path --channel "release/2.0.0" --version "2.0.0" --shared-runtime
-        #log "install_cli: Get shared components which is compatible with dotnet cli version $DOTNET_CLI_VERSION..."
-        #$install_script --install-dir "$TP_TOOLS_DIR/dotnet" --no-path --channel "master" --version $DOTNET_RUNTIME_VERSION --shared-runtime
+        # Get netcoreapp2.1 shared components
+        log "install_cli: Get the shared netcoreapp2.1 runtime..."
+        $install_script --install-dir "$TP_TOOLS_DIR/dotnet" --no-path --channel "release/2.1.0" --version "2.1.0" --shared-runtime
     fi
 
     local dotnet_path=$(_get_dotnet_path)
