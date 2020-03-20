@@ -82,7 +82,7 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
             return invoker ?? new DefaultEngineInvoker();
         }
 
-        private static void WaitForDebuggerIfEnabled()
+        private static void WaitForDebuggerIfEnabled(string reason)
         {
             // Check if native debugging is enabled and OS is windows.
             var nativeDebugEnabled = Environment.GetEnvironmentVariable("VSTEST_HOST_NATIVE_DEBUG");
@@ -100,12 +100,50 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
             // else check for host debugging enabled
             else
             {
-                var debugEnabled = Environment.GetEnvironmentVariable("VSTEST_HOST_DEBUG");
+                var value = Environment.GetEnvironmentVariable("VSTEST_HOST_DEBUG")?.Trim().ToLowerInvariant();
+                
+                if (string.IsNullOrEmpty(value))
+                    return;
 
-                if (!string.IsNullOrEmpty(debugEnabled) && debugEnabled.Equals("1", StringComparison.Ordinal))
+                var waitForDebugger = false;
+                int timeout = int.MaxValue;
+
+                if (value == "1" || value == "true")
                 {
+                    // wait for debugger
+                    waitForDebugger = true;
+                }
+                if (value == "0" || value == "false")
+                {
+                    // don't wait for debugger
+                    waitForDebugger = false;
+                }
+                else if (value == reason)
+                {
+                    // wait for debugger only when the reason to start it was the 
+                    // one defined in the variable, 
+                    // currently defined reasons are "discovery" and "run"
+                    // this is useful when debugging testhost under VS under 
+                    waitForDebugger = true;
+                }
+                else if (int.TryParse(value, out timeout))
+                {
+                    // wait for debugger for a given amount of time in seconds
+                    // wait forever when given 1, because that is the current way to enable debugging
+                    // don't wait when given 0, because that is the current way to disable debugging
+                    // both cases are handled above
+                    waitForDebugger = true;
+                }
+
+                if (waitForDebugger) {
+                    var stopwatch = Stopwatch.StartNew();
+                    
                     while (!Debugger.IsAttached)
                     {
+                        if (stopwatch.ElapsedMilliseconds / 1000 > timeout)
+                        {
+                            return;
+                        }
                         System.Threading.Tasks.Task.Delay(1000).Wait();
                     }
 
