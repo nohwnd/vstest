@@ -400,10 +400,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Hosting
 
         private bool LaunchHost(TestProcessStartInfo testHostStartInfo, CancellationToken cancellationToken)
         {
+            var sw = Stopwatch.StartNew();
             this.testHostProcessStdError = new StringBuilder(0, CoreUtilities.Constants.StandardErrorMaxLength);
             if (this.customTestHostLauncher == null)
             {
-                EqtTrace.Verbose("DotnetTestHostManager: Starting process '{0}' with command line '{1}'", testHostStartInfo.FileName, testHostStartInfo.Arguments);
+                EqtTrace.Verbose("DotnetTestHostManager.LaunchHost: Starting process '{0}' with command line '{1}'", testHostStartInfo.FileName, testHostStartInfo.Arguments);
 
                 cancellationToken.ThrowIfCancellationRequested();
                 this.testHostProcess = this.processHelper.LaunchProcess(testHostStartInfo.FileName, testHostStartInfo.Arguments, testHostStartInfo.WorkingDirectory, testHostStartInfo.EnvironmentVariables, this.ErrorReceivedCallback, this.ExitCallBack, null) as Process;
@@ -415,9 +416,18 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Hosting
                 this.processHelper.SetExitCallback(processId, this.ExitCallBack);
             }
 
-            this.OnHostLaunched(new HostProviderEventArgs("Test Runtime launched", 0, this.testHostProcess.Id));
+            var hostLaunched = this.testHostProcess != null;
+            if (hostLaunched)
+            {
+                EqtTrace.Verbose("DotnetTestHostManager.LaunchHost: Started test host process '{0}' in {1} ms.", testHostStartInfo.FileName, sw.ElapsedMilliseconds);
+            }
+            else
+            {
+                EqtTrace.Verbose("DotnetTestHostManager.LaunchHost: Failed to start test host process '{0}.", testHostStartInfo.FileName);
+            }
 
-            return this.testHostProcess != null;
+            this.OnHostLaunched(new HostProviderEventArgs("Test Runtime launched", 0, this.testHostProcess.Id));
+            return hostLaunched;
         }
 
         private string GetTestHostPath(string runtimeConfigDevPath, string depsFilePath, string sourceDirectory)
