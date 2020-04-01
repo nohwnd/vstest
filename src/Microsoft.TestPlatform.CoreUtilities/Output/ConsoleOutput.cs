@@ -11,11 +11,11 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     /// </summary>
     public class ConsoleOutput : IOutput
     {
-        private static object lockObject = new object();
-        private static ConsoleOutput consoleOutput = null;
+        private static ConsoleOutput instance = null;
 
         private TextWriter standardOutput = null;
         private TextWriter standardError = null;
+        private bool oweNewLine = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleOutput"/> class.
@@ -33,20 +33,20 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
         {
             get
             {
-                if (consoleOutput != null)
+                if (instance != null)
                 {
-                    return consoleOutput;
+                    return instance;
                 }
 
-                lock (lockObject)
+                lock (Console.Out)
                 {
-                    if (consoleOutput == null)
+                    if (instance == null)
                     {
-                        consoleOutput = new ConsoleOutput();
+                        instance = new ConsoleOutput();
                     }
-                }
 
-                return consoleOutput;
+                    return instance;
+                }
             }
         }
 
@@ -57,8 +57,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
         /// <param name="level">Level of the message.</param>
         public void WriteLine(string message, OutputLevel level)
         {
-            this.Write(message, level);
-            this.Write(Environment.NewLine, level);
+            WriteLocking(message, level, newLine: true);
         }
 
         /// <summary>
@@ -68,19 +67,47 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
         /// <param name="level">Level of the message.</param>
         public void Write(string message, OutputLevel level)
         {
+            WriteLocking(message, level, newLine: false);
+        }
+
+        private void WriteLocking(string message, OutputLevel level, bool newLine)
+        {
             switch (level)
             {
                 case OutputLevel.Information:
                 case OutputLevel.Warning:
-                    this.standardOutput.Write(message);
+                    lock (Console.Out)
+                    {
+                        if (message == ".")
+                        {
+                            // when we write progress we always owe new line so that the next real message will write it
+                            // but we never write it ourselves to keep writing dots on the same line
+                            oweNewLine = true;
+                            this.standardOutput.Write(message);
+                        }
+                        else
+                        {
+                            this.standardOutput.Write(!oweNewLine ? message : $"{Environment.NewLine}{message}");
+                            this.oweNewLine = newLine;
+                        }
+                    }
                     break;
 
                 case OutputLevel.Error:
-                    this.standardError.Write(message);
+                    lock (Console.Error)
+                    {
+                        this.standardError.Write(!oweNewLine ? message : $"{Environment.NewLine}{message}");
+                        oweNewLine = newLine;
+                    }
                     break;
 
                 default:
-                    this.standardOutput.Write("ConsoleOutput.WriteLine: The output level is unrecognized: {0}", level);
+                    lock (Console.Out)
+                    {
+                        var err = "ConsoleOutput.WriteLine: The output level is unrecognized: {0}";
+                        this.standardOutput.Write(!oweNewLine ? err : $"{Environment.NewLine}{message}", level);
+                        oweNewLine = newLine;
+                    }
                     break;
             }
         }

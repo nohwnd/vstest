@@ -22,7 +22,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Internal
             consoleHelper = new Mock<IConsoleHelper>();
             consoleHelper.Setup(c => c.WindowWidth).Returns(100);
             consoleHelper.Setup(c => c.CursorTop).Returns(20);
-            indicator = new ProgressIndicator(consoleOutput.Object, consoleHelper.Object);
+            indicator = new ProgressIndicator(consoleOutput.Object);
         }
 
         [TestCleanup]

@@ -57,7 +57,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
             Information(output, appendPrefix, Console.ForegroundColor, format, args);
         }
 
-        /// <summary>
+        /// <summary>    
         /// Output a informational message.
         /// </summary>
         /// <param name="output">Output instance the method is being invoked with.</param>
@@ -140,16 +140,19 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
                 return;
             }
 
-            var previousForegroundColor = Console.ForegroundColor;
-            try
-            {
-                Console.ForegroundColor = foregroundColor;
-                action.Invoke();
-            }
-            finally
-            {
-                Console.ForegroundColor = previousForegroundColor;
-            }
+            //lock (Console.Out)
+            //{
+                var previousForegroundColor = Console.ForegroundColor;
+                try
+                {
+                    Console.ForegroundColor = foregroundColor;
+                    action.Invoke();
+                }
+                finally
+                {
+                    Console.ForegroundColor = previousForegroundColor;
+                }
+            //}
         }
     }
 }

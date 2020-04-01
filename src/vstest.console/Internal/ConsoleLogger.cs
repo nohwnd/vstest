@@ -184,11 +184,15 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
                 ConsoleLogger.Output = ConsoleOutput.Instance;
             }
 
-            if (this.progressIndicator == null && !Console.IsOutputRedirected && EnableProgress)
-            {
+            //TODO: Put this back!
+            //if (this.progressIndicator == null && !Console.IsOutputRedirected && EnableProgress)
+            //{
                 // Progress indicator needs to be displayed only for cli experience.
-                this.progressIndicator = new ProgressIndicator(Output, new ConsoleHelper());
-            }
+                this.progressIndicator = new ProgressIndicator(Output);
+
+                Output.Information(false, Environment.NewLine);
+                this.progressIndicator.Start();
+            //}
 
             // Register for the events.
             events.TestRunMessage += this.TestMessageHandler;
@@ -752,6 +756,10 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
                     PrintTimeSpan(e.ElapsedTimeInRunningTests);
                 }
             }
+
+            // write a new line so anyone who runs after us will write to the next line, we will end up owning one new line
+            // that is why we write it here explictly
+            Output.Information(false, Environment.NewLine);
         }
         #endregion
 
