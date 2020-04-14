@@ -86,9 +86,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLineUtilities
         /// <summary>
         /// Determines Framework from sources.
         /// </summary>
-        public Framework AutoDetectFramework(List<string> sources, IDictionary<string, Framework> sourceFrameworkVersions)
+        public IDictionary<string, Framework> AutoDetectFramework(List<string> sources, IDictionary<string, Framework> sourceFrameworkVersions)
         {
-            Framework framework = Framework.DefaultFramework;
+            Framework framework = Framework.DefaultFramework; 
             try
             {
                 if (sources != null && sources.Count > 0)
