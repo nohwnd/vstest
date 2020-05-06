@@ -220,6 +220,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Hosting
         /// <inheritdoc/>
         public bool CanExecuteCurrentRunConfiguration(string runsettingsXml)
         {
+            var a = true;
+            if (a)
+            {
+                return false;
+            }
+
             var config = XmlRunSettingsUtilities.GetRunConfigurationNode(runsettingsXml);
             var framework = config.TargetFramework;
 
