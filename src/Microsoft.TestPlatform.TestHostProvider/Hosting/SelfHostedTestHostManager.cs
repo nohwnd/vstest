@@ -192,11 +192,25 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Hosting
             var sourcePath = sources.Single();
             var sourceDirectory = Path.GetDirectoryName(sourcePath);
 
-            startInfo.FileName = Path.ChangeExtension(sourcePath, ".exe");
+            if (Path.GetExtension(sourcePath) == ".dll")
+            {
+                if (this.platformEnvironment.OperatingSystem == PlatformOperatingSystem.Windows)
+                {
+                    startInfo.FileName = Path.ChangeExtension(sourcePath, ".exe");
+                }
+                else
+                {
+                    startInfo.FileName = Path.GetFileNameWithoutExtension(sourcePath);
+                }
+            }
+            else
+            {
+                startInfo.FileName = sourcePath;
+            }
 
             EqtTrace.Verbose("SelfHostedTestHostManager: Full path of host exe is {0}", startInfo.FileName);
 
-            args += " " + connectionInfo.ToCommandLineOptions();
+            args += "--testhost " + connectionInfo.ToCommandLineOptions();
 
             // Create a additional probing path args with Nuget.Client
             // args += "--additionalprobingpath xxx"
