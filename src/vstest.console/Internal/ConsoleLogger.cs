@@ -11,7 +11,6 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
     using System.Globalization;
     using System.Linq;
     using System.Text;
-    using System.Xml.XPath;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
