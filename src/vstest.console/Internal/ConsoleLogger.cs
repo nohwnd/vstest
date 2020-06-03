@@ -227,7 +227,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
 
         private void SourceRunCompleteHandler(object sender, TestResultEventArgs e)
         {
-            if (verbosityLevel != Verbosity.Quiet && verbosityLevel != Verbosity.Minimal)
+            if (verbosityLevel != Verbosity.Quiet)
             {
                 return;
             }
@@ -679,7 +679,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
             throw new InvalidOperationException($"ExecutionId {executionId} already exists.");
         };
 
-        if (this.verbosityLevel == Verbosity.Quiet || this.verbosityLevel == Verbosity.Minimal)
+        if (this.verbosityLevel == Verbosity.Quiet)
         {
             return;
         }
@@ -857,7 +857,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
             }
         }
 
-        if (verbosityLevel == Verbosity.Quiet || verbosityLevel == Verbosity.Minimal)
+        if (verbosityLevel == Verbosity.Quiet)
         {
             return;
         }
@@ -887,15 +887,15 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
 
             if (passedTests > 0)
             {
-                Output.Write(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummaryPassedTests, passedTests), OutputLevel.Information, ConsoleColor.Green);
+                Output.Information(false,  ConsoleColor.Green, CommandLineResources.TestRunSummaryPassedTests, passedTests);
             }
             if (failedTests > 0)
             {
-                Output.Write(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummaryFailedTests, failedTests), OutputLevel.Information, ConsoleColor.Red);
+                Output.Information(false, ConsoleColor.Red, CommandLineResources.TestRunSummaryFailedTests, failedTests);
             }
             if (skippedTests > 0)
             {
-                Output.Write(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummarySkippedTests, skippedTests), OutputLevel.Information, ConsoleColor.Yellow);
+                Output.Information(false, ConsoleColor.Yellow, CommandLineResources.TestRunSummarySkippedTests, skippedTests);
             }
         }
 

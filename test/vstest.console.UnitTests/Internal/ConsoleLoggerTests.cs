@@ -583,11 +583,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Internal
         }
 
         [DataRow(".NETFramework,version=v4.5.1", "(net451)", "quiet")]
-        [DataRow(".NETFramework,version=v4.5.1", "(net451)", "minimal")]
         [DataRow(null, null, "quiet")]
-        [DataRow(null, null, "minimal")]
         [TestMethod]
-        public void TestResultHandlerShouldShowFailedTestsAndPassedTestsForQuietVebosity(string framework, string expectedFramework, string verbosityLevel)
+        public void TestResultHandlerShouldShowSourceSummaryForQuietVebosity(string framework, string expectedFramework, string verbosityLevel)
         {
             var loggerEvents = new InternalTestLoggerEvents(TestSessionMessageLogger.Instance);
             loggerEvents.EnableEvents();
@@ -598,20 +596,28 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Internal
             };
             this.consoleLogger.Initialize(loggerEvents, parameters);
 
-            foreach (var testResult in this.GetTestResultsObject())
+            var testResults = this.GetTestResultsObject();
+            foreach (var testResult in testResults)
             {
                 loggerEvents.RaiseTestResult(new TestResultEventArgs(testResult));
             }
 
-            foreach (var testResult in this.GetPassedTestResultsObject())
+            // the logic that is normally above this will raise this event 
+            // when it sees that we have no active tests to report anymore
+            // so it knows that we are in the lastChunk
+            loggerEvents.RaiseSourceRunComplete(new TestResultEventArgs(testResults.First()));
+
+            var passedTestResults = this.GetPassedTestResultsObject();
+            foreach (var testResult in passedTestResults)
             {
                 loggerEvents.RaiseTestResult(new TestResultEventArgs(testResult));
             }
+            loggerEvents.RaiseSourceRunComplete(new TestResultEventArgs(passedTestResults.First()));
 
             loggerEvents.RaiseTestRunComplete(new TestRunCompleteEventArgs(new Mock<ITestRunStatistics>().Object, false, false, null, new Collection<AttachmentSet>(), TimeSpan.FromSeconds(1)));
             loggerEvents.WaitForEventCompletion();
 
-            this.mockOutput.Verify(o => o.WriteLine(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummary, 
+            this.mockOutput.Verify(o => o.Write(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummary, 
                 (CommandLineResources.Passed + "!").PadRight(8),
                 0.ToString().PadLeft(5), 
                 1.ToString().PadLeft(5), 
@@ -623,7 +629,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Internal
                 "TestSourcePassed", 
                 expectedFramework), OutputLevel.Information), Times.Once);    
             
-            this.mockOutput.Verify(o => o.WriteLine(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummary, 
+            this.mockOutput.Verify(o => o.Write(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummary, 
                 (CommandLineResources.Failed + "!").PadRight(8),
                 1.ToString().PadLeft(5),
                 1.ToString().PadLeft(5),
