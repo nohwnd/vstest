@@ -36,21 +36,6 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
         private const string TestResultPrefix = "  ";
 
         /// <summary>
-        /// Unicode for tick
-        /// </summary>
-        private const char PassedTestIndicator = '\u221a';
-
-        /// <summary>
-        /// Indicator for failed tests
-        /// </summary>
-        private const char FailedTestIndicator = 'X';
-
-        /// <summary>
-        /// Indicated skipped and not run tests
-        /// </summary>
-        private const char SkippedTestIndicator = '!';
-
-        /// <summary>
         /// Bool to decide whether Verbose level should be added as prefix or not in log messages.
         /// </summary>
         internal static bool AppendPrefix;
@@ -693,7 +678,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
                     // Pause the progress indicator before displaying test result information
                     this.progressIndicator?.Pause();
 
-                    Output.Write(string.Format("{0}{1} ", TestResultPrefix, SkippedTestIndicator), OutputLevel.Information, ConsoleColor.Yellow);
+                    Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.Skipped), OutputLevel.Information, ConsoleColor.Yellow);
                     Output.WriteLine(testDisplayName, OutputLevel.Information);
                     if (this.verbosityLevel == Verbosity.Detailed)
                     {
@@ -716,7 +701,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
                     // Pause the progress indicator before displaying test result information
                     this.progressIndicator?.Pause();
 
-                    Output.Write(string.Format("{0}{1} ", TestResultPrefix, FailedTestIndicator), OutputLevel.Information, ConsoleColor.Red);
+                    Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.Failed), OutputLevel.Information, ConsoleColor.Red);
                     Output.WriteLine(testDisplayName, OutputLevel.Information);
                     DisplayFullInformation(e.Result);
 
@@ -733,7 +718,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
                         // Pause the progress indicator before displaying test result information
                         this.progressIndicator?.Pause();
 
-                        Output.Write(string.Format("{0}{1} ", TestResultPrefix, PassedTestIndicator), OutputLevel.Information, ConsoleColor.Green);
+                        Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.Passed), OutputLevel.Information, ConsoleColor.Green);
                         Output.WriteLine(testDisplayName, OutputLevel.Information);
                         if (this.verbosityLevel == Verbosity.Detailed)
                         {
@@ -757,7 +742,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
                     // Pause the progress indicator before displaying test result information
                     this.progressIndicator?.Pause();
 
-                    Output.Write(string.Format("{0}{1} ", TestResultPrefix, SkippedTestIndicator), OutputLevel.Information, ConsoleColor.Yellow);
+                    Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.Skipped), OutputLevel.Information, ConsoleColor.Yellow);
                     Output.WriteLine(testDisplayName, OutputLevel.Information);
                     if (this.verbosityLevel == Verbosity.Detailed)
                     {
