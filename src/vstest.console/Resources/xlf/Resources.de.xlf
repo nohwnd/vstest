@@ -1587,9 +1587,9 @@
         <note />
       </trans-unit>
       <trans-unit id="BlameCollectDumpNotSupportedForPlatform">
-        <source>CollectDump option for Blame is not supported for this platform.</source>
-        <target state="translated">Die CollectDump-Option für Blame wird für diese Plattform nicht unterstützt.</target>
-        <note />
+        <source>Collecting crash dumps by option CollectDump for Blame is not supported for this platform.</source>
+        <target state="translated">Das Sammeln von Absturzabbildern über die Option "CollectDump" für "Blame" wird für diese Plattform nicht unterstützt.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BlameIncorrectOption">
         <source>The blame parameter specified with blame, {0} is invalid. Ignoring this parameter.</source>
@@ -1691,6 +1691,11 @@
       <trans-unit id="TestRunSummaryAssemblyAndFramework">
         <source>- {0} {1}</source>
         <target state="new">- {0} {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BlameCollectDumpTestTimeoutNotSupportedForPlatform">
+        <source>Collecting hang dumps by option CollectDump with TestTimeout for Blame is not supported for this platform.</source>
+        <target state="translated">Das Sammeln von Abbildern bei Reaktionsunfähigkeit über die Option "CollectDump" mit "TestTimeout" für "Blame" wird für diese Plattform nicht unterstützt.</target>
         <note></note>
       </trans-unit>
     </body>

@@ -1587,9 +1587,9 @@ Günlükler için izleme düzeyini aşağıda gösterildiği gibi değiştirin
         <note />
       </trans-unit>
       <trans-unit id="BlameCollectDumpNotSupportedForPlatform">
-        <source>CollectDump option for Blame is not supported for this platform.</source>
-        <target state="translated">Blame için CollectDump seçeneği bu platformda desteklenmez.</target>
-        <note />
+        <source>Collecting crash dumps by option CollectDump for Blame is not supported for this platform.</source>
+        <target state="translated">Blame için CollectDump seçeneğine göre kilitlenme bilgi dökümlerinin toplanması bu platform için desteklenmiyor.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BlameIncorrectOption">
         <source>The blame parameter specified with blame, {0} is invalid. Ignoring this parameter.</source>
@@ -1691,6 +1691,11 @@ Günlükler için izleme düzeyini aşağıda gösterildiği gibi değiştirin
       <trans-unit id="TestRunSummaryAssemblyAndFramework">
         <source>- {0} {1}</source>
         <target state="new">- {0} {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BlameCollectDumpTestTimeoutNotSupportedForPlatform">
+        <source>Collecting hang dumps by option CollectDump with TestTimeout for Blame is not supported for this platform.</source>
+        <target state="translated">Blame için TestTimeout ile CollectDump seçeneğine göre asılı kalma bilgi dökümlerinin toplanması bu platform için desteklenmiyor.</target>
         <note></note>
       </trans-unit>
     </body>

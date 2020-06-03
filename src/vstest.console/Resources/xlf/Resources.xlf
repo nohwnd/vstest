@@ -778,7 +778,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="BlameCollectDumpNotSupportedForPlatform">
-        <source>CollectDump option for Blame is not supported for this platform.</source>
+        <source>Collecting crash dumps by option CollectDump for Blame is not supported for this platform.</source>
         <target state="new">CollectDump option for Blame is not supported for this platform.</target>
         <note></note>
       </trans-unit>
@@ -882,6 +882,11 @@ Format : TestRunParameters.Parameter(name="&lt;name&gt;", value="&lt;value&gt;")
       <trans-unit id="TestRunSummaryAssemblyAndFramework">
         <source>- {0} {1}</source>
         <target state="new">- {0} {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BlameCollectDumpTestTimeoutNotSupportedForPlatform">
+        <source>Collecting hang dumps by option CollectDump with TestTimeout for Blame is not supported for this platform.</source>
+        <target state="new">Collecting hang dumps by option CollectDump with TestTimeout for Blame is not supported for this platform.</target>
         <note></note>
       </trans-unit>
     </body>

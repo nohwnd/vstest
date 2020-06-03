@@ -207,6 +207,11 @@
         <target state="translated">Odnajdywanie testów zostało anulowane.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AttachDebuggerToDefaultTestHostFailure">
+        <source>Cannot attach the debugger to the default test host with process ID: {0}.</source>
+        <target state="translated">Nie można dołączyć debugera do domyślnego hosta testowego z identyfikatorem procesu: {0}.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
