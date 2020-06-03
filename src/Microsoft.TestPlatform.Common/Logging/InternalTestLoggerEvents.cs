@@ -120,6 +120,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Logging
         /// </summary>
         public override event EventHandler<DiscoveryCompleteEventArgs> DiscoveryComplete;
 
+        public override event EventHandler<TestResultEventArgs> SourceRunComplete;
+
 #endregion
 
         #region IDisposable
@@ -209,6 +211,26 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Logging
             }
 
             this.SafeInvokeAsync(() => this.TestResult, args, resultSize, "InternalTestLoggerEvents.SendTestResult");
+        }
+
+        /// <summary>
+        /// Raises a source run complete event to the enabled loggers.
+        /// </summary>
+        /// <param name="args">Arguments to to be raised.</param>
+        internal void RaiseSourceRunComplete(TestResultEventArgs args)
+        {
+            ValidateArg.NotNull<TestResultEventArgs>(args, "args");
+
+            this.CheckDisposed();
+
+            // find the approx size of test result
+            int resultSize = 0;
+            if (this.isBoundsOnLoggerEventQueueEnabled)
+            {
+                resultSize = FindTestResultSize(args) * sizeof(char);
+            }
+
+            this.SafeInvokeAsync(() => this.SourceRunComplete, args, resultSize, "InternalTestLoggerEvents.SendSourceRunComplete");
         }
 
         /// <summary>
@@ -321,7 +343,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Logging
             this.loggerEventQueue.Flush();
         }
 
-#endregion
+        #endregion
 
         #region Private Members
 

@@ -39,10 +39,15 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         /// </summary>
         public abstract event EventHandler<TestResultEventArgs> TestResult;
 
+#pragma warning disable 67
+        public virtual event EventHandler<TestResultEventArgs> SourceRunComplete = delegate { };
+#pragma warning restore 67
+
         /// <summary>
         /// Raised when a test run is complete.
         /// </summary>
         public abstract event EventHandler<TestRunCompleteEventArgs> TestRunComplete;
+
 
         /// <summary>
         /// Raised when test discovery starts
@@ -65,5 +70,9 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         public abstract event EventHandler<DiscoveryCompleteEventArgs> DiscoveryComplete;
 
         #endregion
+    }
+
+    public class SourceRunCompleteEventArgs : EventArgs
+    {
     }
 }

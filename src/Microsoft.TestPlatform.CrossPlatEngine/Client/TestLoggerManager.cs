@@ -231,6 +231,10 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
             {
                 this.loggerEvents.RaiseTestResult(new TestResultEventArgs(result));
             }
+
+            if (e.NewTestResults.Any() && !e.ActiveTests.Any()) {
+                this.loggerEvents.RaiseSourceRunComplete(new TestResultEventArgs(e.NewTestResults.First()));
+            }
         }
 
         /// <summary>

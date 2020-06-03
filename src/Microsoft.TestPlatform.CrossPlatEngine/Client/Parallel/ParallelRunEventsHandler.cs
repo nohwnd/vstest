@@ -99,7 +99,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
             if (lastChunkArgs != null)
             {
                 ConvertToRawMessageAndSend(MessageType.TestRunStatsChange, lastChunkArgs);
-                HandleTestRunStatsChange(lastChunkArgs);
+                    HandleTestRunStatsChange(lastChunkArgs);
             }
 
             // Update run stats, executorUris, etc.

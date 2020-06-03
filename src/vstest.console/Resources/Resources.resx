@@ -754,6 +754,6 @@
     <value>Skipped</value>
   </data>
   <data name="TestRunSummaryAssemblyAndFramework" xml:space="preserve">
-    <value>- {0} {1}</value>
+    <value> - {0} {1}</value>
   </data>
 </root>
