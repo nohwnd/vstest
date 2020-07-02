@@ -37,14 +37,14 @@ namespace Microsoft.TestPlatform.AcceptanceTests.TranslationLayerTests
 
         [TestMethod]
         [NetFullTargetFrameworkDataSource]
-        [NetCoreTargetFrameworkDataSource]
+        // [NetCoreTargetFrameworkDataSource]
         public void DiscoverTestsUsingDiscoveryEventHandler1(RunnerInfo runnerInfo)
         {
             AcceptanceTestBase.SetTestEnvironment(this.testEnvironment, runnerInfo);
 
             this.Setup();
-
-            this.vstestConsoleWrapper.DiscoverTests(this.GetTestAssemblies(), this.GetDefaultRunSettings(), this.discoveryEventHandler);
+            var a = this.GetDefaultRunSettings();
+            this.vstestConsoleWrapper.DiscoverTests(this.GetTestAssemblies(), a, this.discoveryEventHandler);
 
             // Assert.
             Assert.AreEqual(6, this.discoveryEventHandler.DiscoveredTestCases.Count);
