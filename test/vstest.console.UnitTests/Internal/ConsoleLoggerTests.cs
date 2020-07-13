@@ -630,7 +630,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Internal
                 expectedFramework), OutputLevel.Information), Times.Once);    
             
             this.mockOutput.Verify(o => o.Write(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummary, 
-                (CommandLineResources.Failed + "!").PadRight(8),
+                (CommandLineResources.FailedTestIndicator + "!").PadRight(8),
                 1.ToString().PadLeft(5),
                 1.ToString().PadLeft(5),
                 1.ToString().PadLeft(5),
@@ -669,8 +669,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Internal
             loggerEvents.RaiseTestRunComplete(new TestRunCompleteEventArgs(new Mock<ITestRunStatistics>().Object, false, false, null, new Collection<AttachmentSet>(), TimeSpan.FromSeconds(1)));
             loggerEvents.WaitForEventCompletion();
 
-            this.mockOutput.Verify(o => o.WriteLine(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummary, CommandLineResources.Passed, 2, 1, 0, 1, "1 m 2 s", "TestSourcePassed", "(net451)"), OutputLevel.Information), Times.Never);
-            this.mockOutput.Verify(o => o.WriteLine(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummary, CommandLineResources.Failed, 5, 1, 1, 1, "1 h 6 m", "TestSource", "(net451)"), OutputLevel.Information), Times.Never);
+            this.mockOutput.Verify(o => o.WriteLine(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummary, CommandLineResources.PassedTestIndicator, 2, 1, 0, 1, "1 m 2 s", "TestSourcePassed", "(net451)"), OutputLevel.Information), Times.Never);
+            this.mockOutput.Verify(o => o.WriteLine(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummary, CommandLineResources.FailedTestIndicator, 5, 1, 1, 1, "1 h 6 m", "TestSource", "(net451)"), OutputLevel.Information), Times.Never);
         }
 
         [TestMethod]

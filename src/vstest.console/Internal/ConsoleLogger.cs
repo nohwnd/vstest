@@ -83,9 +83,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
         // get misaligned output on non-english systems
         private static int LongestResultIndicator = new[]
         {
-            CommandLineResources.Failed.Length + 1,
-            CommandLineResources.Passed.Length + 1,
-            CommandLineResources.Skipped.Length + 1,
+            CommandLineResources.FailedTestIndicator.Length + 1,
+            CommandLineResources.PassedTestIndicator.Length + 1,
+            CommandLineResources.SkippedTestIndicator.Length + 1,
             CommandLineResources.None.Length
         }.Max();
 
@@ -260,13 +260,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
             switch (sourceOutcome)
             {
                 case TestOutcome.Failed:
-                    resultString = (CommandLineResources.Failed + "!").PadRight(LongestResultIndicator);
+                    resultString = (CommandLineResources.FailedTestIndicator + "!").PadRight(LongestResultIndicator);
                     break;
                 case TestOutcome.Passed:
-                    resultString = (CommandLineResources.Passed + "!").PadRight(LongestResultIndicator);
+                    resultString = (CommandLineResources.PassedTestIndicator + "!").PadRight(LongestResultIndicator);
                     break;
                 case TestOutcome.Skipped:
-                    resultString = (CommandLineResources.Skipped + "!").PadRight(LongestResultIndicator);
+                    resultString = (CommandLineResources.SkippedTestIndicator + "!").PadRight(LongestResultIndicator);
                     break;
                 default:
                     resultString = CommandLineResources.None.PadRight(LongestResultIndicator);
