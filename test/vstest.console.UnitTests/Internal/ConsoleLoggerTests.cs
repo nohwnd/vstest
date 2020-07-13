@@ -618,7 +618,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Internal
             loggerEvents.WaitForEventCompletion();
 
             this.mockOutput.Verify(o => o.Write(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestRunSummary, 
-                (CommandLineResources.Passed + "!").PadRight(8),
+                (CommandLineResources.PassedTestIndicator + "!").PadRight(8),
                 0.ToString().PadLeft(5), 
                 1.ToString().PadLeft(5), 
                 1.ToString().PadLeft(5), 2
