@@ -677,12 +677,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
                     // Pause the progress indicator before displaying test result information
                     this.progressIndicator?.Pause();
 
-                    Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.Skipped), OutputLevel.Information, ConsoleColor.Yellow);
-                    Output.WriteLine(testDisplayName, OutputLevel.Information);
-                    if (this.verbosityLevel == Verbosity.Detailed)
-                    {
-                        DisplayFullInformation(e.Result);
-                    }
+                        Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.SkippedTestIndicator), OutputLevel.Information, ConsoleColor.Yellow);
+                        Output.WriteLine(testDisplayName, OutputLevel.Information);
+                        if (this.verbosityLevel == Verbosity.Detailed)
+                        {
+                            DisplayFullInformation(e.Result);
+                        }
 
                     // Resume the progress indicator after displaying the test result information
                     this.progressIndicator?.Start();
@@ -700,9 +700,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
                     // Pause the progress indicator before displaying test result information
                     this.progressIndicator?.Pause();
 
-                    Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.Failed), OutputLevel.Information, ConsoleColor.Red);
-                    Output.WriteLine(testDisplayName, OutputLevel.Information);
-                    DisplayFullInformation(e.Result);
+                        Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.FailedTestIndicator), OutputLevel.Information, ConsoleColor.Red);
+                        Output.WriteLine(testDisplayName, OutputLevel.Information);
+                        DisplayFullInformation(e.Result);
 
                     // Resume the progress indicator after displaying the test result information
                     this.progressIndicator?.Start();
@@ -717,12 +717,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
                         // Pause the progress indicator before displaying test result information
                         this.progressIndicator?.Pause();
 
-                        Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.Passed), OutputLevel.Information, ConsoleColor.Green);
-                        Output.WriteLine(testDisplayName, OutputLevel.Information);
-                        if (this.verbosityLevel == Verbosity.Detailed)
-                        {
-                            DisplayFullInformation(e.Result);
-                        }
+                            Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.PassedTestIndicator), OutputLevel.Information, ConsoleColor.Green);
+                            Output.WriteLine(testDisplayName, OutputLevel.Information);
+                            if (this.verbosityLevel == Verbosity.Detailed)
+                            {
+                                DisplayFullInformation(e.Result);
+                            }
 
                         // Resume the progress indicator after displaying the test result information
                         this.progressIndicator?.Start();
@@ -741,12 +741,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
                     // Pause the progress indicator before displaying test result information
                     this.progressIndicator?.Pause();
 
-                    Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.Skipped), OutputLevel.Information, ConsoleColor.Yellow);
-                    Output.WriteLine(testDisplayName, OutputLevel.Information);
-                    if (this.verbosityLevel == Verbosity.Detailed)
-                    {
-                        DisplayFullInformation(e.Result);
-                    }
+                        Output.Write(string.Format("{0}{1} ", TestResultPrefix, CommandLineResources.SkippedTestIndicator), OutputLevel.Information, ConsoleColor.Yellow);
+                        Output.WriteLine(testDisplayName, OutputLevel.Information);
+                        if (this.verbosityLevel == Verbosity.Detailed)
+                        {
+                            DisplayFullInformation(e.Result);
+                        }
 
                     // Resume the progress indicator after displaying the test result information
                     this.progressIndicator?.Start();
