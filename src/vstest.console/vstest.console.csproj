@@ -11,6 +11,11 @@
     <WarningsAsErrors>true</WarningsAsErrors>
     <OutputType>Exe</OutputType>
     <PlatformTarget Condition="'$(TargetFramework)' == 'net451'">AnyCPU</PlatformTarget>
+    <!-- Changing this to 64-bit would allow us to run as 64-bit process under VS, but 
+    this changes how QTAgent behaves (or any other adapter that uses the architecture (bitness) of
+    the parent process to figure out which version it should start. Researched it here, but did not 
+    make the change to avoid breaking QTAgent in Coded UI tests.
+    https://github.com/microsoft/vstest/pull/2505 -->
     <Prefer32Bit Condition="'$(TargetFramework)' == 'net451'">true</Prefer32Bit>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
