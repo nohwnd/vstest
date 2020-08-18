@@ -49,6 +49,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
         private bool dumpWasCollectedByHangDumper;
         private string targetFramework;
         private List<KeyValuePair<string, string>> environmentVariables = new List<KeyValuePair<string, string>>();
+        private string dumpDirectoryOverride;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlameCollector"/> class.
@@ -164,6 +165,9 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
 
                     this.ValidateAndAddHangBasedProcessDumpParameters(collectHangBasedDumpNode);
                 }
+
+                var dumpDirectoryOverrideNode = this.configurationElement[Constants.DumpDirectory];
+                this.ValidateAndAddDumpDirectoryOverride(dumpDirectoryOverrideNode);
 
                 var tfm = this.configurationElement[Constants.TargetFramework]?.InnerText;
                 if (!string.IsNullOrWhiteSpace(tfm))
@@ -346,6 +350,28 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
                     default:
 
                         this.logger.LogWarning(this.context.SessionDataCollectionContext, string.Format(CultureInfo.CurrentUICulture, Resources.Resources.BlameParameterKeyIncorrect, blameAttribute.Name));
+                        break;
+                }
+            }
+        }
+
+        private void ValidateAndAddDumpDirectoryOverride(XmlElement collectDumpNode)
+        {
+            foreach (XmlAttribute blameAttribute in collectDumpNode.Attributes)
+            {
+                switch (blameAttribute)
+                {
+                    case XmlAttribute attribute when string.Equals(attribute.Name, Constants.DumpDirectory, StringComparison.OrdinalIgnoreCase):
+
+                        if (!string.IsNullOrWhiteSpace(attribute.Value))
+                        {
+                            this.dumpDirectoryOverride = attribute.Value;
+                        }
+                        else
+                        {
+                            this.logger.LogWarning(this.context.SessionDataCollectionContext, string.Format(CultureInfo.CurrentUICulture, Resources.Resources.BlameDumpDirectoryIncorrect);
+                        }
+
                         break;
                 }
             }

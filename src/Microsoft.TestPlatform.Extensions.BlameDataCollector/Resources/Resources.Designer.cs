@@ -70,6 +70,15 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DumpDirectory was specified but no path was provided..
+        /// </summary>
+        internal static string BlameDumpDirectoryIncorrect {
+            get {
+                return ResourceManager.GetString("BlameDumpDirectoryIncorrect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The blame parameter key specified {0} is not valid. Ignoring this key..
         /// </summary>
         internal static string BlameParameterKeyIncorrect {

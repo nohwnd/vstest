@@ -144,6 +144,12 @@ namespace Microsoft.TestPlatform.Build.Tasks
             set;
         }
 
+        public string VSTestBlameDumpDirectory
+        {
+            get;
+            set;
+        }
+
         public string VSTestTraceDataCollectorDirectoryPath
         {
             get;
@@ -331,6 +337,11 @@ namespace Microsoft.TestPlatform.Build.Tasks
                             dumpArgs.Add($"TestTimeout={this.VSTestBlameHangTimeout}");
                         }
                     }
+
+                    if (!string.IsNullOrEmpty(this.VSTestBlameDumpDirectory)) {
+                        dumpArgs.Add($"DumpDirectory={this.VSTestBlameDumpDirectory}");
+                    }
+
 
                     if (dumpArgs.Any())
                     {

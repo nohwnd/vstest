@@ -120,6 +120,9 @@
   <data name="AbortedTestRun" xml:space="preserve">
     <value>The active Test Run was aborted because the host process exited unexpectedly while executing following test(s):</value>
   </data>
+  <data name="BlameDumpDirectoryIncorrect" xml:space="preserve">
+    <value>DumpDirectory was specified but no path was provided.</value>
+  </data>
   <data name="BlameParameterKeyIncorrect" xml:space="preserve">
     <value>The blame parameter key specified {0} is not valid. Ignoring this key.</value>
   </data>

@@ -101,6 +101,11 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
         public const string HangDumpTypeKey = "HangDumpType";
 
         /// <summary>
+        /// Configuration key name for dump directory override
+        /// </summary>
+        public const string DumpDirectory = "DumpDirectory";
+
+        /// <summary>
         /// Configuration value for true
         /// </summary>
         public const string TrueConfigurationValue = "True";
