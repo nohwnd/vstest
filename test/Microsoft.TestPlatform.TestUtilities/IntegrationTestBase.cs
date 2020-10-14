@@ -33,6 +33,8 @@ namespace Microsoft.TestPlatform.TestUtilities
         private const string TestSummaryStatusMessageFormat = "Total tests: {0} Passed: {1} Failed: {2} Skipped: {3}";
         private string standardTestOutput = string.Empty;
         private string standardTestError = string.Empty;
+        private string standardTestOutputWithWhiteSpace = string.Empty;
+        private string standardTestErrorWithWhiteSpace = string.Empty;
         private int runnerExitCode = -1;
 
         private string arguments = string.Empty;
@@ -55,8 +57,10 @@ namespace Microsoft.TestPlatform.TestUtilities
         }
 
         public string StdOut => this.standardTestOutput;
+        public string StdOutWithWhiteSpace => this.standardTestOutputWithWhiteSpace;
 
         public string StdErr => this.standardTestError;
+        public string StdErrWithWhiteSpace => this.standardTestErrorWithWhiteSpace;
 
         /// <summary>
         /// Prepare arguments for <c>vstest.console.exe</c>.
@@ -82,6 +86,12 @@ namespace Microsoft.TestPlatform.TestUtilities
             {
                 // Append run settings
                 arguments = string.Concat(arguments, " /settings:", runSettings.AddDoubleQuote());
+            }
+
+            if (!string.IsNullOrWhiteSpace(framework))
+            {
+                // Append run settings
+                arguments = string.Concat(arguments, " /framework:", framework.AddDoubleQuote());
             }
 
             arguments = string.Concat(arguments, " /logger:", "console;verbosity=normal".AddDoubleQuote());
@@ -258,8 +268,8 @@ namespace Microsoft.TestPlatform.TestUtilities
             {
                 // Check for tick or ? both, in some cases as unicode character for tick is not available
                 // in std out and gets replaced by ?
-                var flag = this.standardTestOutput.Contains("\\u221a " + test)
-                           || this.standardTestOutput.Contains("\\u221a " + GetTestMethodName(test))
+                var flag = this.standardTestOutput.Contains("Passed " + test)
+                           || this.standardTestOutput.Contains("Passed " + GetTestMethodName(test))
                            || this.standardTestOutput.Contains("\\ufffd " + test)
                            || this.standardTestOutput.Contains("\\ufffd " + GetTestMethodName(test));
                 Assert.IsTrue(flag, "Test {0} does not appear in passed tests list.", test);
@@ -278,8 +288,8 @@ namespace Microsoft.TestPlatform.TestUtilities
         {
             foreach (var test in failedTests)
             {
-                var flag = this.standardTestOutput.Contains("X " + test)
-                           || this.standardTestOutput.Contains("X " + GetTestMethodName(test));
+                var flag = this.standardTestOutput.Contains("Failed " + test)
+                           || this.standardTestOutput.Contains("Failed " + GetTestMethodName(test));
                 Assert.IsTrue(flag, "Test {0} does not appear in failed tests list.", test);
 
                 // Verify stack information as well.
@@ -296,8 +306,8 @@ namespace Microsoft.TestPlatform.TestUtilities
         {
             foreach (var test in skippedTests)
             {
-                var flag = this.standardTestOutput.Contains("! " + test)
-                           || this.standardTestOutput.Contains("! " + GetTestMethodName(test));
+                var flag = this.standardTestOutput.Contains("Skipped " + test)
+                           || this.standardTestOutput.Contains("Skipped " + GetTestMethodName(test));
                 Assert.IsTrue(flag, "Test {0} does not appear in skipped tests list.", test);
             }
         }
@@ -568,10 +578,10 @@ namespace Microsoft.TestPlatform.TestUtilities
                 var stderrBuffer = new StringBuilder();
                 process.OutputDataReceived += (sender, eventArgs) =>
                 {
-                    stdoutBuffer.Append(eventArgs.Data).Append(Environment.NewLine);
+                    stdoutBuffer.AppendLine(eventArgs.Data);
                 };
 
-                process.ErrorDataReceived += (sender, eventArgs) => stderrBuffer.Append(eventArgs.Data).Append(Environment.NewLine);
+                process.ErrorDataReceived += (sender, eventArgs) => stderrBuffer.AppendLine(eventArgs.Data);
 
                 Console.WriteLine("IntegrationTestBase.Execute: Path = {0}", process.StartInfo.FileName);
                 Console.WriteLine("IntegrationTestBase.Execute: Arguments = {0}", process.StartInfo.Arguments);
@@ -609,7 +619,10 @@ namespace Microsoft.TestPlatform.TestUtilities
 
         private void FormatStandardOutCome()
         {
+            this.standardTestErrorWithWhiteSpace = this.standardTestError;
             this.standardTestError = Regex.Replace(this.standardTestError, @"\s+", " ");
+
+            this.standardTestOutputWithWhiteSpace = this.standardTestOutput;
             this.standardTestOutput = Regex.Replace(this.standardTestOutput, @"\s+", " ");
         }
 
