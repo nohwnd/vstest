@@ -105,21 +105,28 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector
             ValidateArg.NotNull(messageSink, nameof(messageSink));
 
             this.messageSink = messageSink;
+            var reuseTestDirectory = Environment.GetEnvironmentVariable("VSTEST_REUSE_TESTRESULTS_DIRECTORY")?.Trim() == "1";
 
             if (string.IsNullOrEmpty(outputDirectory))
             {
-                this.SessionOutputDirectory = Path.Combine(Path.GetTempPath(), DefaultOutputDirectoryName, id.Id.ToString());
+                this.SessionOutputDirectory = Path.Combine(Path.GetTempPath(), DefaultOutputDirectoryName, reuseTestDirectory ? string.Empty : id.Id.ToString());
             }
             else
             {
                 // Create a session specific directory under base output directory.
                 var expandedOutputDirectory = Environment.ExpandEnvironmentVariables(outputDirectory);
                 var absolutePath = Path.GetFullPath(expandedOutputDirectory);
-                this.SessionOutputDirectory = Path.Combine(absolutePath, id.Id.ToString());
+                this.SessionOutputDirectory = Path.Combine(absolutePath, reuseTestDirectory ? string.Empty : id.Id.ToString());
             }
 
             try
             {
+                if (reuseTestDirectory)
+                {
+                    if (Directory.Exists(this.SessionOutputDirectory)) {
+                        Directory.Delete(this.SessionOutputDirectory, true);
+                    }
+                }
                 // Create the output directory if it doesn't exist.
                 if (!Directory.Exists(this.SessionOutputDirectory))
                 {
@@ -256,14 +263,14 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector
             Debug.Assert(
                 context != null,
                 "DataCollectionManager.AddNewFileTransfer: FileDataHeaderMessage with null context.");
-
+            var reuseTestDirectory = Environment.GetEnvironmentVariable("VSTEST_REUSE_TESTRESULTS_DIRECTORY")?.Trim() == "1";
             var testCaseId = fileTransferInfo.Context.HasTestCase
                                  ? fileTransferInfo.Context.TestExecId.Id.ToString()
                                  : string.Empty;
 
             var directoryPath = Path.Combine(
                 this.SessionOutputDirectory,
-                testCaseId);
+                reuseTestDirectory ? string.Empty : testCaseId);
             var localFilePath = Path.Combine(directoryPath, Path.GetFileName(fileTransferInfo.FileName));
 
             var task = Task.Factory.StartNew(

@@ -19,6 +19,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Xml;
     using ObjectModelConstants = ObjectModel.Constants;
@@ -565,7 +566,19 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger
             this.testRun.Started = this.testRunStartTime;
 
             // Save default test settings
-            string runDeploymentRoot = trxFileHelper.ReplaceInvalidFileNameChars(this.testRun.Name);
+            var reuseTestDirectory = Environment.GetEnvironmentVariable("VSTEST_REUSE_TESTRESULTS_DIRECTORY")?.Trim() == "1";
+
+            string testRunName;
+            if (reuseTestDirectory) {
+                var tokens = this.testRun.Name.Split(' ');
+                // drop the last 2 which are date and time
+                testRunName = string.Join(" ", tokens.Take(tokens.Length - 2));
+            }
+            else
+            {
+                testRunName = this.testRun.Name;
+            }
+            string runDeploymentRoot = trxFileHelper.ReplaceInvalidFileNameChars(testRunName);
             TestRunConfiguration testrunConfig = new TestRunConfiguration("default", trxFileHelper);
             testrunConfig.RunDeploymentRootDirectory = runDeploymentRoot;
             this.testRun.RunConfiguration = testrunConfig;
