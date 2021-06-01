@@ -5,9 +5,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 {
     using System;
     using System.Diagnostics.Contracts;
+    using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Security;
-
+    using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities;
     using Microsoft.VisualStudio.TestPlatform.Common;
     using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
     using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
@@ -102,7 +104,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 
         private IRunSettingsProvider runSettingsManager;
 
-        public const string RunSettingsPath = "RunConfiguration.ResultsDirectory";
+        public const string ResultsDirectoryPath = "RunConfiguration.ResultsDirectory";
+        public const string CleanResultsDirectory = "RunConfiguration.CleanResultsDirectory";
 
         #endregion
 
@@ -132,27 +135,69 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
         /// <param name="argument">Argument that was provided with the command.</param>
         public void Initialize(string argument)
         {
+            string exceptionMessage = string.Format(CultureInfo.CurrentUICulture, CommandLineResources.ResultsDirectoryValueRequired, argument);
+
             if (string.IsNullOrWhiteSpace(argument))
             {
-                throw new CommandLineException(CommandLineResources.ResultsDirectoryValueRequired);
+                throw new CommandLineException(exceptionMessage);
+            }
+
+            // Throw error in case argument is null or empty.
+            if (string.IsNullOrWhiteSpace(argument))
+            {
+                throw new CommandLineException(exceptionMessage);
+            }
+
+            var arguments = ArgumentProcessorUtilities.GetArgumentList(argument, ArgumentProcessorUtilities.SemiColonArgumentSeparator, exceptionMessage);
+            
+            var path = arguments[0];
+            if (path.Contains("="))
+            {
+                throw new CommandLineException(exceptionMessage);
+            }
+
+            // Throw error in case path is null or empty, even when we have other parameters
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new CommandLineException(exceptionMessage);
+            }
+
+            // Get other parameters
+            var parameters = arguments.Skip(1);
+            var parsedParameters = ArgumentProcessorUtilities.GetArgumentParameters(parameters, ArgumentProcessorUtilities.EqualNameValueSeparator, exceptionMessage);
+
+            var clean = false;
+            if (parsedParameters.Any())
+            {
+                if (parsedParameters.TryGetValue("Clean", out var value))
+                {
+                    bool.TryParse(value, out clean);
+                }
             }
 
             try
             {
-                if (!Path.IsPathRooted(argument))
+                if (!Path.IsPathRooted(path))
                 {
-                    argument = Path.GetFullPath(argument);
+                    path = Path.GetFullPath(path);
                 }
 
-                var di = Directory.CreateDirectory(argument);
+                if (clean)
+                {
+                    Directory.Delete(path, true);
+                }
+
+                Directory.CreateDirectory(path);
             }
             catch (Exception ex) when( ex is NotSupportedException || ex is SecurityException || ex is ArgumentException || ex is PathTooLongException || ex is IOException)
             {
-                throw new CommandLineException(string.Format(CommandLineResources.InvalidResultsDirectoryPathCommand, argument, ex.Message));
+                throw new CommandLineException(string.Format(CommandLineResources.InvalidResultsDirectoryPathCommand, path, ex.Message));
             }
 
-            this.commandLineOptions.ResultsDirectory = argument;
-            this.runSettingsManager.UpdateRunSettingsNode(ResultsDirectoryArgumentExecutor.RunSettingsPath, argument);
+            this.commandLineOptions.ResultsDirectory = path;
+            this.commandLineOptions.CleanResultsDirectory = clean;
+            this.runSettingsManager.UpdateRunSettingsNode(ResultsDirectoryArgumentExecutor.ResultsDirectoryPath, path);
+            this.runSettingsManager.UpdateRunSettingsNode(ResultsDirectoryArgumentExecutor.CleanResultsDirectory, clean.ToString());
         }
 
         /// <summary>

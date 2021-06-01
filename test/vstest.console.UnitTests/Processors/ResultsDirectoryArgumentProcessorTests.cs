@@ -87,6 +87,24 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
         }
 
         [TestMethod]
+        public void InitializeShouldThrowIfPathIsNull()
+        {
+            string folder = null;
+            var message =
+                @"The /ResultsDirectory parameter requires a value, where the test results should be saved. Example:  /ResultsDirectory:c:\MyTestResultsDirectory";
+            this.InitializeExceptionTestTemplate(folder, message, clean: true);
+        }
+
+        [TestMethod]
+        public void InitializeShouldThrowIfPathIsAWhiteSpace()
+        {
+            var folder = " ";
+            var message =
+                @"The /ResultsDirectory parameter requires a value, where the test results should be saved. Example:  /ResultsDirectory:c:\MyTestResultsDirectory";
+            this.InitializeExceptionTestTemplate(folder, message, clean: true);
+        }
+
+        [TestMethod]
         public void InitializeShouldThrowIfGivenPathIsIllegal()
         {
             // the internal code uses IsPathRooted which does not consider this rooted on Linux
@@ -106,13 +124,14 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
             this.InitializeExceptionTestTemplate(folder, message);
         }
 
-        private void InitializeExceptionTestTemplate(string folder, string message)
+        private void InitializeExceptionTestTemplate(string folder, string message, bool? clean = null)
         {
             var isExceptionThrown = false;
 
+            var path = clean == null ? folder : $"{folder};Clean={clean}";
             try
             {
-                this.executor.Initialize(folder);
+                this.executor.Initialize(path);
             }
             catch (Exception ex)
             {
@@ -131,7 +150,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
             var absolutePath = Path.GetFullPath(relativePath);
             this.executor.Initialize(relativePath);
             Assert.AreEqual(absolutePath, CommandLineOptions.Instance.ResultsDirectory);
-            Assert.AreEqual(absolutePath, this.runSettingsProvider.QueryRunSettingsNode(ResultsDirectoryArgumentExecutor.RunSettingsPath));
+            Assert.AreEqual(absolutePath, this.runSettingsProvider.QueryRunSettingsNode(ResultsDirectoryArgumentExecutor.ResultsDirectoryPath));
         }
 
         [TestMethod]
@@ -140,7 +159,27 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors
             var absolutePath = TranslatePath(@"c:\random\someone\testresults");
             this.executor.Initialize(absolutePath);
             Assert.AreEqual(absolutePath, CommandLineOptions.Instance.ResultsDirectory);
-            Assert.AreEqual(absolutePath, this.runSettingsProvider.QueryRunSettingsNode(ResultsDirectoryArgumentExecutor.RunSettingsPath));
+            Assert.AreEqual(absolutePath, this.runSettingsProvider.QueryRunSettingsNode(ResultsDirectoryArgumentExecutor.ResultsDirectoryPath));
+        }
+
+        [TestMethod]
+        public void InitializeShouldSetCommandLineOptionsAndRunSettingsWhenCleanIsEnabled()
+        {
+            var absolutePath = TranslatePath(@"c:\random\someone\testresults");
+            this.executor.Initialize($"{absolutePath};Clean=True");
+            Assert.AreEqual(absolutePath, CommandLineOptions.Instance.ResultsDirectory);
+            Assert.AreEqual(absolutePath, this.runSettingsProvider.QueryRunSettingsNode(ResultsDirectoryArgumentExecutor.ResultsDirectoryPath));
+            Assert.AreEqual("True", this.runSettingsProvider.QueryRunSettingsNode(ResultsDirectoryArgumentExecutor.CleanResultsDirectory));
+        }
+
+        [TestMethod]
+        public void InitializeShouldSetCommandLineOptionsAndRunSettingsWhenCleanIsDisabled()
+        {
+            var absolutePath = TranslatePath(@"c:\random\someone\testresults");
+            this.executor.Initialize($"{absolutePath};Clean=False");
+            Assert.AreEqual(absolutePath, CommandLineOptions.Instance.ResultsDirectory);
+            Assert.AreEqual(absolutePath, this.runSettingsProvider.QueryRunSettingsNode(ResultsDirectoryArgumentExecutor.ResultsDirectoryPath));
+            Assert.AreEqual("False", this.runSettingsProvider.QueryRunSettingsNode(ResultsDirectoryArgumentExecutor.CleanResultsDirectory));
         }
 
         #endregion

@@ -27,7 +27,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector.Interfaces
         /// <param name="messageSink">
         /// The message Sink.
         /// </param>
-        void Initialize(SessionId id, string outputDirectory, IMessageSink messageSink);
+        void Initialize(SessionId id, string outputDirectory, bool outputDirectoryIsClean, IMessageSink messageSink);
 
         /// <summary>
         /// Gets attachment sets associated with given collection context.

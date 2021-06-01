@@ -38,6 +38,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector
         /// Logger for data collection messages
         /// </summary>
         private IMessageSink messageSink;
+        private bool _reuseTestDirectory;
 
         /// <summary>
         /// Attachment transfer tasks associated with a given datacollection context.
@@ -64,6 +65,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector
         public DataCollectionAttachmentManager()
             : this(new TestPlatform.Utilities.Helpers.FileHelper())
         {
+            
         }
 
         /// <summary>
@@ -99,29 +101,29 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector
         #region public methods
 
         /// <inheritdoc/>
-        public void Initialize(SessionId id, string outputDirectory, IMessageSink messageSink)
+        public void Initialize(SessionId id, string outputDirectory, bool outputDirectoryIsClean, IMessageSink messageSink)
         {
             ValidateArg.NotNull(id, nameof(id));
             ValidateArg.NotNull(messageSink, nameof(messageSink));
 
             this.messageSink = messageSink;
-            var reuseTestDirectory = Environment.GetEnvironmentVariable("VSTEST_REUSE_TESTRESULTS_DIRECTORY")?.Trim() == "1";
+            _reuseTestDirectory = outputDirectoryIsClean;
 
             if (string.IsNullOrEmpty(outputDirectory))
             {
-                this.SessionOutputDirectory = Path.Combine(Path.GetTempPath(), DefaultOutputDirectoryName, reuseTestDirectory ? string.Empty : id.Id.ToString());
+                this.SessionOutputDirectory = Path.Combine(Path.GetTempPath(), DefaultOutputDirectoryName, _reuseTestDirectory ? string.Empty : id.Id.ToString());
             }
             else
             {
                 // Create a session specific directory under base output directory.
                 var expandedOutputDirectory = Environment.ExpandEnvironmentVariables(outputDirectory);
                 var absolutePath = Path.GetFullPath(expandedOutputDirectory);
-                this.SessionOutputDirectory = Path.Combine(absolutePath, reuseTestDirectory ? string.Empty : id.Id.ToString());
+                this.SessionOutputDirectory = Path.Combine(absolutePath, _reuseTestDirectory ? string.Empty : id.Id.ToString());
             }
 
             try
             {
-                if (reuseTestDirectory)
+                if (_reuseTestDirectory)
                 {
                     if (Directory.Exists(this.SessionOutputDirectory)) {
                         Directory.Delete(this.SessionOutputDirectory, true);
@@ -263,14 +265,14 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector
             Debug.Assert(
                 context != null,
                 "DataCollectionManager.AddNewFileTransfer: FileDataHeaderMessage with null context.");
-            var reuseTestDirectory = Environment.GetEnvironmentVariable("VSTEST_REUSE_TESTRESULTS_DIRECTORY")?.Trim() == "1";
+
             var testCaseId = fileTransferInfo.Context.HasTestCase
                                  ? fileTransferInfo.Context.TestExecId.Id.ToString()
                                  : string.Empty;
 
             var directoryPath = Path.Combine(
                 this.SessionOutputDirectory,
-                reuseTestDirectory ? string.Empty : testCaseId);
+                this._reuseTestDirectory ? string.Empty : testCaseId);
             var localFilePath = Path.Combine(directoryPath, Path.GetFileName(fileTransferInfo.FileName));
 
             var task = Task.Factory.StartNew(

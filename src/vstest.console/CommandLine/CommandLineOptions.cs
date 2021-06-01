@@ -268,6 +268,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
         internal string ResultsDirectory { get; set; }
 
         /// <summary>
+        /// Cleans up the results directory, before starting the session, and avoids adding Guid id for the current session.
+        /// </summary>
+        internal bool CleanResultsDirectory { get; set; }
+
+        /// <summary>
         /// Gets or sets the /setting switch value. i.e path to settings file.
         /// </summary>
         internal string SettingsFile { get; set; }

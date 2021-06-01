@@ -166,8 +166,9 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector
 
             var runConfiguration = XmlRunSettingsUtilities.GetRunConfigurationNode(settingsXml);
             var resultsDirectory = RunSettingsUtilities.GetTestResultsDirectory(runConfiguration);
+            var resultsDirectoryIsClean = runConfiguration.CleanResultsDirectory;
 
-            this.attachmentManager.Initialize(sessionId, resultsDirectory, this.messageSink);
+            this.attachmentManager.Initialize(sessionId, resultsDirectory, resultsDirectoryIsClean, this.messageSink);
 
             // Environment variables are passed to testhost process, through ProcessStartInfo.EnvironmentVariables, which handles the key in a case-insensitive manner, which is translated to lowercase.
             // Therefore, using StringComparer.OrdinalIgnoreCase so that same keys with different cases are treated as same.

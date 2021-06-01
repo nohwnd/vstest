@@ -50,6 +50,11 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         private string resultsDirectory;
 
         /// <summary>
+        /// True when the directory was cleaned before the run, so it should be used only for the current session and no Guid session ids should be appended.
+        /// </summary>
+        private bool cleanResultsDirectory;
+
+        /// <summary>
         /// Paths at which rocksteady should look for test adapters
         /// </summary>
         private string testAdaptersPaths;
@@ -140,6 +145,23 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
             {
                 this.resultsDirectory = value;
                 this.ResultsDirectorySet = true;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the results directory.
+        /// </summary>
+        public bool CleanResultsDirectory
+        {
+            get
+            {
+                return this.cleanResultsDirectory;
+            }
+
+            set
+            {
+                this.cleanResultsDirectory = value;
+                this.CleanResultsDirectorySet = true;
             }
         }
 
@@ -486,6 +508,15 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         }
 
         /// <summary>
+        /// Gets a value indicating whether clean results directory is set.
+        /// </summary>
+        public bool CleanResultsDirectorySet
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Gets the binaries root.
         /// </summary>
         public string BinariesRoot { get; private set; }
@@ -519,6 +550,10 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
             XmlElement resultDirectory = doc.CreateElement("ResultsDirectory");
             resultDirectory.InnerXml = this.ResultsDirectory;
             root.AppendChild(resultDirectory);
+
+            XmlElement cleanResultDirectory = doc.CreateElement("CleanResultsDirectory");
+            resultDirectory.InnerXml = this.CleanResultsDirectory.ToString();
+            root.AppendChild(cleanResultDirectory);
 
             XmlElement targetPlatform = doc.CreateElement("TargetPlatform");
             targetPlatform.InnerXml = this.TargetPlatform.ToString();
