@@ -566,7 +566,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger
             this.testRun.Started = this.testRunStartTime;
 
             // Save default test settings
-            var reuseTestDirectory = true; //TODO: figure out how to get the setting here
+            var reuseTestDirectory = false; //TODO: figure out how to get the setting here
 
             string testRunName;
             if (reuseTestDirectory) {

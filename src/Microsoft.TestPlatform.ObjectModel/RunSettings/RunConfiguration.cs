@@ -689,6 +689,20 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             runConfiguration.ResultsDirectory = resultsDir;
                             break;
 
+                        case "CleanResultsDirectory":
+                            XmlRunSettingsUtilities.ThrowOnHasAttributes(reader);
+                            string cleanResultsDirectoryStr = reader.ReadElementContentAsString();
+
+                            bool bCleanResultsDirectory = false;
+                            if (!bool.TryParse(cleanResultsDirectoryStr, out bCleanResultsDirectory))
+                            {
+                                throw new SettingsException(String.Format(CultureInfo.CurrentCulture,
+                                    Resources.Resources.InvalidSettingsIncorrectValue, Constants.RunConfigurationSettingsName, bCleanResultsDirectory, elementName));
+                            }
+
+                            runConfiguration.CleanResultsDirectory = bCleanResultsDirectory;
+                            break;
+
                         case "CollectSourceInformation":
                             XmlRunSettingsUtilities.ThrowOnHasAttributes(reader);
                             string collectSourceInformationStr = reader.ReadElementContentAsString();

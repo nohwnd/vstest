@@ -78,7 +78,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollector.UnitTests
             var fileTransferInfo = new FileTransferInformation(context, filename, false);
 
             var attachmentManager = new DataCollectionAttachmentManager();
-            attachmentManager.Initialize(sessionId, TempDirectoryPath, new Mock<IMessageSink>().Object);
+            attachmentManager.Initialize(sessionId, TempDirectoryPath, false, new Mock<IMessageSink>().Object);
 
             this.dataCollectionSink = new TestPlatformDataCollectionSink(attachmentManager, this.dataCollectorConfig);
             this.dataCollectionSink.SendFileCompleted += SendFileCompleted_Handler;
