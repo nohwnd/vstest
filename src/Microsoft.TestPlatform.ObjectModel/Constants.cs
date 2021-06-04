@@ -234,6 +234,46 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         public const string DotNetFrameworkUap10 = "UAP,Version=v10.0";
 
         public const string TargetFrameworkName = "TargetFrameworkName";
+
+        /// <summary>
+        /// Name of source run settings node in RunSettings.
+        /// </summary>
+        public const string SourceRunSettingsName = "SourceRunSettings";
+
+        /// <summary>
+        /// Name of sources node in RunSettings.
+        /// </summary>
+        public const string SourcesSettingName = "Sources";
+
+        /// <summary>
+        /// Name of source node in RunSettings.
+        /// </summary>
+        public const string SourceSettingName = "Source";
+
+        /// <summary>
+        /// Name of path attribute of Source node.
+        /// </summary>
+        public const string SourcePath = "path";
+
+        /// <summary>
+        /// Name of platrofm attribute of Source node.
+        /// </summary>
+        public const string SourcePlatform = "platform";
+
+        /// <summary>
+        /// Name of framework attribute of Source node.
+        /// </summary>
+        public const string SourceFramework = "framework";
+
+        /// <summary>
+        /// Name of configuration element of logger node.
+        /// </summary>
+        public const string SourceConfigurationName = "Configuration";
+
+        /// <summary>
+        /// Name of configuration element of logger node in lower case.
+        /// </summary>
+        public const string SourceConfigurationNameLower = "configuration";
     }
 
     /// <summary>

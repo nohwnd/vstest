@@ -573,76 +573,88 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
             updatedRunSettingsXml = runsettingsXml;
             var sourcePlatforms = new Dictionary<string, Architecture>();
             var sourceFrameworks = new Dictionary<string, Framework>();
-
-            if (!string.IsNullOrEmpty(runsettingsXml))
+            if (string.IsNullOrWhiteSpace(runsettingsXml))
             {
-                // TargetFramework is full CLR. Set DesignMode based on current context.
-                using (var stream = new StringReader(runsettingsXml))
-                using (var reader = XmlReader.Create(
-                    stream,
-                    XmlRunSettingsUtilities.ReaderSettings))
+                runsettingsXml = @"<?xml version=""1.0"" encoding=""utf-8""?><RunSettings></RunSettings>";
+            }
+
+
+            // TargetFramework is full CLR. Set DesignMode based on current context.
+            using (var stream = new StringReader(runsettingsXml))
+            using (var reader = XmlReader.Create(
+                stream,
+                XmlRunSettingsUtilities.ReaderSettings))
+            {
+                var document = new XmlDocument();
+                document.Load(reader);
+                var navigator = document.CreateNavigator();
+                var runConfiguration = XmlRunSettingsUtilities.GetRunConfigurationNode(runsettingsXml);
+                var loggerRunSettings = XmlRunSettingsUtilities.GetLoggerRunSettings(runsettingsXml)
+                    ?? new LoggerRunSettings();
+
+                var sourceRunSettings = XmlRunSettingsUtilities.GetSourceRunSettings(runsettingsXml)
+                    ?? new SourceRunSettings();
+
+                settingsUpdated |= this.UpdateFramework(
+                    document,
+                    navigator,
+                    sources,
+                    sourceFrameworks,
+                    registrar,
+                    out Framework chosenFramework);
+
+                // Choose default architecture based on the framework.
+                // For .NET core, the default platform architecture should be based on the process.	
+                Architecture defaultArchitecture = Architecture.X86;
+                if (chosenFramework.Name.IndexOf("netstandard", StringComparison.OrdinalIgnoreCase) >= 0
+                    || chosenFramework.Name.IndexOf("netcoreapp", StringComparison.OrdinalIgnoreCase) >= 0
+                    || chosenFramework.Name.IndexOf("net5", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    var document = new XmlDocument();
-                    document.Load(reader);
-                    var navigator = document.CreateNavigator();
-                    var runConfiguration = XmlRunSettingsUtilities.GetRunConfigurationNode(runsettingsXml);
-                    var loggerRunSettings = XmlRunSettingsUtilities.GetLoggerRunSettings(runsettingsXml)
-                        ?? new LoggerRunSettings();
-
-                    settingsUpdated |= this.UpdateFramework(
-                        document,
-                        navigator,
-                        sources,
-                        sourceFrameworks,
-                        registrar,
-                        out Framework chosenFramework);
-
-                    // Choose default architecture based on the framework.
-                    // For .NET core, the default platform architecture should be based on the process.	
-                    Architecture defaultArchitecture = Architecture.X86;
-                    if (chosenFramework.Name.IndexOf("netstandard", StringComparison.OrdinalIgnoreCase) >= 0
-                        || chosenFramework.Name.IndexOf("netcoreapp", StringComparison.OrdinalIgnoreCase) >= 0
-                        || chosenFramework.Name.IndexOf("net5", StringComparison.OrdinalIgnoreCase) >= 0)
-                    {
 #if NETCOREAPP
-                        // We are running in vstest.console that is either started via dotnet.exe
-                        // or via vstest.console.exe .NET Core executable. For AnyCPU dlls this
-                        // should resolve 32-bit SDK when running from 32-bit dotnet process and 
-                        // 64-bit SDK when running from 64-bit dotnet process.
-                        defaultArchitecture = Environment.Is64BitProcess ? Architecture.X64 : Architecture.X86;
+                    // We are running in vstest.console that is either started via dotnet.exe
+                    // or via vstest.console.exe .NET Core executable. For AnyCPU dlls this
+                    // should resolve 32-bit SDK when running from 32-bit dotnet process and 
+                    // 64-bit SDK when running from 64-bit dotnet process.
+                    defaultArchitecture = Environment.Is64BitProcess ? Architecture.X64 : Architecture.X86;
 #else
-                        // We are running in vstest.console.exe that was built against .NET
-                        // Framework. This console prefers 32-bit because it needs to run as 32-bit
-                        // to be compatible with QTAgent. It runs as 32-bit both under VS and in
-                        // Developer console. Set the default architecture based on the OS
-                        // architecture, to find 64-bit dotnet SDK when running AnyCPU dll on 64-bit
-                        // system, and 32-bit SDK when running AnyCPU dll on 32-bit OS.
-                        // We want to find 64-bit SDK because it is more likely to be installed.
-                        defaultArchitecture = Environment.Is64BitOperatingSystem ? Architecture.X64 : Architecture.X86;
+                    // We are running in vstest.console.exe that was built against .NET
+                    // Framework. This console prefers 32-bit because it needs to run as 32-bit
+                    // to be compatible with QTAgent. It runs as 32-bit both under VS and in
+                    // Developer console. Set the default architecture based on the OS
+                    // architecture, to find 64-bit dotnet SDK when running AnyCPU dll on 64-bit
+                    // system, and 32-bit SDK when running AnyCPU dll on 32-bit OS.
+                    // We want to find 64-bit SDK because it is more likely to be installed.
+                    defaultArchitecture = Environment.Is64BitOperatingSystem ? Architecture.X64 : Architecture.X86;
 #endif
-                    }
-
-                    settingsUpdated |= this.UpdatePlatform(
-                        document,
-                        navigator,
-                        sources,
-                        sourcePlatforms,
-                        defaultArchitecture,
-                        out Architecture chosenPlatform);
-                    this.CheckSourcesForCompatibility(
-                        chosenFramework,
-                        chosenPlatform,
-                        defaultArchitecture,
-                        sourcePlatforms,
-                        sourceFrameworks,
-                        registrar);
-                    settingsUpdated |= this.UpdateDesignMode(document, runConfiguration);
-                    settingsUpdated |= this.UpdateCollectSourceInformation(document, runConfiguration);
-                    settingsUpdated |= this.UpdateTargetDevice(navigator, document, runConfiguration);
-                    settingsUpdated |= this.AddOrUpdateConsoleLogger(document, runConfiguration, loggerRunSettings);
-
-                    updatedRunSettingsXml = navigator.OuterXml;
                 }
+
+                settingsUpdated |= this.UpdatePlatform(
+                    document,
+                    navigator,
+                    sources,
+                    sourcePlatforms,
+                    defaultArchitecture,
+                    out Architecture chosenPlatform);
+                this.CheckSourcesForCompatibility(
+                    chosenFramework,
+                    chosenPlatform,
+                    defaultArchitecture,
+                    sourcePlatforms,
+                    sourceFrameworks,
+                    registrar);
+                settingsUpdated |= this.UpdateDesignMode(document, runConfiguration);
+                settingsUpdated |= this.UpdateCollectSourceInformation(document, runConfiguration);
+                settingsUpdated |= this.UpdateTargetDevice(navigator, document, runConfiguration);
+                settingsUpdated |= this.AddOrUpdateConsoleLogger(document, runConfiguration, loggerRunSettings);
+                settingsUpdated |= this.AddPerSourceSettings(
+                    sources,
+                    sourceFrameworks,
+                    sourcePlatforms,
+                    document,
+                    runConfiguration,
+                    sourceRunSettings);
+
+                updatedRunSettingsXml = navigator.OuterXml;
             }
 
             return settingsUpdated;
@@ -1157,6 +1169,48 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
                 sources = sourcesSet.ToList();
             }
             return sources;
+        }
+
+        private bool AddPerSourceSettings(
+            IList<string> sources, 
+            Dictionary<string, Framework> sourceFrameworks, 
+            Dictionary<string, Architecture> sourcePlatforms, 
+            XmlDocument document, 
+            RunConfiguration runConfiguration,
+            SourceRunSettings sourceRunSettings)
+        {
+            var added = false;
+            foreach (var source in sources)
+            {
+                var sourceSettings = new SourceSettings
+                {
+                    Path = source,
+                    Platform = sourcePlatforms[source],
+                    Framework = sourceFrameworks[source],
+                };
+
+                var existingSourceIndex = sourceRunSettings.GetExistingSourceIndex(sourceSettings);
+
+                if (existingSourceIndex < 0)
+                {
+                    sourceRunSettings.SourceSettingsList.Add(sourceSettings);
+                    added = true;
+                }
+                else
+                {
+                    // When it exists just keep it as is.
+                }
+            }
+
+            if (added)
+            {
+                RunSettingsProviderExtensions.UpdateRunSettingsXmlDocumentInnerXml(
+                        document,
+                        Constants.SourceRunSettingsName,
+                        sourceRunSettings.ToXml().InnerXml);
+            }
+
+            return added;
         }
     }
 }

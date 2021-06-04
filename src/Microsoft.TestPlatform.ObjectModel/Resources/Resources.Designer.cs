@@ -11,8 +11,8 @@
 namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Resources {
     using System;
     using System.Reflection;
-
-
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -20,7 +20,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -364,6 +364,15 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Resources {
         internal static string MissingLoggerAttributes {
             get {
                 return ResourceManager.GetString("MissingLoggerAttributes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid settings &apos;{0}&apos;. Expected atleast one of the XmlAttribute among path, framework and platform..
+        /// </summary>
+        internal static string MissingSourceAttributes {
+            get {
+                return ResourceManager.GetString("MissingSourceAttributes", resourceCulture);
             }
         }
         

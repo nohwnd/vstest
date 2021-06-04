@@ -461,5 +461,18 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
             }
         }
 #endif
+
+        /// <summary>
+        /// Get source run settings from the settings XML.
+        /// </summary>
+        /// <param name="runSettings">The run Settings Xml.</param>
+        /// <returns> The <see cref="SourceRunSettings"/>. </returns>
+        public static SourceRunSettings GetSourceRunSettings(String runSettings)
+        {
+            return GetNodeValue(
+                runSettings,
+                Constants.SourceRunSettingsName,
+                SourceRunSettings.FromXml);
+        }
     }
 }

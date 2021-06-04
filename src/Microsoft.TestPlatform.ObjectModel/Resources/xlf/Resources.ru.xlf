@@ -348,6 +348,11 @@
         <target state="translated">Строка фильтра "{0}" содержит нераспознанную escape-последовательность.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="MissingSourceAttributes">
+        <source>Invalid settings '{0}'. Expected atleast one of the XmlAttribute among path, framework and platform.</source>
+        <target state="new">Invalid settings '{0}'. Expected atleast one of the XmlAttribute among path, framework and platform.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
