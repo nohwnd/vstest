@@ -68,17 +68,17 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
 
         #endregion
 
-        public ParallelProxyExecutionManager(IRequestData requestData, Func<IProxyExecutionManager> actualProxyManagerCreator, int parallelLevel)
+        public ParallelProxyExecutionManager(IRequestData requestData, Func<string, IProxyExecutionManager> actualProxyManagerCreator, int parallelLevel)
             : this(requestData, actualProxyManagerCreator, JsonDataSerializer.Instance, parallelLevel, true)
         {
         }
 
-        public ParallelProxyExecutionManager(IRequestData requestData, Func<IProxyExecutionManager> actualProxyManagerCreator, int parallelLevel, bool sharedHosts)
+        public ParallelProxyExecutionManager(IRequestData requestData, Func<string ,IProxyExecutionManager> actualProxyManagerCreator, int parallelLevel, bool sharedHosts)
             : this(requestData, actualProxyManagerCreator, JsonDataSerializer.Instance, parallelLevel, sharedHosts)
         {
         }
 
-        internal ParallelProxyExecutionManager(IRequestData requestData, Func<IProxyExecutionManager> actualProxyManagerCreator, IDataSerializer dataSerializer, int parallelLevel, bool sharedHosts)
+        internal ParallelProxyExecutionManager(IRequestData requestData, Func<string, IProxyExecutionManager> actualProxyManagerCreator, IDataSerializer dataSerializer, int parallelLevel, bool sharedHosts)
             : base(actualProxyManagerCreator, parallelLevel, sharedHosts)
         {
             this.requestData = requestData;
@@ -218,8 +218,31 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
                 EqtTrace.Verbose("ParallelProxyExecutionManager: HandlePartialRunComplete: Replace execution manager. Shared: {0}, Aborted: {1}.", this.SharedHosts, testRunCompleteArgs.IsAborted);
             }
 
+
+
             this.RemoveManager(proxyExecutionManager);
-            proxyExecutionManager = CreateNewConcurrentManager();
+
+            TestRunCriteria testRunCriteria = null;
+            string source = null;
+            if (!this.hasSpecificTestsRun)
+            {
+                if (this.TryFetchNextSource(this.sourceEnumerator, out source))
+                {
+                    EqtTrace.Info("ProxyParallelExecutionManager: Triggering test run for next source: {0}", source);
+                    testRunCriteria = new TestRunCriteria(new[] { source }, this.actualTestRunCriteria);
+                }
+            }
+            else
+            {
+                if (this.TryFetchNextSource(this.testCaseListEnumerator, out List<TestCase> nextSetOfTests))
+                {
+                    source = nextSetOfTests?.FirstOrDefault()?.Source;
+                    EqtTrace.Info("ProxyParallelExecutionManager: Triggering test run for next source: {0}", source);
+                    testRunCriteria = new TestRunCriteria(nextSetOfTests, this.actualTestRunCriteria);
+                }
+            }
+
+            proxyExecutionManager = CreateNewConcurrentManager(source);
             var parallelEventsHandler = this.GetEventsHandler(proxyExecutionManager);
             this.AddManager(proxyExecutionManager, parallelEventsHandler);
 
@@ -227,7 +250,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
             // and queue another test run
             if (!testRunCompleteArgs.IsCanceled && !abortRequested)
             {
-                this.StartTestRunOnConcurrentManager(proxyExecutionManager);
+                this.StartTestRunOnConcurrentManager(proxyExecutionManager, testRunCriteria);
             }
 
             return false;
@@ -249,7 +272,28 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
             {
                 var parallelEventsHandler = this.GetEventsHandler(concurrentManager);
                 this.UpdateHandlerForManager(concurrentManager, parallelEventsHandler);
-                this.StartTestRunOnConcurrentManager(concurrentManager);
+
+
+                TestRunCriteria testRunCriteria = null;
+                if (!this.hasSpecificTestsRun)
+                {
+                    if (this.TryFetchNextSource(this.sourceEnumerator, out string nextSource))
+                    {
+                        EqtTrace.Info("ProxyParallelExecutionManager: Triggering test run for next source: {0}", nextSource);
+                        testRunCriteria = new TestRunCriteria(new[] { nextSource }, this.actualTestRunCriteria);
+                    }
+                }
+                else
+                {
+                    if (this.TryFetchNextSource(this.testCaseListEnumerator, out List<TestCase> nextSetOfTests))
+                    {
+                        var source = nextSetOfTests?.FirstOrDefault()?.Source;
+                        EqtTrace.Info("ProxyParallelExecutionManager: Triggering test run for next source: {0}", source);
+                        testRunCriteria = new TestRunCriteria(nextSetOfTests, this.actualTestRunCriteria);
+                    }
+                }
+
+                this.StartTestRunOnConcurrentManager(concurrentManager, testRunCriteria);
             }
 
             return 1;
@@ -288,26 +332,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
         /// </summary>
         /// <param name="proxyExecutionManager">Proxy execution manager instance.</param>
         /// <returns>True, if execution triggered</returns>
-        private void StartTestRunOnConcurrentManager(IProxyExecutionManager proxyExecutionManager)
+        private void StartTestRunOnConcurrentManager(IProxyExecutionManager proxyExecutionManager, TestRunCriteria testRunCriteria)
         {
-            TestRunCriteria testRunCriteria = null;
-            if (!this.hasSpecificTestsRun)
-            {
-                if (this.TryFetchNextSource(this.sourceEnumerator, out string nextSource))
-                {
-                    EqtTrace.Info("ProxyParallelExecutionManager: Triggering test run for next source: {0}", nextSource);
-                    testRunCriteria = new TestRunCriteria(new[] { nextSource }, this.actualTestRunCriteria);
-                }
-            }
-            else
-            {
-                if (this.TryFetchNextSource(this.testCaseListEnumerator, out List<TestCase> nextSetOfTests))
-                {
-                    EqtTrace.Info("ProxyParallelExecutionManager: Triggering test run for next source: {0}", nextSetOfTests?.FirstOrDefault()?.Source);
-                    testRunCriteria = new TestRunCriteria(nextSetOfTests, this.actualTestRunCriteria);
-                }
-            }
-
             if (testRunCriteria != null)
             {
                 if (!proxyExecutionManager.IsInitialized)

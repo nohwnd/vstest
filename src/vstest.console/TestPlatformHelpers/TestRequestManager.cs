@@ -595,7 +595,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
                 var sourceRunSettings = XmlRunSettingsUtilities.GetSourceRunSettings(runsettingsXml)
                     ?? new SourceRunSettings();
 
-                settingsUpdated |= this.UpdateFramework(
+                var frameworkWasAutoDetected = this.UpdateFramework(
                     document,
                     navigator,
                     sources,
@@ -603,19 +603,23 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
                     registrar,
                     out Framework chosenFramework);
 
-                // Choose default architecture based on the framework.
-                // For .NET core, the default platform architecture should be based on the process.	
-                Architecture defaultArchitecture = Architecture.X86;
-                if (chosenFramework.Name.IndexOf("netstandard", StringComparison.OrdinalIgnoreCase) >= 0
-                    || chosenFramework.Name.IndexOf("netcoreapp", StringComparison.OrdinalIgnoreCase) >= 0
-                    || chosenFramework.Name.IndexOf("net5", StringComparison.OrdinalIgnoreCase) >= 0)
+                settingsUpdated |= frameworkWasAutoDetected;
+
+                Func<Framework, Architecture> getDefaultArchitectureForFramework = framework =>
                 {
+                    // Choose default architecture based on the framework.
+                    // For .NET core, the default platform architecture should be based on the process.	
+                    Architecture architecture = Architecture.X86;
+                    if (framework.Name.IndexOf("netstandard", StringComparison.OrdinalIgnoreCase) >= 0
+                        || framework.Name.IndexOf("netcoreapp", StringComparison.OrdinalIgnoreCase) >= 0
+                        || framework.Name.IndexOf("net5", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
 #if NETCOREAPP
-                    // We are running in vstest.console that is either started via dotnet.exe
-                    // or via vstest.console.exe .NET Core executable. For AnyCPU dlls this
-                    // should resolve 32-bit SDK when running from 32-bit dotnet process and 
-                    // 64-bit SDK when running from 64-bit dotnet process.
-                    defaultArchitecture = Environment.Is64BitProcess ? Architecture.X64 : Architecture.X86;
+                        // We are running in vstest.console that is either started via dotnet.exe
+                        // or via vstest.console.exe .NET Core executable. For AnyCPU dlls this
+                        // should resolve 32-bit SDK when running from 32-bit dotnet process and 
+                        // 64-bit SDK when running from 64-bit dotnet process.
+                        architecture = Environment.Is64BitProcess ? Architecture.X64 : Architecture.X86;
 #else
                     // We are running in vstest.console.exe that was built against .NET
                     // Framework. This console prefers 32-bit because it needs to run as 32-bit
@@ -624,8 +628,17 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
                     // architecture, to find 64-bit dotnet SDK when running AnyCPU dll on 64-bit
                     // system, and 32-bit SDK when running AnyCPU dll on 32-bit OS.
                     // We want to find 64-bit SDK because it is more likely to be installed.
-                    defaultArchitecture = Environment.Is64BitOperatingSystem ? Architecture.X64 : Architecture.X86;
+                    architecture = Environment.Is64BitOperatingSystem ? Architecture.X64 : Architecture.X86;
 #endif
+                    }
+
+                    return architecture;
+                };
+
+                var defaultArchitecture = getDefaultArchitectureForFramework(chosenFramework);
+                foreach (var source in sources)
+                {
+                    sourcePlatforms[source] = getDefaultArchitectureForFramework(sourceFrameworks[source]);
                 }
 
                 settingsUpdated |= this.UpdatePlatform(
@@ -763,25 +776,36 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
             Architecture defaultArchitecture,
             out Architecture chosenPlatform)
         {
-            // Get platform from sources.
+
+
+            // Get platform from runsettings.
+            bool updatePlatform = IsAutoPlatformDetectRequired(navigator, out chosenPlatform);
+            bool platformIsForced = !updatePlatform;
+
+            // Update platform if required. For command line scenario update happens in
+            // ArgumentProcessor.
+            if (platformIsForced)
+            {
+                foreach (var source in sources)
+                {
+                    sourcePlatforms[source] = chosenPlatform;
+                }
+
+                return updatePlatform;
+            }
+
+            // Autodetect platform from sources.
             var inferedPlatform = inferHelper.AutoDetectArchitecture(
                 sources,
                 sourcePlatforms,
                 defaultArchitecture);
 
-            // Get platform from runsettings.
-            bool updatePlatform = IsAutoPlatformDetectRequired(navigator, out chosenPlatform);
+            InferRunSettingsHelper.UpdateTargetPlatform(
+                document,
+                inferedPlatform.ToString(),
+                overwrite: true);
 
-            // Update platform if required. For command line scenario update happens in
-            // ArgumentProcessor.
-            if (updatePlatform)
-            {
-                InferRunSettingsHelper.UpdateTargetPlatform(
-                    document,
-                    inferedPlatform.ToString(),
-                    overwrite: true);
-                chosenPlatform = inferedPlatform;
-            }
+            chosenPlatform = inferedPlatform;
 
             return updatePlatform;
         }
@@ -794,22 +818,33 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
             IBaseTestEventsRegistrar registrar,
             out Framework chosenFramework)
         {
-            // Get framework from sources.
-            var inferedFramework = inferHelper.AutoDetectFramework(sources, sourceFrameworks);
-
             // Get framework from runsettings.
-            bool updateFramework = IsAutoFrameworkDetectRequired(navigator, out chosenFramework);
+            bool frameworkWasAutodetected = IsAutoFrameworkDetectRequired(navigator, out chosenFramework);
+            bool frameworkIsForcedFromSettings = !frameworkWasAutodetected;
 
             // Update framework if required. For command line scenario update happens in
             // ArgumentProcessor.
-            if (updateFramework)
+            if (frameworkIsForcedFromSettings)
             {
+                // Framework was forced from settings. Set it to be the same for all sources as the one in TargetFramework.
+                foreach (var source in sources)
+                {
+                    sourceFrameworks[source] = chosenFramework;
+                }
+            }
+            else
+            {
+                // Auto detect framework from sources. This returns infered framework that is common for all the sources as the return value
+                // but also inferred framework for each of the sources via reference to sourceFrameworks.
+                var inferedFramework = inferHelper.AutoDetectFramework(sources, sourceFrameworks);
+
                 InferRunSettingsHelper.UpdateTargetFramework(
                     document,
                     inferedFramework?.ToString(),
                     overwrite: true);
                 chosenFramework = inferedFramework;
             }
+
 
             // Raise warnings for unsupported frameworks.
             if (Constants.DotNetFramework35.Equals(chosenFramework.Name))
@@ -818,7 +853,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
                 registrar.LogWarning(Resources.Framework35NotSupported);
             }
 
-            return updateFramework;
+            return frameworkWasAutodetected;
         }
 
         /// <summary>
@@ -1182,17 +1217,17 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
             var added = false;
             foreach (var source in sources)
             {
-                var sourceSettings = new SourceSettings
-                {
-                    Path = source,
-                    Platform = sourcePlatforms[source],
-                    Framework = sourceFrameworks[source],
-                };
-
-                var existingSourceIndex = sourceRunSettings.GetExistingSourceIndex(sourceSettings);
+                var existingSourceIndex = sourceRunSettings.GetExistingSourceIndex(source);
 
                 if (existingSourceIndex < 0)
                 {
+                    var sourceSettings = new SourceSettings
+                    {
+                        Path = source,
+                        Platform = sourcePlatforms[source],
+                        Framework = sourceFrameworks[source],
+                    };
+
                     sourceRunSettings.SourceSettingsList.Add(sourceSettings);
                     added = true;
                 }

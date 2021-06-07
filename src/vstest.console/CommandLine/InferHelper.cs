@@ -36,14 +36,25 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLineUtilities
                         if (IsDotNETAssembly(source))
                         {
                             arch = assemblyMetadataProvider.GetArchitecture(source);
+
+                            if (arch != Architecture.AnyCPU)
+                            {
+                                sourcePlatforms[source] = (Architecture)arch;
+                            }
+                            else
+                            {
+                                // This is AnyCPU .NET assembly, keep the default architecture we inferred based on the framework
+                                // in the previous steps. We don't want to retrive that default here and set it to `arch` because that
+                                // would change the behavior of the existing algorithm.
+                            }
                         }
                         else
                         {
                             // Set AnyCPU for non dotnet test sources (js, py and other). Otherwise warning will
                             // show up if there is mismatch with user provided platform.
                             arch = Architecture.AnyCPU;
+                            sourcePlatforms[source] = arch;
                         }
-                        sourcePlatforms[source]=(Architecture)arch;
 
                         if (Architecture.AnyCPU.Equals(arch))
                         {

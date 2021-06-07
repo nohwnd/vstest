@@ -52,12 +52,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
 
         #endregion
 
-        public ParallelProxyDiscoveryManager(IRequestData requestData, Func<IProxyDiscoveryManager> actualProxyManagerCreator, int parallelLevel, bool sharedHosts)
+        public ParallelProxyDiscoveryManager(IRequestData requestData, Func<string, IProxyDiscoveryManager> actualProxyManagerCreator, int parallelLevel, bool sharedHosts)
             : this(requestData, actualProxyManagerCreator, JsonDataSerializer.Instance, parallelLevel, sharedHosts)
         {
         }
 
-        internal ParallelProxyDiscoveryManager(IRequestData requestData, Func<IProxyDiscoveryManager> actualProxyManagerCreator, IDataSerializer dataSerializer, int parallelLevel, bool sharedHosts)
+        internal ParallelProxyDiscoveryManager(IRequestData requestData, Func<string, IProxyDiscoveryManager> actualProxyManagerCreator, IDataSerializer dataSerializer, int parallelLevel, bool sharedHosts)
             : base(actualProxyManagerCreator, parallelLevel, sharedHosts)
         {
             this.requestData = requestData;
@@ -148,6 +148,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
             // Discovery is not complete.
             // First, clean up the used proxy discovery manager if the last run was aborted
             // or this run doesn't support shared hosts (netcore tests)
+            string source = null;
             if (!this.SharedHosts || isAborted)
             {
                 if (EqtTrace.IsVerboseEnabled)
@@ -157,7 +158,10 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
 
                 this.RemoveManager(proxyDiscoveryManager);
 
-                proxyDiscoveryManager = this.CreateNewConcurrentManager();
+                // Peek to see if we have a next source. If we do, create manager for it. It can have a particular framework and architecture associated with it.
+                this.TryFetchNextSource(this.sourceEnumerator, out source);
+               
+                proxyDiscoveryManager = this.CreateNewConcurrentManager(source);
                 var parallelEventsHandler = new ParallelDiscoveryEventsHandler(
                                                this.requestData,
                                                proxyDiscoveryManager,
@@ -167,8 +171,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
                 this.AddManager(proxyDiscoveryManager, parallelEventsHandler);
             }
 
+
             // Second, let's attempt to trigger discovery for the next source.
-            this.DiscoverTestsOnConcurrentManager(proxyDiscoveryManager);
+            this.DiscoverTestsOnConcurrentManager(source, proxyDiscoveryManager);
 
             return false;
         }
@@ -195,7 +200,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
                                                 this.currentDiscoveryDataAggregator);
 
                 this.UpdateHandlerForManager(concurrentManager, parallelEventsHandler);
-                this.DiscoverTestsOnConcurrentManager(concurrentManager);
+                this.DiscoverTestsOnConcurrentManager(null, concurrentManager);
             }
         }
 
@@ -204,10 +209,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
         /// Each concurrent discoverer calls this method, once its completed working on previous data
         /// </summary>
         /// <param name="ProxyDiscoveryManager">Proxy discovery manager instance.</param>
-        private void DiscoverTestsOnConcurrentManager(IProxyDiscoveryManager proxyDiscoveryManager)
+        private void DiscoverTestsOnConcurrentManager(string source, IProxyDiscoveryManager proxyDiscoveryManager)
         {
-            // Peek to see if we have sources to trigger a discovery
-            if (this.TryFetchNextSource(this.sourceEnumerator, out string nextSource))
+            string nextSource = source;
+            
+            // If we get the source in the call, the proxy discovery manager is associated to that source and we should use it, otherwise, peek to see if we have any more sources to trigger a discovery.
+            if (nextSource != null || this.TryFetchNextSource(this.sourceEnumerator, out nextSource))
             {
                 if (EqtTrace.IsVerboseEnabled)
                 {

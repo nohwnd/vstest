@@ -193,7 +193,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         /// </summary>
         /// <param name="sourceSettings">Source settings.</param>
         /// <returns>Index of given source settings.</returns>
-        public int GetExistingSourceIndex(SourceSettings sourceSettings)
+        public int GetExistingSourceIndex(string path)
         {
             var existingSourceIndex = -1;
 
@@ -202,8 +202,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                 var source = SourceSettingsList[i];
 
                 if (source.Path != null &&
-                    sourceSettings.Path != null &&
-                    source.Path.Equals(sourceSettings.Path, StringComparison.OrdinalIgnoreCase))
+                    path != null &&
+                    source.Path.Equals(path, StringComparison.OrdinalIgnoreCase))
                 {
                     existingSourceIndex = i;
                     break;

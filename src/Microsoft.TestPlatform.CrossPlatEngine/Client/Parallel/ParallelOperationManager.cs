@@ -20,7 +20,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
     {
         #region ConcurrentManagerInstanceData
 
-        protected Func<T> CreateNewConcurrentManager { get; set; }
+        protected Func<string, T> CreateNewConcurrentManager { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether hosts are shared.
@@ -51,7 +51,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
 
         #endregion
 
-        protected ParallelOperationManager(Func<T> createNewManager, int parallelLevel, bool sharedHosts)
+        protected ParallelOperationManager(Func<string, T> createNewManager, int parallelLevel, bool sharedHosts)
         {
             this.CreateNewConcurrentManager = createNewManager;
             this.SharedHosts = sharedHosts;
@@ -136,7 +136,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
                 this.concurrentManagerHandlerMap = new ConcurrentDictionary<T, U>();
                 for (int i = 0; i < newParallelLevel; i++)
                 {
-                    this.AddManager(this.CreateNewConcurrentManager(), default(U));
+                    this.AddManager(this.CreateNewConcurrentManager(null), default(U));
                 }
             }
             else if (this.currentParallelLevel != newParallelLevel)
@@ -147,7 +147,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
                 {
                     for (int i = 0; i < newParallelLevel - this.currentParallelLevel; i++)
                     {
-                        this.AddManager(this.CreateNewConcurrentManager(), default(U));
+                        this.AddManager(this.CreateNewConcurrentManager(null), default(U));
                     }
                 }
                 else

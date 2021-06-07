@@ -77,9 +77,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
                     new TestHostManagerFactory(newRequestData));
             }
 
-            Func<IProxyDiscoveryManager> proxyDiscoveryManagerCreator = () =>
+            Func<string, IProxyDiscoveryManager> proxyDiscoveryManagerCreator = (source) =>
             {
-                var hostManager = this.testHostProviderManager.GetTestHostManagerByRunConfiguration(discoveryCriteria.RunSettings);
+                string runSettingsXml = GetPerSourceRunSettings(discoveryCriteria.RunSettings, source);
+
+                var hostManager = this.testHostProviderManager.GetTestHostManagerByRunConfiguration(runSettingsXml);
                 hostManager?.Initialize(TestSessionMessageLogger.Instance, discoveryCriteria.RunSettings);
 
                 return new ProxyDiscoveryManager(
@@ -89,12 +91,38 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
             };
 
             return testHostManager.Shared
-                ? proxyDiscoveryManagerCreator()
+                ? proxyDiscoveryManagerCreator(null)
                 : new ParallelProxyDiscoveryManager(
                     requestData,
                     proxyDiscoveryManagerCreator,
                     parallelLevel,
                     sharedHosts: testHostManager.Shared);
+        }
+
+        private static string GetPerSourceRunSettings(string runSettingsXml, string source)
+        {
+            if (source != null)
+            {
+                var runSettings = XmlRunSettingsUtilities.GetRunConfigurationNode(runSettingsXml);
+                var sourceRunSettings = XmlRunSettingsUtilities.GetSourceRunSettings(runSettingsXml);
+
+                var index = sourceRunSettings.GetExistingSourceIndex(source);
+                if (index >= 0)
+                {
+                    var sourceSettings = sourceRunSettings.SourceSettingsList[index];
+                    // We found the source, patch the runsettings to get a test host manager that can invoke this framework.
+                    // And initialize it to the settings that the current source needs.
+                    // This also avoids changing the public api of GetTestHostManagerByRunConfiguration.
+                    if (runSettings.TargetFramework != sourceSettings.Framework)
+                    {
+                        runSettings.TargetFramework = sourceSettings.Framework;
+                        runSettings.TargetPlatform = sourceSettings.Platform;
+                        runSettingsXml = runSettings.ToXml().InnerText;
+                    }
+                }
+            }
+
+            return runSettingsXml;
         }
 
         /// <inheritdoc/>
@@ -130,7 +158,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
 
             // SetupChannel ProxyExecutionManager with data collection if data collectors are
             // specififed in run settings.
-            Func<IProxyExecutionManager> proxyExecutionManagerCreator = () =>
+            Func<string, IProxyExecutionManager> proxyExecutionManagerCreator = source =>
             {
                 if (testRunCriteria.TestSessionInfo != null)
                 {
@@ -158,7 +186,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
 
                 // Create a new host manager, to be associated with individual
                 // ProxyExecutionManager(&POM)
-                var hostManager = this.testHostProviderManager.GetTestHostManagerByRunConfiguration(testRunCriteria.TestRunSettings);
+                var hostManager = this.testHostProviderManager.GetTestHostManagerByRunConfiguration(GetPerSourceRunSettings(testRunCriteria.TestRunSettings, source));
+
                 hostManager?.Initialize(TestSessionMessageLogger.Instance, testRunCriteria.TestRunSettings);
 
                 if (testRunCriteria.TestHostLauncher != null)
@@ -190,7 +219,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
                     proxyExecutionManagerCreator,
                     parallelLevel,
                     sharedHosts: testHostManager.Shared)
-                : proxyExecutionManagerCreator();
+                : proxyExecutionManagerCreator(null);
         }
 
         /// <inheritdoc/>

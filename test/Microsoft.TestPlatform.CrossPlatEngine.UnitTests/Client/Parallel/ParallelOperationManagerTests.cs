@@ -155,7 +155,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
         private class MockParallelOperationManager : ParallelOperationManager<SampleConcurrentClass, SampleHandlerClass>
         {
             public MockParallelOperationManager(Func<SampleConcurrentClass> createNewClient, int parallelLevel, bool sharedHosts) :
-                base(createNewClient, parallelLevel, sharedHosts)
+                base(_ => createNewClient(), parallelLevel, sharedHosts)
             {
             }
 

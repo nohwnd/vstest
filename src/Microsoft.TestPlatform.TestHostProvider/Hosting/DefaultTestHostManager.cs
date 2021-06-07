@@ -259,7 +259,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Hosting
             this.targetFramework = runConfiguration.TargetFramework;
             this.testHostProcess = null;
 
-            this.Shared = !runConfiguration.DisableAppDomain;
+            // REVIEW: this is only here to force the use of the parallel logic even when the default is netfmw, so I don't have to fix all the logic
+            this.Shared = false; // !runConfiguration.DisableAppDomain;
             this.hostExitedEventRaised = false;
         }
 

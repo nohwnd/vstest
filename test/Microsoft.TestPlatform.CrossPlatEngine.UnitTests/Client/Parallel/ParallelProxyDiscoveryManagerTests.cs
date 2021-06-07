@@ -76,7 +76,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
         [TestMethod]
         public void AbortShouldCallAllConcurrentManagersOnce()
         {
-            var parallelDiscoveryManager = new ParallelProxyDiscoveryManager(this.mockRequestData.Object, this.proxyManagerFunc, 4, false);
+            var parallelDiscoveryManager = new ParallelProxyDiscoveryManager(this.mockRequestData.Object, _ => this.proxyManagerFunc(), 4, false);
 
             parallelDiscoveryManager.Abort();
 
@@ -214,7 +214,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
         public void HandlePartialDiscoveryCompleteShouldCreateANewProxyDiscoveryManagerIfIsAbortedIsTrue()
         {
             this.proxyManagerFuncCalled = false;
-            var parallelDiscoveryManager = new ParallelProxyDiscoveryManager(this.mockRequestData.Object, this.proxyManagerFunc, 1, false);
+            var parallelDiscoveryManager = new ParallelProxyDiscoveryManager(this.mockRequestData.Object, _ => this.proxyManagerFunc(), 1, false);
             var proxyDiscovermanager = new ProxyDiscoveryManager(this.mockRequestData.Object, new Mock<ITestRequestSender>().Object, new Mock<ITestRuntimeProvider>().Object);
 
             parallelDiscoveryManager.HandlePartialDiscoveryComplete(proxyDiscovermanager, 20, new List<TestCase>(), isAborted: true);
@@ -224,7 +224,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
 
         private IParallelProxyDiscoveryManager SetupDiscoveryManager(Func<IProxyDiscoveryManager> getProxyManager, int parallelLevel, bool abortDiscovery, int totalTests = 20)
         {
-            var parallelDiscoveryManager = new ParallelProxyDiscoveryManager(this.mockRequestData.Object, getProxyManager, parallelLevel, false);
+            var parallelDiscoveryManager = new ParallelProxyDiscoveryManager(this.mockRequestData.Object, _ => getProxyManager(), parallelLevel, false);
             this.SetupDiscoveryTests(this.processedSources, abortDiscovery);
 
             // Setup a complete handler for parallel discovery manager
@@ -282,7 +282,7 @@ namespace TestPlatform.CrossPlatEngine.UnitTests.Client
 
         private void InvokeAndVerifyInitialize(int concurrentManagersCount, bool skipDefaultAdapters = false)
         {
-            var parallelDiscoveryManager = new ParallelProxyDiscoveryManager(this.mockRequestData.Object, this.proxyManagerFunc, concurrentManagersCount, false);
+            var parallelDiscoveryManager = new ParallelProxyDiscoveryManager(this.mockRequestData.Object, _ => this.proxyManagerFunc(), concurrentManagersCount, false);
 
             // Action
             parallelDiscoveryManager.Initialize(skipDefaultAdapters);
