@@ -69,7 +69,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
         /// <inheritdoc/>
         public void Initialize(bool skipDefaultAdapters)
         {
-            this.DoActionOnAllManagers((proxyManager) => proxyManager.Initialize(skipDefaultAdapters), doActionsInParallel: true);
+            // the parent ctor does not pre-create any managers, there is nothing to do
+            //   this.DoActionOnAllManagers((proxyManager) => proxyManager.Initialize(skipDefaultAdapters), doActionsInParallel: true);
         }
 
         /// <inheritdoc/>
@@ -149,6 +150,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
             // First, clean up the used proxy discovery manager if the last run was aborted
             // or this run doesn't support shared hosts (netcore tests)
             string source = null;
+            // REVIEW: this needs to check shared hosts on the host itself, because the shared hosts might be true for some sources, and might not be true for other sources.
+            // REVIEW: Why is it scheduling discovery on the next source when the discovery is aborted? <- Because thie is event driven and we are hitting handlePartialDiscoveryComplete every time 
+            // there is discovery complete from other source. So this will schedule the next one. This also makes this problematic for shared hosts (or later for streaming in sources), because we don't 
+            // know which source is the last shared source. We don't know when to remove the host for it. But I guess we can just not share hosts when there is at least one source for non-shared host.
+            // so we should figure out early which host will be associated with which source, and figure out if sharedhosts can or can't be used to avoid solving that problem just yet.
+            // Doing it this way would make "global" SharedHosts make sense again.
             if (!this.SharedHosts || isAborted)
             {
                 if (EqtTrace.IsVerboseEnabled)
@@ -158,21 +165,23 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
 
                 this.RemoveManager(proxyDiscoveryManager);
 
+                // REVIEW: will abort kill the host? I guess it would, so we definitely need to start new one even if the shared hosts is true. So this is still valid.
                 // Peek to see if we have a next source. If we do, create manager for it. It can have a particular framework and architecture associated with it.
-                this.TryFetchNextSource(this.sourceEnumerator, out source);
-               
-                proxyDiscoveryManager = this.CreateNewConcurrentManager(source);
-                var parallelEventsHandler = new ParallelDiscoveryEventsHandler(
-                                               this.requestData,
-                                               proxyDiscoveryManager,
-                                               this.currentDiscoveryEventsHandler,
-                                               this,
-                                               this.currentDiscoveryDataAggregator);
-                this.AddManager(proxyDiscoveryManager, parallelEventsHandler);
+                if (this.TryFetchNextSource(this.sourceEnumerator, out source))
+                {
+
+                    proxyDiscoveryManager = this.CreateNewConcurrentManager(source);
+                    var parallelEventsHandler = new ParallelDiscoveryEventsHandler(
+                                                   this.requestData,
+                                                   proxyDiscoveryManager,
+                                                   this.currentDiscoveryEventsHandler,
+                                                   this,
+                                                   this.currentDiscoveryDataAggregator);
+                    this.AddManager(proxyDiscoveryManager, parallelEventsHandler);
+                }
             }
 
-
-            // Second, let's attempt to trigger discovery for the next source.
+            // Second, let's attempt to trigger discovery for the next source. This will either use the host that we passed along if it is not aborted or non-shared, or we will use the one we just created.
             this.DiscoverTestsOnConcurrentManager(source, proxyDiscoveryManager);
 
             return false;
@@ -189,18 +198,25 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
 
             // One data aggregator per parallel discovery
             this.currentDiscoveryDataAggregator = new ParallelDiscoveryDataAggregator();
+            
 
+            // ERRRR: I need to schedule them until I reach maxParallelLevel or until I run out of sources. This won't schedule any source for discovery, because there are not concurrent managers.
             foreach (var concurrentManager in this.GetConcurrentManagerInstances())
             {
+                if (!this.TryFetchNextSource(this.sourceEnumerator, out string source))
+                {
+                    throw new InvalidOperationException("There are no more sources");
+                }
+
                 var parallelEventsHandler = new ParallelDiscoveryEventsHandler(
-                                                this.requestData,
-                                                concurrentManager,
-                                                discoveryEventsHandler,
-                                                this,
-                                                this.currentDiscoveryDataAggregator);
+                                            this.requestData,
+                                            concurrentManager,
+                                            discoveryEventsHandler,
+                                            this,
+                                            this.currentDiscoveryDataAggregator);
 
                 this.UpdateHandlerForManager(concurrentManager, parallelEventsHandler);
-                this.DiscoverTestsOnConcurrentManager(null, concurrentManager);
+                this.DiscoverTestsOnConcurrentManager(source, concurrentManager);
             }
         }
 
@@ -211,58 +227,56 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
         /// <param name="ProxyDiscoveryManager">Proxy discovery manager instance.</param>
         private void DiscoverTestsOnConcurrentManager(string source, IProxyDiscoveryManager proxyDiscoveryManager)
         {
-            string nextSource = source;
-            
-            // If we get the source in the call, the proxy discovery manager is associated to that source and we should use it, otherwise, peek to see if we have any more sources to trigger a discovery.
-            if (nextSource != null || this.TryFetchNextSource(this.sourceEnumerator, out nextSource))
+            if (source == null)
             {
                 if (EqtTrace.IsVerboseEnabled)
                 {
-                    EqtTrace.Verbose("ProxyParallelDiscoveryManager: Triggering test discovery for next source: {0}", nextSource);
+                    EqtTrace.Verbose("ProxyParallelDiscoveryManager: No sources available for discovery.");
                 }
-
-                // Kick off another discovery task for the next source
-                var discoveryCriteria = new DiscoveryCriteria(new[] { nextSource }, this.actualDiscoveryCriteria.FrequencyOfDiscoveredTestsEvent, this.actualDiscoveryCriteria.DiscoveredTestEventTimeout, this.actualDiscoveryCriteria.RunSettings);
-                discoveryCriteria.TestCaseFilter = this.actualDiscoveryCriteria.TestCaseFilter;
-                Task.Run(() =>
-                    {
-                        if (EqtTrace.IsVerboseEnabled)
-                        {
-                            EqtTrace.Verbose("ParallelProxyDiscoveryManager: Discovery started.");
-                        }
-
-                        proxyDiscoveryManager.DiscoverTests(discoveryCriteria, this.GetHandlerForGivenManager(proxyDiscoveryManager));
-                    })
-                    .ContinueWith(t =>
-                    {
-                        // Just in case, the actual discovery couldn't start for an instance. Ensure that
-                        // we call discovery complete since we have already fetched a source. Otherwise
-                        // discovery will not terminate
-                        if (EqtTrace.IsErrorEnabled)
-                        {
-                            EqtTrace.Error("ParallelProxyDiscoveryManager: Failed to trigger discovery. Exception: " + t.Exception);
-                        }
-
-                        var handler = this.GetHandlerForGivenManager(proxyDiscoveryManager);
-                        var testMessagePayload = new TestMessagePayload { MessageLevel = TestMessageLevel.Error, Message = t.Exception.ToString() };
-                        handler.HandleRawMessage(this.dataSerializer.SerializePayload(MessageType.TestMessage, testMessagePayload));
-                        handler.HandleLogMessage(TestMessageLevel.Error, t.Exception.ToString());
-
-                        // Send discovery complete. Similar logic is also used in ProxyDiscoveryManager.DiscoverTests.
-                        // Differences:
-                        // Total tests must be zero here since parallel discovery events handler adds the count
-                        // Keep `lastChunk` as null since we don't want a message back to the IDE (discovery didn't even begin)
-                        // Set `isAborted` as true since we want this instance of discovery manager to be replaced
-                        var discoveryCompleteEventsArgs = new DiscoveryCompleteEventArgs(-1, true);
-                        handler.HandleDiscoveryComplete(discoveryCompleteEventsArgs, null);
-                    },
-                    TaskContinuationOptions.OnlyOnFaulted);
+                return;
             }
 
             if (EqtTrace.IsVerboseEnabled)
             {
-                EqtTrace.Verbose("ProxyParallelDiscoveryManager: No sources available for discovery.");
+                EqtTrace.Verbose("ProxyParallelDiscoveryManager: Triggering test discovery for next source: {0}", source);
             }
+
+            // Kick off another discovery task for the next source
+            var discoveryCriteria = new DiscoveryCriteria(new[] { source }, this.actualDiscoveryCriteria.FrequencyOfDiscoveredTestsEvent, this.actualDiscoveryCriteria.DiscoveredTestEventTimeout, this.actualDiscoveryCriteria.RunSettings);
+            discoveryCriteria.TestCaseFilter = this.actualDiscoveryCriteria.TestCaseFilter;
+            Task.Run(() =>
+                {
+                    if (EqtTrace.IsVerboseEnabled)
+                    {
+                        EqtTrace.Verbose("ParallelProxyDiscoveryManager: Discovery started.");
+                    }
+
+                    proxyDiscoveryManager.DiscoverTests(discoveryCriteria, this.GetHandlerForGivenManager(proxyDiscoveryManager));
+                })
+                .ContinueWith(t =>
+                {
+                    // Just in case, the actual discovery couldn't start for an instance. Ensure that
+                    // we call discovery complete since we have already fetched a source. Otherwise
+                    // discovery will not terminate
+                    if (EqtTrace.IsErrorEnabled)
+                    {
+                        EqtTrace.Error("ParallelProxyDiscoveryManager: Failed to trigger discovery. Exception: " + t.Exception);
+                    }
+
+                    var handler = this.GetHandlerForGivenManager(proxyDiscoveryManager);
+                    var testMessagePayload = new TestMessagePayload { MessageLevel = TestMessageLevel.Error, Message = t.Exception.ToString() };
+                    handler.HandleRawMessage(this.dataSerializer.SerializePayload(MessageType.TestMessage, testMessagePayload));
+                    handler.HandleLogMessage(TestMessageLevel.Error, t.Exception.ToString());
+
+                    // Send discovery complete. Similar logic is also used in ProxyDiscoveryManager.DiscoverTests.
+                    // Differences:
+                    // Total tests must be zero here since parallel discovery events handler adds the count
+                    // Keep `lastChunk` as null since we don't want a message back to the IDE (discovery didn't even begin)
+                    // Set `isAborted` as true since we want this instance of discovery manager to be replaced
+                    var discoveryCompleteEventsArgs = new DiscoveryCompleteEventArgs(-1, true);
+                    handler.HandleDiscoveryComplete(discoveryCompleteEventsArgs, null);
+                },
+                TaskContinuationOptions.OnlyOnFaulted);
         }
     }
 }

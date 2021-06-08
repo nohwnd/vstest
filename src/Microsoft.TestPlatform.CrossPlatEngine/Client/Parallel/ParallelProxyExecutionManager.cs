@@ -268,29 +268,42 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
             // One data aggregator per parallel run
             this.currentRunDataAggregator = new ParallelRunDataAggregator();
 
-            foreach (var concurrentManager in this.GetConcurrentManagerInstances())
+            // REVIEW: Create as many handlers as we can, until we reach the parallel level or the number of sources. Originally this was done in the UpdateParallelLevel in base constructor, but we did not know which source will be the next there.
+            var parallel = 0;
+            while (parallel <= MaxParallelLevel)
             {
-                var parallelEventsHandler = this.GetEventsHandler(concurrentManager);
-                this.UpdateHandlerForManager(concurrentManager, parallelEventsHandler);
-
-
+                parallel++;
                 TestRunCriteria testRunCriteria = null;
+                string source = null;
                 if (!this.hasSpecificTestsRun)
                 {
-                    if (this.TryFetchNextSource(this.sourceEnumerator, out string nextSource))
+                    if (this.TryFetchNextSource(this.sourceEnumerator, out source))
                     {
-                        EqtTrace.Info("ProxyParallelExecutionManager: Triggering test run for next source: {0}", nextSource);
-                        testRunCriteria = new TestRunCriteria(new[] { nextSource }, this.actualTestRunCriteria);
+                        EqtTrace.Info("ProxyParallelExecutionManager: Triggering test run for next source: {0}", source);
+                        testRunCriteria = new TestRunCriteria(new[] { source }, this.actualTestRunCriteria);
                     }
                 }
                 else
                 {
                     if (this.TryFetchNextSource(this.testCaseListEnumerator, out List<TestCase> nextSetOfTests))
                     {
-                        var source = nextSetOfTests?.FirstOrDefault()?.Source;
+                        source = nextSetOfTests?.FirstOrDefault()?.Source;
                         EqtTrace.Info("ProxyParallelExecutionManager: Triggering test run for next source: {0}", source);
                         testRunCriteria = new TestRunCriteria(nextSetOfTests, this.actualTestRunCriteria);
                     }
+                }
+
+                if (source == null)
+                {
+                    return 1;
+                }
+
+                var concurrentManager = CreateNewConcurrentManager(source);
+                var parallelEventsHandler = this.GetEventsHandler(concurrentManager);
+                this.UpdateHandlerForManager(concurrentManager, parallelEventsHandler);
+                if (!concurrentManager.IsInitialized)
+                {
+                    concurrentManager.Initialize(this.skipDefaultAdapters);
                 }
 
                 this.StartTestRunOnConcurrentManager(concurrentManager, testRunCriteria);

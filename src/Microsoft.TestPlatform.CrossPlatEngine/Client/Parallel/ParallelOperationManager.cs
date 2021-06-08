@@ -27,6 +27,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
         /// </summary>
         protected bool SharedHosts { get; private set; }
 
+        /// <summary>
+        /// Holds all active managers, so we can do actions on all of them, like initialize, run, cancel or close.
+        /// </summary>
         private IDictionary<T, U> concurrentManagerHandlerMap;
 
         /// <summary>
@@ -38,6 +41,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
         /// Default number of Processes
         /// </summary>
         private int currentParallelLevel = 0;
+
+        protected int MaxParallelLevel { get; private set; }
 
         #endregion
 
@@ -53,11 +58,22 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
 
         protected ParallelOperationManager(Func<string, T> createNewManager, int parallelLevel, bool sharedHosts)
         {
+            // CreataNewConcurrentManager should probably take capabilities instead of just string, and we should add those same capabilities to the source? But it's kept this way so we don't have to change how we check if host can run given config.
             this.CreateNewConcurrentManager = createNewManager;
-            this.SharedHosts = sharedHosts;
+            // REVIEW: this option does not make sense when some host can be shared and other can't.
+            // this.SharedHosts = sharedHosts;
+            this.SharedHosts = false;
 
             // Update Parallel Level
-            this.UpdateParallelLevel(parallelLevel);
+            // REVIEW: this "pre-starts" testhosts so we have a pool of them, this is the reason the number or parallel hosts is capped to the amount of sources so we don't "pre-start" too many of them
+            // instead we should take each source, look if it can be run by shared host, and if so try to grab a free host, run new one if we are below parallel level, or wait if we are at parallel level and everyone is busy
+            // if we have non-shared host we do just the two last options, run new one if current count is under parallel level, or wait till we can run new one.
+            // this.UpdateParallelLevel(parallelLevel);
+            if (this.concurrentManagerHandlerMap == null) {
+                this.concurrentManagerHandlerMap = new ConcurrentDictionary<T, U>();
+            }
+
+            this.MaxParallelLevel = parallelLevel;
         }
 
         /// <summary>
@@ -129,8 +145,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
         /// <param name="newParallelLevel">Number of Parallel Executors allowed</param>
         public void UpdateParallelLevel(int newParallelLevel)
         {
+            var a = true;
             if (this.concurrentManagerHandlerMap == null)
             {
+                if (a)
+                {
+                    throw new Exception("This should not be used anymore, to pre-start hosts");
+                }
                 // not initialized yet
                 // create rest of concurrent clients other than default one
                 this.concurrentManagerHandlerMap = new ConcurrentDictionary<T, U>();
@@ -145,6 +166,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
                 // Create more concurrent clients and update the list
                 if (this.currentParallelLevel < newParallelLevel)
                 {
+                    // This path does not even seem to be used anywhere.
+                    if (a)
+                    {
+                        throw new Exception("This should not be used anymore, to ensure we add more hosts.");
+                    }
+
                     for (int i = 0; i < newParallelLevel - this.currentParallelLevel; i++)
                     {
                         this.AddManager(this.CreateNewConcurrentManager(null), default(U));

@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
 
     using Microsoft.VisualStudio.TestPlatform.Common;
     using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
+    using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
     using Microsoft.VisualStudio.TestPlatform.Common.Logging;
     using Microsoft.VisualStudio.TestPlatform.Common.Telemetry;
     using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
@@ -103,21 +104,23 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
         {
             if (source != null)
             {
-                var runSettings = XmlRunSettingsUtilities.GetRunConfigurationNode(runSettingsXml);
+                var runConfiguration = XmlRunSettingsUtilities.GetRunConfigurationNode(runSettingsXml);
                 var sourceRunSettings = XmlRunSettingsUtilities.GetSourceRunSettings(runSettingsXml);
 
                 var index = sourceRunSettings.GetExistingSourceIndex(source);
                 if (index >= 0)
                 {
                     var sourceSettings = sourceRunSettings.SourceSettingsList[index];
-                    // We found the source, patch the runsettings to get a test host manager that can invoke this framework.
+
+                    // REVIEW: We found the source, patch the runSettings to get a test host manager that can invoke this framework.
                     // And initialize it to the settings that the current source needs.
-                    // This also avoids changing the public api of GetTestHostManagerByRunConfiguration.
-                    if (runSettings.TargetFramework != sourceSettings.Framework)
+                    // This also avoids changing the public api of GetTestHostManagerByRunConfiguration, because we don't have to pass it the source.
+                    if (runConfiguration.TargetFramework != sourceSettings.Framework || runConfiguration.TargetPlatform != sourceSettings.Platform)
                     {
-                        runSettings.TargetFramework = sourceSettings.Framework;
-                        runSettings.TargetPlatform = sourceSettings.Platform;
-                        runSettingsXml = runSettings.ToXml().InnerText;
+                        runSettingsXml = runSettingsXml.Replace($"<TargetPlatform>{runConfiguration.TargetPlatform}</TargetPlatform>", $"<TargetPlatform>{sourceSettings.Platform}</TargetPlatform>");
+                        runSettingsXml = runSettingsXml.Replace($"<TargetFrameworkVersion>{runConfiguration.TargetFramework}</TargetFrameworkVersion>", $"<TargetFrameworkVersion>{sourceSettings.Framework}</TargetFrameworkVersion>");
+
+                        return runSettingsXml;
                     }
                 }
             }
@@ -440,12 +443,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
         private IRequestData GetRequestData(bool isTelemetryOptedIn)
         {
             return new RequestData
-                {
-                    MetricsCollection = isTelemetryOptedIn
+            {
+                MetricsCollection = isTelemetryOptedIn
                         ? (IMetricsCollection)new MetricsCollection()
                         : new NoOpMetricsCollection(),
-                    IsTelemetryOptedIn = isTelemetryOptedIn
-                };
+                IsTelemetryOptedIn = isTelemetryOptedIn
+            };
         }
 
         /// <summary>

@@ -328,7 +328,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
                             break;
 
                         case Constants.SourceFramework:
-                            settings.Framework = (Framework)Enum.Parse(typeof(Framework), reader.Value, true);
+                            settings.Framework = Framework.FromString(reader.Value);
                             break;
 
                         default:
