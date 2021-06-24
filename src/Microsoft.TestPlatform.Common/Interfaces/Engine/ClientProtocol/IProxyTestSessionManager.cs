@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine
     /// Orchestrates test session related functionality for the engine communicating with the
     /// client.
     /// </summary>
+    [System.Obsolete]
     public interface IProxyTestSessionManager
     {
         /// <summary>

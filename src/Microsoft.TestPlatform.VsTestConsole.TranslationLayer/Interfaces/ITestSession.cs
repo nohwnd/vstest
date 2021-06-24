@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.VsTestConsole.TranslationLayer.Int
     /// Defines a test session that can be used to make calls to the vstest.console
     /// process.
     /// </summary>
+    [System.Obsolete]
     public interface ITestSession : ITestSessionAsync
     {
         /// <summary>

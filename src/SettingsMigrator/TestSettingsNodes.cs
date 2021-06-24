@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.SettingsMigrator
     /// <summary>
     /// Contains the test settings nodes that need to be converted.
     /// </summary>
+    [System.Obsolete]
     public class TestSettingsNodes
     {
         public XmlNode Deployment { get; set; }

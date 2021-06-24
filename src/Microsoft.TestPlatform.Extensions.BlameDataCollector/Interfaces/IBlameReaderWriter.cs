@@ -6,6 +6,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
     using System;
     using System.Collections.Generic;
 
+    [System.Obsolete]
     public interface IBlameReaderWriter
     {
         /// <summary>

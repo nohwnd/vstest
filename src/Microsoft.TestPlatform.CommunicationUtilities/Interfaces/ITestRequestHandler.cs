@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
     /// <summary>
     /// Defines the contract for handling test platform requests
     /// </summary>
+    [System.Obsolete]
     public interface ITestRequestHandler : IDisposable
     {
         /// <summary>

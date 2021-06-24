@@ -8,6 +8,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
     /// <summary>
     /// Specialized exception for TranslationLayer
     /// </summary>
+    [System.Obsolete]
     public class TransationLayerException : Exception
     {
         /// <summary>

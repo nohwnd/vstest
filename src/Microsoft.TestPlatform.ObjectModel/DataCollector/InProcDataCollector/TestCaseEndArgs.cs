@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollector.InProcDa
     /// <summary>
     /// The test case end args.
     /// </summary>
+    [System.Obsolete]
     public class TestCaseEndArgs : InProcDataCollectionArgs
     {
         /// <summary>

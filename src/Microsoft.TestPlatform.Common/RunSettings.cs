@@ -25,6 +25,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common
     /// <summary>
     /// Used for loading settings for a run.
     /// </summary>
+    [System.Obsolete]
     public class RunSettings : IRunSettings
     {
         #region Fields

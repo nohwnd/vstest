@@ -16,6 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions
     /// <summary>
     /// Helper class to deal with process related functionality.
     /// </summary>
+    [System.Obsolete]
     public partial class ProcessHelper : IProcessHelper
     {
         private static readonly string ARM = "arm";

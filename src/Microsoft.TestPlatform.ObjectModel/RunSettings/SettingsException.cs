@@ -16,6 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
 #if NETFRAMEWORK
     [Serializable]
 #endif
+    [System.Obsolete]
     public class SettingsException : Exception
     {
         #region Constructors

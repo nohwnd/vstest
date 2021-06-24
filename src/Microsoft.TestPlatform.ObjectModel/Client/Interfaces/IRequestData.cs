@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Provide common services and data for a discovery/run request.
     /// </summary>
+    [System.Obsolete]
     public interface IRequestData
     {
         /// <summary>

@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     [Serializable]
 #endif
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
+    [System.Obsolete]
     public class TestPlatformException : Exception
     {
         public TestPlatformException(String message)
@@ -30,6 +31,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// This class converts WCF fault exception to a strongly-typed exception
     /// </summary>
+    [System.Obsolete]
     public static class ExceptionConverter
     {
         /// <summary>
@@ -100,6 +102,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     [Serializable]
 #endif
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
+    [System.Obsolete]
     public class ProcessExitedException : TestPlatformException
     {
         public ProcessExitedException(string message) : base(message) { }

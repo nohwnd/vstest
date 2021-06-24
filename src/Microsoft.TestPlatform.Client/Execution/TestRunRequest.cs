@@ -25,6 +25,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
     using ClientResources = Microsoft.VisualStudio.TestPlatform.Client.Resources.Resources;
     using CommunicationObjectModel = Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
 
+    [System.Obsolete]
     public class TestRunRequest : ITestRunRequest, ITestRunEventsHandler2
     {
         /// <summary>

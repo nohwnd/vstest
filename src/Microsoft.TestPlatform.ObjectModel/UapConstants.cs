@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Defines the constants used during UWP app execution.
     /// </summary>
+    [System.Obsolete]
     public static class UapConstants
     {
         /// <summary>

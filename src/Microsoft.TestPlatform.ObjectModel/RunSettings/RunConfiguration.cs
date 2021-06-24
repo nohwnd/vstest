@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Stores information about a test settings.
     /// </summary>
+    [System.Obsolete]
     public class RunConfiguration : TestRunSettings
     {
         #region Private Fields

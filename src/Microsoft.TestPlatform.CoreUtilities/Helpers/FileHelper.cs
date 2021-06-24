@@ -16,6 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities.Helpers
     /// <summary>
     /// The file helper.
     /// </summary>
+    [System.Obsolete]
     public class FileHelper : IFileHelper
     {
         private static readonly Version DefaultFileVersion = new Version(0, 0);

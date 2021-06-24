@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
     /// <summary>
     /// The discovery complete payload.
     /// </summary>
+    [System.Obsolete]
     public class DiscoveryCompletePayload
     {
         /// <summary>

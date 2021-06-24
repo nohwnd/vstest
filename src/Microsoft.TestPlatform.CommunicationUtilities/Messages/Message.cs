@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     /// <summary>
     /// Construct used for communication
     /// </summary>
+    [System.Obsolete]
     public class Message
     {
         /// <summary>

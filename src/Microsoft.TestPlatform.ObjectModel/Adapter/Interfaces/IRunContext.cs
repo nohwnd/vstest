@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
     /// <summary>
     /// It provides user specified runSettings and framework provided context of the run.
     /// </summary>
+    [System.Obsolete]
     public interface IRunContext : IDiscoveryContext
     {
         /// <summary>

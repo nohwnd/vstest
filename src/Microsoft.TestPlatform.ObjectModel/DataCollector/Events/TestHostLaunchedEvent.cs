@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// Session End event arguments
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public sealed class TestHostLaunchedEventArgs : DataCollectionEventArgs
     {
         #region Private members

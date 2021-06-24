@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
     /// during this object is created and disposed
     /// exceeded.
     /// </summary>
+    [System.Obsolete]
     public class SuspendCodeCoverage : IDisposable
     {
         #region Private Variables

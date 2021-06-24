@@ -31,6 +31,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger
     /// </summary>
     [FriendlyName(TrxLoggerConstants.FriendlyName)]
     [ExtensionUri(TrxLoggerConstants.ExtensionUri)]
+    [System.Obsolete]
     public class TrxLogger : ITestLoggerWithParameters
     {
         #region Constructor

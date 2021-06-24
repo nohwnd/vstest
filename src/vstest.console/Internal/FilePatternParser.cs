@@ -20,6 +20,7 @@ namespace vstest.console.Internal
     /// Class for getting matching files from wild card pattern file name
     /// Microsoft.Extensions.FileSystemGlobbing methods used to get matching file names
     /// </summary>
+    [System.Obsolete]
     public class FilePatternParser
     {
         private Matcher matcher;

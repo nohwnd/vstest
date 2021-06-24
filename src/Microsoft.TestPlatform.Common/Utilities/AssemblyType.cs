@@ -3,6 +3,7 @@
 
 namespace Microsoft.VisualStudio.TestPlatform.Common.Utilities
 {
+    [System.Obsolete]
     public enum AssemblyType
     {
         None,

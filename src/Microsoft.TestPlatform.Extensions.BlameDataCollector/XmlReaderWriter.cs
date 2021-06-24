@@ -15,6 +15,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
     /// <summary>
     /// XmlReaderWriter class for reading and writing test sequences to file
     /// </summary>
+    [System.Obsolete]
     public class XmlReaderWriter : IBlameReaderWriter
     {
         /// <summary>

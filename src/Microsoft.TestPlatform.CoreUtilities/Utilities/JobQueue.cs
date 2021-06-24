@@ -21,6 +21,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     /// Generic queue for processing jobs on a background thread.
     /// </summary>
     /// <typeparam name="T">The type of the job that is being processed.</typeparam>
+    [System.Obsolete]
     public class JobQueue<T> : IDisposable
     {
         #region Fields

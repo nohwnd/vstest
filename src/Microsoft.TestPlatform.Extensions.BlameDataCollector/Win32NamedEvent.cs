@@ -6,6 +6,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
     using System;
     using System.Runtime.InteropServices;
 
+    [System.Obsolete]
     public class Win32NamedEvent
     {
         private const uint EventModifyState = 0x0002;

@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Extension methods for <see cref="TestRunnerConnectionInfo"/>.
     /// </summary>
+    [System.Obsolete]
     public static class TestRunnerConnectionInfoExtensions
     {
         /// <summary>

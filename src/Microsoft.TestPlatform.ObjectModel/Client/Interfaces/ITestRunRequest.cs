@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// The request that a RunTests API returns.
     /// </summary>
+    [System.Obsolete]
     public interface ITestRunRequest : IRequest
     {
         /// <summary>

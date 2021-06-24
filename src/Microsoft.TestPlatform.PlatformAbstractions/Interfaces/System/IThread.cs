@@ -5,6 +5,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces
 {
     using System;
 
+    [System.Obsolete]
     public interface IThread
     {
         /// <summary>

@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
     /// <summary>
     /// The test run stats payload.
     /// </summary>
+    [System.Obsolete]
     public class TestRunStatsPayload
     {
         /// <summary>

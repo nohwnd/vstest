@@ -3,6 +3,7 @@
 
 namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
 {
+    [System.Obsolete]
     public enum PlatformTraceLevel
     {
         /// <summary>

@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Telemetry
     /// <summary>
     /// The Telemetry data constants.
     /// </summary>
+    [System.Obsolete]
     public static class TelemetryDataConstants
     {
         // ******************** Execution ***********************

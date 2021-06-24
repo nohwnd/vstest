@@ -3,6 +3,7 @@
 
 namespace Microsoft.VisualStudio.TestPlatform.Common.Interfaces
 {
+    [System.Obsolete]
     public interface IBaseTestEventsRegistrar
     {
         /// <summary>

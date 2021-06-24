@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
     /// <summary>
     /// Specifies the user specified RunSettings and framework provided context of the discovery.
     /// </summary>
+    [System.Obsolete]
     public interface IDiscoveryContext
     {
         /// <summary>

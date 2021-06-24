@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.TestRunAttachmentsProcessin
     /// The test run attachments processing events handler.
     /// </summary>
     /// 
+    [System.Obsolete]
     public class TestRunAttachmentsProcessingEventsHandler : ITestRunAttachmentsProcessingEventsHandler
     {
         private readonly ICommunicationManager communicationManager;

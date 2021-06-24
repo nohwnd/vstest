@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
     /// <summary>
     /// The proxy operation manager with data collection.
     /// </summary>
+    [System.Obsolete]
     public class ProxyOperationManagerWithDataCollection : ProxyOperationManager
     {
         private IDictionary<string, string> dataCollectionEnvironmentVariables;

@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Represents any request to discover or run tests.
     /// </summary>
+    [System.Obsolete]
     public interface IRequest : IDisposable
     {
         /// <summary>
@@ -29,6 +30,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Extensions for <see cref="IRequest"/>.
     /// </summary>
+    [System.Obsolete]
     public static class RequestExtensions
     {
         /// <summary>

@@ -29,6 +29,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
     /// <summary>
     /// Cross platform test engine entry point for the client.
     /// </summary>
+    [System.Obsolete]
     public class TestEngine : ITestEngine
     {
         #region Private Fields

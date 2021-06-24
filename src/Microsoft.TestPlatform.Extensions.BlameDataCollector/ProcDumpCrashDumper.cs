@@ -14,6 +14,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
     using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
     using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
+    [System.Obsolete]
     public class ProcDumpCrashDumper : ICrashDumper
     {
         private static readonly IEnumerable<string> ProcDumpExceptionsList = new List<string>()

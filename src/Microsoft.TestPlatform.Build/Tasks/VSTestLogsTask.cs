@@ -8,6 +8,7 @@ namespace Microsoft.TestPlatform.Build.Tasks
     using Microsoft.Build.Utilities;
     using Microsoft.TestPlatform.Build.Resources;
 
+    [System.Obsolete]
     public class VSTestLogsTask : Task
     {
         public string LogType

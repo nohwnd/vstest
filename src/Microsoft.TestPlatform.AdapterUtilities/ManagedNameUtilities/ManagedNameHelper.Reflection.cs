@@ -15,6 +15,7 @@ namespace Microsoft.TestPlatform.AdapterUtilities.ManagedNameUtilities
     using System.Linq;
 #endif
 
+    [System.Obsolete]
     public static partial class ManagedNameHelper
     {
         /// <summary>

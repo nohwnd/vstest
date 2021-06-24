@@ -29,6 +29,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.HtmlLogger
     /// </summary>
     [FriendlyName(HtmlLoggerConstants.FriendlyName)]
     [ExtensionUri(HtmlLoggerConstants.ExtensionUri)]
+    [System.Obsolete]
     public class HtmlLogger : ITestLoggerWithParameters
     {
         private readonly IFileHelper fileHelper;

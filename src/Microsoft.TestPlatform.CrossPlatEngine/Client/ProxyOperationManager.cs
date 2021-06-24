@@ -31,6 +31,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
     /// <summary>
     /// Base class for any operations that the client needs to drive through the engine.
     /// </summary>
+    [System.Obsolete]
     public class ProxyOperationManager
     {
         private readonly string versionCheckPropertyName = "IsVersionCheckRequired";

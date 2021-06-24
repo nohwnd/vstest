@@ -5,6 +5,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Interfaces
 {
     using System.Collections.Generic;
 
+    [System.Obsolete]
     public interface IVSExtensionManager
     {
         /// <summary>

@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Publisher
     /// <summary>
     /// This class will be initialized if Telemetry is opted out.
     /// </summary>
+    [System.Obsolete]
     public class TextFileTelemetryPublisher : IMetricsPublisher
     {
         /// <summary>

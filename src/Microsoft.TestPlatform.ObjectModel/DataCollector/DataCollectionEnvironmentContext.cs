@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
 #if NETFRAMEWORK
     [Serializable]
 #endif
+    [System.Obsolete]
     public sealed class DataCollectionEnvironmentContext
     {
         #region Fields

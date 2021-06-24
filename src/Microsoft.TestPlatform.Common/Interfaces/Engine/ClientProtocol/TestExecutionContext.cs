@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.ClientProtocol
     /// Stores information about test execution context.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestExecutionContext
     {
         #region Constructors

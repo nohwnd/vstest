@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
     /// Event arguments used for raising TestRunStarted events.
     /// Mainly contains the process Id of the test execution process running the tests.
     /// </summary>
+    [System.Obsolete]
     public class TestRunStartedEventArgs : EventArgs
     {
         public int ProcessId { get; private set; }

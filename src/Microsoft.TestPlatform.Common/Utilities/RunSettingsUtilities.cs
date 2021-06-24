@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Utilities
     /// <summary>
     /// Utility methods for RunSettings.
     /// </summary>
+    [System.Obsolete]
     public static class RunSettingsUtilities
     {
         /// <summary>

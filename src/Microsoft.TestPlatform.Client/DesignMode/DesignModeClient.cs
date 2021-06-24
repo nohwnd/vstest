@@ -32,6 +32,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
     /// <summary>
     /// The design mode client.
     /// </summary>
+    [System.Obsolete]
     public class DesignModeClient : IDesignModeClient
     {
         private readonly ICommunicationManager communicationManager;

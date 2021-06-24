@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// Event arguments used when a test run has completed.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestRunCompleteEventArgs : EventArgs
     {
         /// <summary>

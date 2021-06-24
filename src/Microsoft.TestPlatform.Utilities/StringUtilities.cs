@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     using System.Collections.Generic;
     using System.Text;
 
+    [System.Obsolete]
     public static class StringExtensions
     {
         public static IEnumerable<string> Tokenize(this string input, char separator, char escape)

@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
     /// Event arguments used for raising Test Run Message events.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestRunMessageEventArgs : EventArgs
     {
         #region Constructor

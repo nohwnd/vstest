@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection
     /// <summary>
     /// The data collection parameters.
     /// </summary>
+    [System.Obsolete]
     public class DataCollectionParameters
     {
         /// <summary>

@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilitie
     /// <summary>
     /// The test extension information.
     /// </summary>
+    [System.Obsolete]
     public class TestExtensions
     {
         #region Properties

@@ -15,6 +15,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer.Interfaces
     /// <summary>
     /// Asynchronous equivalent of <see cref="IVsTestConsoleWrapper"/>.
     /// </summary>
+    [System.Obsolete]
     public interface IVsTestConsoleWrapperAsync
     {
         /// <summary>

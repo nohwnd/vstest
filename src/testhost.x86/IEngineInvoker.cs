@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
     /// <summary>
     /// Interface contract for invoking the engine
     /// </summary>
+    [System.Obsolete]
     public interface IEngineInvoker
     {
         /// <summary>

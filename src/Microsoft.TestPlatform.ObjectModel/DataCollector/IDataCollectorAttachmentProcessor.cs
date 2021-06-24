@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// <summary>
     /// Interface for data collectors add-ins that choose to reprocess generated attachments
     /// </summary>
+    [System.Obsolete]
     public interface IDataCollectorAttachmentProcessor
     {
         /// <summary>

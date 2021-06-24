@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection.Int
     /// <summary>
     /// The ProxyDataCollectionManager interface.
     /// </summary>
+    [System.Obsolete]
     public interface IProxyDataCollectionManager : IDisposable
     {
         /// <summary>

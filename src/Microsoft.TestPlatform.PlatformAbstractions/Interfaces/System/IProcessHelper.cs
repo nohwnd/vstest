@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces
     /// <summary>
     /// Interface for any process related functionality. This is needed for clean unit-testing.
     /// </summary>
+    [System.Obsolete]
     public interface IProcessHelper
     {
         /// <summary>

@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
     /// <summary>
     /// Factory for providing the design mode test host launchers
     /// </summary>
+    [System.Obsolete]
     public static class DesignModeTestHostLauncherFactory
     {
         private static ITestHostLauncher defaultLauncher;

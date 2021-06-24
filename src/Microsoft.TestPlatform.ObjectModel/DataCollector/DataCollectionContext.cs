@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// Class representing the context in which data collection occurs.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class DataCollectionContext
     {
         #region Constructors

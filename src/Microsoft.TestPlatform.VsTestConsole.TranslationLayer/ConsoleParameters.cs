@@ -18,6 +18,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
     /// <summary>
     /// Class which defines additional specifiable parameters for vstest.console.exe
     /// </summary>
+    [System.Obsolete]
     public class ConsoleParameters
     {
         internal static readonly ConsoleParameters Default = new ConsoleParameters();

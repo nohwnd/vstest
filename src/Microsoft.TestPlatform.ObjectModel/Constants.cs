@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Defines the defaults/constants used across different components.
     /// </summary>
+    [System.Obsolete]
     public static class Constants
     {
         /// <summary>
@@ -239,6 +240,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Default parameters to be passed onto all loggers.
     /// </summary>
+    [System.Obsolete]
     public static class DefaultLoggerParameterNames
     {
         // Denotes target location for test run results

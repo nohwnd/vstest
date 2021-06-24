@@ -7,6 +7,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CoreUtilities.Helpers
 
     using System;
 
+    [System.Obsolete]
     public class EnvironmentHelper
     {
         public const string VstestConnectionTimeout = "VSTEST_CONNECTION_TIMEOUT";

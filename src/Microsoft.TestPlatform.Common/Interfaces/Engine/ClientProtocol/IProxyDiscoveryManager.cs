@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine
     /// <summary>
     /// Orchestrates discovery operations for the engine communicating with the client.
     /// </summary>
+    [System.Obsolete]
     public interface IProxyDiscoveryManager
     {
         /// <summary>

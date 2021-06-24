@@ -6,6 +6,7 @@ namespace Microsoft.TestPlatform.AdapterUtilities
     /// <summary>
     /// Contants to help declare ManagedType and ManagedMethod test properties.
     /// </summary>
+    [System.Obsolete]
     public static class ManagedNameConstants
     {
         /// <summary>

@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client.Payloads
     /// Class used to define the start test session ack payload sent by the design mode client
     /// back to the vstest.console translation layers.
     /// </summary>
+    [System.Obsolete]
     public class StartTestSessionAckPayload
     {
         /// <summary>

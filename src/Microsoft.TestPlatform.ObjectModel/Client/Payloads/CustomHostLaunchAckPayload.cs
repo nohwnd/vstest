@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Class used to define the CustomHostLaunchAckPayload sent by the Vstest.console translation layers into design mode
     /// </summary>
+    [System.Obsolete]
     public class CustomHostLaunchAckPayload
     {
         /// <summary>

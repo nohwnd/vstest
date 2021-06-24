@@ -21,6 +21,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
     /// </summary>
     [DataCollectorFriendlyName("Blame")]
     [DataCollectorTypeUri("datacollector://Microsoft/TestPlatform/Extensions/Blame/v1")]
+    [System.Obsolete]
     public class BlameCollector : DataCollector, ITestExecutionEnvironmentSpecifier
     {
         private const int DefaultInactivityTimeInMinutes = 60;

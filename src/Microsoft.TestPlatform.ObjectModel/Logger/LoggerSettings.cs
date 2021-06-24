@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// The logger settings.
     /// </summary>
+    [System.Obsolete]
     public class LoggerSettings
     {
         /// <summary>

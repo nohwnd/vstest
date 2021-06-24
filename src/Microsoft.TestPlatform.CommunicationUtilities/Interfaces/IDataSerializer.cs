@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
     /// <summary>
     /// IDataSerializer interface for serializing data
     /// </summary>
+    [System.Obsolete]
     public interface IDataSerializer
     {
         /// <summary>

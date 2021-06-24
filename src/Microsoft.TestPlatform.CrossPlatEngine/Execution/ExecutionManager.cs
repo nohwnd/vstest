@@ -27,6 +27,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Execution
     /// <summary>
     /// Orchestrates test execution related functionality for the engine communicating with the test host process.
     /// </summary>
+    [System.Obsolete]
     public class ExecutionManager : IExecutionManager
     {
         private readonly ITestPlatformEventSource testPlatformEventSource;

@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.SettingsMigrator
     /// <summary>
     /// Entry point for SettingsMigrator.
     /// </summary>
+    [System.Obsolete]
     public static class Program
     {
         /// <summary>

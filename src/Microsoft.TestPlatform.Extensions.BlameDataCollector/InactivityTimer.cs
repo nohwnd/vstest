@@ -6,6 +6,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
     using System;
     using System.Threading;
 
+    [System.Obsolete]
     public class InactivityTimer : IInactivityTimer
     {
         private Timer timer;

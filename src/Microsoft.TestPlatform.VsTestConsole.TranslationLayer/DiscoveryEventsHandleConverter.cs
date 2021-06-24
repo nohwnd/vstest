@@ -14,6 +14,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
     /// The Discovery Events Handler Converter.
     /// Converts the ITestDiscoveryEventsHandler to ITestDiscoveryEventsHandler2
     /// </summary>
+    [System.Obsolete]
     public class DiscoveryEventsHandleConverter : ITestDiscoveryEventsHandler2
     {
         private ITestDiscoveryEventsHandler testDiscoveryEventsHandler;

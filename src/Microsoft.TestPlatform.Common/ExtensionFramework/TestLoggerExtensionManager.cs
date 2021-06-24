@@ -64,6 +64,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
     /// <summary>
     /// Hold data about the Test logger.
     /// </summary>
+    [System.Obsolete]
     public class TestLoggerMetadata : ITestLoggerCapabilities
     {
         /// <summary>

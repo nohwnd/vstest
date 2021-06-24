@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine
     /// <summary>
     /// Interface defining the parallel operation manager
     /// </summary>
+    [System.Obsolete]
     public interface IParallelOperationManager
     {
         /// <summary>

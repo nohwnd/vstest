@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     /// <summary>
     /// Interface to output information under the command line.
     /// </summary>
+    [System.Obsolete]
     public interface IOutput
     {
         /// <summary>

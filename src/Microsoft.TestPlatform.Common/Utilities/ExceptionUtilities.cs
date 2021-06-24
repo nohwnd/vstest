@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Utilities
     /// <summary>
     /// Exception utilities.
     /// </summary>
+    [System.Obsolete]
     public class ExceptionUtilities
     {
         /// <summary>

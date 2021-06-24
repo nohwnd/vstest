@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// This Interface Provides API's to Collect Metrics.
     /// </summary>
+    [System.Obsolete]
     public interface IMetricsCollection
     {
         /// <summary>

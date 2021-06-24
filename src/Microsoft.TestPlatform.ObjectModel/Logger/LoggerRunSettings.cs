@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// The logger run settings.
     /// </summary>
+    [System.Obsolete]
     public class LoggerRunSettings : TestRunSettings
     {
         private string loggerRunSettingsName = string.Empty;

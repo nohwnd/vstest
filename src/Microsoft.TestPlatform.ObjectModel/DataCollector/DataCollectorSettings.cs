@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// The in procedure data collector settings.
     /// </summary>
+    [System.Obsolete]
     public class DataCollectorSettings
     {
         /// <summary>

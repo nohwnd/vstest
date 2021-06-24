@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.HtmlLogger.ObjectModel
     /// Test results stores the relevant information to show on html file
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestResult
     {
         /// <summary>

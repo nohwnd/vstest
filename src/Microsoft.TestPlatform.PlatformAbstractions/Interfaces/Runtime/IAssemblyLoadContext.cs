@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces
     /// <summary>
     /// Abstraction for Assembly Methods
     /// </summary>
+    [System.Obsolete]
     public interface IAssemblyLoadContext
     {
         /// <summary>

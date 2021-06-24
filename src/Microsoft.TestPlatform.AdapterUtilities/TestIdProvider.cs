@@ -6,6 +6,7 @@ namespace Microsoft.TestPlatform.AdapterUtilities
     using System;
     using System.Text;
 
+    [System.Obsolete]
     public class TestIdProvider
     {
         internal const int BlockBits = 512;

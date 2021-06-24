@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Class for target Framework for the test container
     /// </summary>
+    [System.Obsolete]
     public class Framework
     {
 #if NETFRAMEWORK

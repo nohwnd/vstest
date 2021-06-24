@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Helpers.Interfaces
     /// <summary>
     /// Helper class for getting info about dotnet host.
     /// </summary>
+    [System.Obsolete]
     public interface IDotnetHostHelper
     {
         /// <summary>

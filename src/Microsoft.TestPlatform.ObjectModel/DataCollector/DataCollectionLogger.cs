@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// <summary>
     /// Class used by data collectors to send messages to the client (e.g. Manual Test Runner, Visual Studio IDE, MSTest).
     /// </summary>
+    [System.Obsolete]
     public abstract class DataCollectionLogger
     {
         /// <summary>

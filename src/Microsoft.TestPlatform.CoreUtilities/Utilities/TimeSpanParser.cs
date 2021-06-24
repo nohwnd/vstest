@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.VisualStudio.TestPlatform.Utilities
 {
+    [System.Obsolete]
     public static class TimeSpanParser
     {
         static readonly Regex pattern = new Regex(@"(?<value>^\d+(?:\.\d+)?)\s*(?<suffix>ms|mil|m|h|d|s?[a-z]*)$", RegexOptions.IgnoreCase);

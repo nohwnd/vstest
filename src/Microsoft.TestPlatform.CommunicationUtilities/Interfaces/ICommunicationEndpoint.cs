@@ -5,6 +5,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
 {
     using System;
 
+    [System.Obsolete]
     public interface ICommunicationEndPoint
     {
         /// <summary>

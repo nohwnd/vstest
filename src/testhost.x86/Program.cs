@@ -18,6 +18,7 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
     /// <summary>
     /// The program.
     /// </summary>
+    [System.Obsolete]
     public class Program
     {
         private const string TestSourceArgumentString = "--testsourcepath";

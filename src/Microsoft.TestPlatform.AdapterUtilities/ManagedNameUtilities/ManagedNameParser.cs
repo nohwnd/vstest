@@ -10,6 +10,7 @@ namespace Microsoft.TestPlatform.AdapterUtilities.ManagedNameUtilities
     using System.Diagnostics;
     using System.Globalization;
 
+    [System.Obsolete]
     public class ManagedNameParser
     {
         /// <summary>

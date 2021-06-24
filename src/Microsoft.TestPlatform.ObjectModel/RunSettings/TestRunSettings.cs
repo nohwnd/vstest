@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Stores information about a test settings.
     /// </summary>
+    [System.Obsolete]
     public abstract class TestRunSettings
     {
         private string name;

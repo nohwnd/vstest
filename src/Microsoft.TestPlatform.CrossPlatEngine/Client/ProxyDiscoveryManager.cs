@@ -23,6 +23,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
     /// <summary>
     /// Orchestrates discovery operations for the engine communicating with the client.
     /// </summary>
+    [System.Obsolete]
     public class ProxyDiscoveryManager : IProxyDiscoveryManager, IBaseProxy, ITestDiscoveryEventsHandler2
     {
         private ProxyOperationManager proxyOperationManager;

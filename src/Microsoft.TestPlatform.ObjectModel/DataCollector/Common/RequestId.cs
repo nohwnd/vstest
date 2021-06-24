@@ -16,6 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     [DataContract]
     [SuppressMessage("Microsoft.Design", "CA1036:OverrideMethodsOnComparableTypes",
             Justification = "Guid does not define < and > operators")]
+    [System.Obsolete]
     public sealed class RequestId : IEquatable<RequestId>, IComparable<RequestId>, IComparable
     {
         #region Constants

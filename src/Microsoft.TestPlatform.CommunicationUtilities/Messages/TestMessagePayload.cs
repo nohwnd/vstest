@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
     /// <summary>
     /// The test message payload.
     /// </summary>
+    [System.Obsolete]
     public class TestMessagePayload
     {
         /// <summary>

@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// States of the TestRun
     /// </summary>
+    [System.Obsolete]
     public enum TestRunState
     {
         /// <summary>

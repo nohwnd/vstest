@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.HtmlLogger.ObjectModel
     /// It stores the all relevant information of the test run.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public sealed class TestRunDetails
     {
         /// <summary>

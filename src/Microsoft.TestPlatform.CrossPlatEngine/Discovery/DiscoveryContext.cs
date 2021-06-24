@@ -17,6 +17,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery
     /// <summary>
     /// Specifies the user specified RunSettings and framework provided context of the discovery.
     /// </summary>
+    [System.Obsolete]
     public class DiscoveryContext : IDiscoveryContext
     {
         /// <summary>

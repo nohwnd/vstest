@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.TesthostProtoco
     /// <summary>
     /// Orchestrates discovery operations for the engine communicating with the test host process.
     /// </summary>
+    [System.Obsolete]
     public interface IDiscoveryManager
     {
         /// <summary>

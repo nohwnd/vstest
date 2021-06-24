@@ -3,6 +3,7 @@
 
 namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
 {
+    [System.Obsolete]
     public interface IHangDumper
     {
         void Dump(int processId, string outputDirectory, DumpTypeOption dumpType);

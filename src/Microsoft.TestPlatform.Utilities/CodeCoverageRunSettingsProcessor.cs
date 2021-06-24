@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     /// <summary>
     /// Represents the run settings processor for code coverage data collectors.
     /// </summary>
+    [System.Obsolete]
     public class CodeCoverageRunSettingsProcessor
     {
         #region Members

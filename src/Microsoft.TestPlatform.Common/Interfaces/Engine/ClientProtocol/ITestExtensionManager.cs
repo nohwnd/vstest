@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine
     /// <summary>
     /// Orchestrates extensions for this engine.
     /// </summary>
+    [System.Obsolete]
     public interface ITestExtensionManager
     {
         /// <summary>

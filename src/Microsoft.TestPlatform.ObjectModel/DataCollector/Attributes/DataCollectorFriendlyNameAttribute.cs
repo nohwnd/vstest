@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// <summary>
     /// Provides a friendly name for the data collector.
     /// </summary>
+    [System.Obsolete]
     public class DataCollectorFriendlyNameAttribute : Attribute
     {
         /// <summary>

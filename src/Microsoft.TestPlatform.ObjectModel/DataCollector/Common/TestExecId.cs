@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// Execution ID is assigned to test at run creation time and is guaranteed to be unique within that run.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public sealed class TestExecId
     {
         private Guid execId;

@@ -20,6 +20,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// Represents a lazy value calculation for a TestObject
     /// </summary>
     /// <typeparam name="T">The type of the value to be calculated</typeparam>
+    [System.Obsolete]
     public sealed class LazyPropertyValue<T> : ILazyPropertyValue
     {
         private T value;

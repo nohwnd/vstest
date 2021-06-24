@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollector.InProcDa
     /// <summary>
     /// The test session start args.
     /// </summary>
+    [System.Obsolete]
     public class TestSessionStartArgs : InProcDataCollectionArgs
     {
         private IDictionary<string, object> Properties;

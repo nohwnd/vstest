@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine
     /// <summary>
     /// Interface defining the parallel discovery manager
     /// </summary>
+    [System.Obsolete]
     public interface IParallelProxyDiscoveryManager : IParallelOperationManager, IProxyDiscoveryManager
     {
         /// <summary>

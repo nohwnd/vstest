@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// Represents the result of a test case.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public sealed class TestResult : TestObject
     {
         #region Constructor
@@ -247,6 +248,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// Represents the test result message.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestResultMessage
     {
         // Bugfix: 297759 Moving the category from the resources to the code
@@ -307,6 +309,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Well-known TestResult properties
     /// </summary>
+    [System.Obsolete]
     public static class TestResultProperties
     {
 #if !FullCLR

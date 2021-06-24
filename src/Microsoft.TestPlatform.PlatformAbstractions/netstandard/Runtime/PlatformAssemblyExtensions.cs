@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions
     using System;
     using System.Reflection;
 
+    [System.Obsolete]
     public static class PlatformAssemblyExtensions
     {
         public static string GetAssemblyLocation(this Assembly assembly)

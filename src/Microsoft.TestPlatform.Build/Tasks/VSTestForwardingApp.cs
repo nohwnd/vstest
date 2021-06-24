@@ -9,6 +9,7 @@ namespace Microsoft.TestPlatform.Build.Tasks
     using System.Diagnostics;
     using Trace;
 
+    [System.Obsolete]
     public class VSTestForwardingApp
     {
         private const string hostExe = "dotnet";

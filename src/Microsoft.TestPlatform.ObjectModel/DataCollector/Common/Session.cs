@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// Class identifying a session.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public sealed class SessionId
     {
         private Guid sessionId;

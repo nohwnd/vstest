@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Provides basic functionality for the Proxy Operation Manager.
     /// </summary>
+    [System.Obsolete]
     public interface IBaseProxy
     {
         /// <summary>

@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Navigation
     /// <summary>
     /// Stores the navigation data associated with the .exe/.dll file
     /// </summary>
+    [System.Obsolete]
     public interface INavigationData
     {
         /// <summary>

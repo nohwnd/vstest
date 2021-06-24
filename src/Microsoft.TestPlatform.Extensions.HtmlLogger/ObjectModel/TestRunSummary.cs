@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.HtmlLogger.ObjectModel
     /// Test run summary collects the relevant summary information.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestRunSummary
     {
         /// <summary>

@@ -7,6 +7,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
     using System.Runtime.InteropServices;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
+    [System.Obsolete]
     public class NativeMethodsHelper : INativeMethodsHelper
     {
         /// <summary>

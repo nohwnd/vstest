@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions
     /// <summary>
     /// Available architectures for test platform.
     /// </summary>
+    [System.Obsolete]
     public enum PlatformArchitecture
     {
         X86,

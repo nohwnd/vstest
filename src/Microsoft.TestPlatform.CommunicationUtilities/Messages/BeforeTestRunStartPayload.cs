@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
     /// <summary>
     /// The before test run start payload
     /// </summary>
+    [System.Obsolete]
     public class BeforeTestRunStartPayload
     {
         /// <summary>

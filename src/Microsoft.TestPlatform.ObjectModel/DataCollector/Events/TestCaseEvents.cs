@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// Base class for all test case event arguments.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public abstract class TestCaseEventArgs : DataCollectionEventArgs
     {
         #region Constructor
@@ -131,6 +132,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// Test Case Start event arguments.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public sealed class TestCaseStartEventArgs : TestCaseEventArgs
     {
         #region Constructor
@@ -208,6 +210,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// Test Case End event arguments.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public sealed class TestCaseEndEventArgs : TestCaseEventArgs
     {
         #region Constructor
@@ -338,6 +341,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// Test Case Result event arguments.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public sealed class TestResultEventArgs : TestCaseEventArgs
     {
         #region Constructor

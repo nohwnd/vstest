@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine
     /// <summary>
     /// The Test Case level events.
     /// </summary>
+    [System.Obsolete]
     public interface ITestCaseEventsHandler
     {
         /// <summary>

@@ -26,6 +26,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery
     /// <summary>
     /// Orchestrates discovery operations for the engine communicating with the test host process.
     /// </summary>
+    [System.Obsolete]
     public class DiscoveryManager : IDiscoveryManager
     {
         private readonly TestSessionMessageLogger sessionMessageLogger;

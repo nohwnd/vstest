@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
     /// EventArg used for raising data collector message event.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class DataCollectionMessageEventArgs : TestRunMessageEventArgs
     {
         #region Constructor

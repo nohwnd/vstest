@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// <summary>
     /// Severity levels at which a DataCollectionTextMessage can be logged.
     /// </summary>
+    [System.Obsolete]
     public enum DataCollectorMessageLevel
     {
         Error = 0,

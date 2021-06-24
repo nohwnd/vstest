@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// </summary>
     [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly",
          Justification = "Dia is a specific name.")]
+    [System.Obsolete]
     public class DiaSession : INavigationSession
     {
         /// <summary>

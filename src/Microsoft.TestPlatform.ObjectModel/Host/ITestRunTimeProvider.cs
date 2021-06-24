@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Host
     /// <summary>
     /// Interface for TestRuntimeProvider which manages test host processes for test engine.
     /// </summary>
+    [System.Obsolete]
     public interface ITestRuntimeProvider
     {
         #region events
@@ -116,6 +117,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Host
         Task CleanTestHostAsync(CancellationToken cancellationToken);
     }
 
+    [System.Obsolete]
     public class HostProviderEventArgs : EventArgs
     {
         public HostProviderEventArgs(string message)

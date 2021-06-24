@@ -3,6 +3,7 @@
 
 namespace Microsoft.VisualStudio.TestPlatform.Extensions.HtmlLogger
 {
+    [System.Obsolete]
     public interface IHtmlTransformer
     {
         /// <summary>

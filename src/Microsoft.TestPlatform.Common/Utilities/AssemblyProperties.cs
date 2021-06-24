@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Utilities
     using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
     using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
+    [System.Obsolete]
     public class AssemblyProperties : IAssemblyProperties
     {
         private readonly IFileHelper fileHelper;

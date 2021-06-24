@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
     /// <summary>
     /// Orchestrates extensions for this engine.
     /// </summary>
+    [System.Obsolete]
     public class TestExtensionManager : ITestExtensionManager
     {
         /// <inheritdoc />

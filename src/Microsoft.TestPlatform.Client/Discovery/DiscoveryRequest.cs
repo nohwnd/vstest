@@ -21,6 +21,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Discovery
     /// <summary>
     /// The discovery request.
     /// </summary>
+    [System.Obsolete]
     public sealed class DiscoveryRequest : IDiscoveryRequest, ITestDiscoveryEventsHandler2
     {
         private IDataSerializer dataSerializer;

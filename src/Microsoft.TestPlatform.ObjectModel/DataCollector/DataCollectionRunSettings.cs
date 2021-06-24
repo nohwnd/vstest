@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// The in procedure data collection run settings.
     /// </summary>
+    [System.Obsolete]
     public class DataCollectionRunSettings : TestRunSettings
     {
         private string dataCollectionRootName = string.Empty;

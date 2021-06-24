@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
     using System.Text;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.Resources;
 
+    [System.Obsolete]
     public static class FilterHelper
     {
         public const char EscapeCharacter = '\\';

@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
     /// <summary>
     /// The transport Layer Interface
     /// </summary>
+    [System.Obsolete]
     public interface ITransport : IDisposable
     {
         /// <summary>

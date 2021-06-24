@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
     /// <summary>
     /// Used for logging error warning and informational messages.
     /// </summary>
+    [System.Obsolete]
     public interface IMessageLogger
     {
         /// <summary>

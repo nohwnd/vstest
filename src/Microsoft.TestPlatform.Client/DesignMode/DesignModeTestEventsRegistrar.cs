@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
     /// <summary>
     /// Registers the discovery and test run events for design mode flow
     /// </summary>
+    [System.Obsolete]
     public class DesignModeTestEventsRegistrar : ITestDiscoveryEventsRegistrar, ITestRunEventsRegistrar
     {
         private IDesignModeClient designModeClient;

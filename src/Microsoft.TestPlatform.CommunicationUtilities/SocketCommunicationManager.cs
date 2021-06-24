@@ -18,6 +18,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     /// <summary>
     /// Facilitates communication using sockets
     /// </summary>
+    [System.Obsolete]
     public class SocketCommunicationManager : ICommunicationManager
     {
         /// <summary>

@@ -22,6 +22,7 @@ namespace Microsoft.VisualStudio.TestPlatform.VsTestConsole.TranslationLayer.Res
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+    [System.Obsolete]
     public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;

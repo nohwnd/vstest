@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// The test process info payload.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestProcessAttachDebuggerPayload
     {
         /// <summary>

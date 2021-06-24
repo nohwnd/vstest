@@ -109,7 +109,7 @@
     <!-- Disable code analysis by default. Ignore SA0001 until we've xml documentation enabled for
          all projects -->
     <EnableCodeAnalysis>false</EnableCodeAnalysis>
-    <NoWarn>$(NoWarn);SA0001</NoWarn>
+    <NoWarn>$(NoWarn);SA0001;CS0612</NoWarn>
 
     <CodeAnalysisRuleSet>$(TestPlatformRoot)scripts/stylecop.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSet Condition="$(TestProject) == 'true'">$(TestPlatformRoot)scripts/stylecop.test.ruleset</CodeAnalysisRuleSet>

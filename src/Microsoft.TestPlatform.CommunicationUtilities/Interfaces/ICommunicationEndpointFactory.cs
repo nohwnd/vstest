@@ -5,6 +5,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
 {
     using TestPlatform.ObjectModel;
 
+    [System.Obsolete]
     public interface ICommunicationEndpointFactory
     {
         /// <summary>

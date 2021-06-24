@@ -172,6 +172,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
 
             [Flags]
 #pragma warning disable SA1201 // Elements must appear in the correct order
+            [System.Obsolete]
             public enum MINIDUMP_TYPE : uint
 #pragma warning restore SA1201 // Elements must appear in the correct order
             {

@@ -5,6 +5,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Interfaces
 {
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 
+    [System.Obsolete]
     public interface ITestDiscoveryEventsRegistrar : IBaseTestEventsRegistrar
     {
         /// <summary>

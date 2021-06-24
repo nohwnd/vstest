@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Event arguments used on completion of discovery
     /// </summary>
+    [System.Obsolete]
     public class DiscoveryCompleteEventArgs : EventArgs
     {
         /// <summary>

@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
     /// <summary>
     /// Provides properties for the connected communication channel.
     /// </summary>
+    [System.Obsolete]
     public class ConnectedEventArgs : EventArgs
     {
         /// <summary>

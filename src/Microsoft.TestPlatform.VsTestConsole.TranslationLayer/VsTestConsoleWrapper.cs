@@ -28,6 +28,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
     /// An implementation of <see cref="IVsTestConsoleWrapper"/> to invoke test operations
     /// via the <c>vstest.console</c> test runner.
     /// </summary>
+    [System.Obsolete]
     public class VsTestConsoleWrapper : IVsTestConsoleWrapper
     {
         #region Private Members

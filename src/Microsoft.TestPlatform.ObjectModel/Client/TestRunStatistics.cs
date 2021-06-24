@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// Defines the test run stats header
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestRunStatistics : ITestRunStatistics
     {
         /// <summary>

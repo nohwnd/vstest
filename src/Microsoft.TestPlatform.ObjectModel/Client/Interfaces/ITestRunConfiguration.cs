@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Defines common test run configuration APIs
     /// </summary>
+    [System.Obsolete]
     public interface ITestRunConfiguration
     {
         /// <summary>

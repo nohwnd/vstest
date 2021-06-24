@@ -14,6 +14,7 @@ namespace Microsoft.TestPlatform.Build.Tasks
     using Microsoft.TestPlatform.Build.Utils;
     using Trace;
 
+    [System.Obsolete]
     public class VSTestTask : Task, ICancelableTask
     {
         // The process which is invoking vstest.console

@@ -6,6 +6,7 @@ namespace Microsoft.TestPlatform.AdapterUtilities
     /// <summary>
     /// Constants to help declare Hierarchy test property.
     /// </summary>
+    [System.Obsolete]
     public static class HierarchyConstants
     {
         /// <summary>
@@ -21,6 +22,7 @@ namespace Microsoft.TestPlatform.AdapterUtilities
         /// <summary>
         /// Meanings of the indices in the Hierarchy array.
         /// </summary>
+        [System.Obsolete]
         public static class Levels
         {
             /// <summary>

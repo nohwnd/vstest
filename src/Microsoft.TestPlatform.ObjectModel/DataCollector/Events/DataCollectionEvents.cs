@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// <summary>
     /// Class defining execution events that will be registered for by collectors
     /// </summary>
+    [System.Obsolete]
     public abstract class DataCollectionEvents
     {
         #region Constructor

@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// Represents a set of attachments.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class AttachmentSet
     {
         /// <summary>
@@ -53,6 +54,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// Dev10 equivalent is UriDataAttachment.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class UriDataAttachment
     {
         /// <summary>

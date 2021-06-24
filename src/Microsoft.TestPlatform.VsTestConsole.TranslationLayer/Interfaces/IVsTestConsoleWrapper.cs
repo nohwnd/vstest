@@ -12,6 +12,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer.Interfaces
     /// <summary>
     /// Controller for various test operations on the test runner.
     /// </summary>
+    [System.Obsolete]
     public interface IVsTestConsoleWrapper : IVsTestConsoleWrapperAsync
     {
         /// <summary>

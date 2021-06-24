@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// Stores information about a test case.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public sealed class TestCase : TestObject
     {
         /// <summary>
@@ -356,6 +357,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Well-known TestCase properties
     /// </summary>
+    [System.Obsolete]
     public static class TestCaseProperties
     {
         #region Private Constants

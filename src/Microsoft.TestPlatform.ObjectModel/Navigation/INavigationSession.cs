@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Navigation
     /// <summary>
     /// Manages the debug data associated with the .exe/.dll file
     /// </summary>
+    [System.Obsolete]
     public interface INavigationSession : IDisposable
     {
         /// <summary>

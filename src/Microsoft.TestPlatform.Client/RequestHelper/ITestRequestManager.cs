@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.RequestHelper
     /// <summary>
     /// Defines the contract for running various requests.
     /// </summary>
+    [System.Obsolete]
     public interface ITestRequestManager : IDisposable
     {
         /// <summary>

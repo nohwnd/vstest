@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
     /// <summary>
     /// Used for recording test results and test messages.
     /// </summary>
+    [System.Obsolete]
     public interface ITestExecutionRecorder : IMessageLogger
     {
         /// <summary>

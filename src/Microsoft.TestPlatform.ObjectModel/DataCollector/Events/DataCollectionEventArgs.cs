@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
 #if NETFRAMEWORK
     [Serializable]
 #endif
+    [System.Obsolete]
     public abstract class DataCollectionEventArgs : EventArgs
     {
         #region Constructor

@@ -7,6 +7,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
     /// TestCaseDiscovery sink is used by discovery extensions to communicate test cases as they are being discovered,
     /// and various discovery related events.
     /// </summary>
+    [System.Obsolete]
     public interface ITestCaseDiscoverySink
     {
         /// <summary>

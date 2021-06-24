@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
     /// Exception thrown by argument processors when they encounter an error with test source
     /// arguments.
     /// </summary>
+    [System.Obsolete]
     public class TestSourceException : Exception
     {
         #region Constructors

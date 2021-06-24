@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces
     /// <summary>
     /// The FileHelper interface.
     /// </summary>
+    [System.Obsolete]
     public interface IFileHelper
     {
 #if !NETSTANDARD1_0 

@@ -16,6 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     /// <summary>
     /// The legacy mstest.exe settings utilities.
     /// </summary>
+    [System.Obsolete]
     public static class MSTestSettingsUtilities
     {
         /// <summary>

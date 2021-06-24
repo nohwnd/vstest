@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
     /// <summary>
     /// It represents expression for filtering test cases.
     /// </summary>
+    [System.Obsolete]
     public interface ITestCaseFilterExpression
     {
         /// <summary>

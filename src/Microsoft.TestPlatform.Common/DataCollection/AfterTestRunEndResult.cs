@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.DataCollection
     /// Payload object that is used to exchange data between datacollector process and runner process.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class AfterTestRunEndResult
     {
         /// <summary>

@@ -5,6 +5,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
 {
     using System.Runtime.Serialization;
 
+    [System.Obsolete]
     public class TestHostLaunchedPayload
     {
         /// <summary>

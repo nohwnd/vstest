@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
     /// <summary>
     /// Utility methods for working with an XmlReader.
     /// </summary>
+    [System.Obsolete]
     public static class XmlReaderUtilities
     {
         #region Constants

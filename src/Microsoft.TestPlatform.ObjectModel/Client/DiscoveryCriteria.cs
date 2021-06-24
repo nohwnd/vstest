@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// Defines the discovery criterion.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class DiscoveryCriteria
     {
         /// <summary>

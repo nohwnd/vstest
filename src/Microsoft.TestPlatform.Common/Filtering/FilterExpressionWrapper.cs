@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
     /// <summary>
     /// Class holds information related to filtering criteria.
     /// </summary>
+    [System.Obsolete]
     public class FilterExpressionWrapper
     {
         /// <summary>

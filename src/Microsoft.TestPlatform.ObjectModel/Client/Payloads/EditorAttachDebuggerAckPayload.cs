@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// Class used to define the <see cref="EditorAttachDebuggerAckPayload"/> sent by the
     /// vstest.console translation layers into design mode.
     /// </summary>
+    [System.Obsolete]
     public class EditorAttachDebuggerAckPayload
     {
         /// <summary>

@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
     /// <summary>
     /// Main entry point for the command line runner.
     /// </summary>
+    [System.Obsolete]
     public static class Program
     {
         /// <summary>

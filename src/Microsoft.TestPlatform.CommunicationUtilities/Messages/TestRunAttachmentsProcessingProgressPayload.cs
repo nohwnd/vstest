@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
     /// <summary>
     /// Test run attachments processing complete payload.
     /// </summary>
+    [System.Obsolete]
     public class TestRunAttachmentsProcessingProgressPayload
     {
         /// <summary>

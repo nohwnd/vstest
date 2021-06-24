@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Telemetry
     /// <summary>
     /// This Class will collect Metrics.
     /// </summary>
+    [System.Obsolete]
     public class MetricsCollection : IMetricsCollection
     {
         private Dictionary<string, object> metricDictionary;

@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollector.InProcDa
     /// <summary>
     /// The InProcDataCollectionArgs interface.
     /// </summary>
+    [System.Obsolete]
     public interface InProcDataCollectionArgs
     {
     }

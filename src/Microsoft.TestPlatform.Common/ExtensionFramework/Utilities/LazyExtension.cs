@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilitie
     /// </summary>
     /// <typeparam name="TExtension">Test extension type</typeparam>
     /// <typeparam name="TMetadata">Test extension metadata</typeparam>
+    [System.Obsolete]
     public class LazyExtension<TExtension, TMetadata>
     {
         #region Private Members

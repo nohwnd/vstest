@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
     /// <summary>
     /// Levels for test messages.
     /// </summary>
+    [System.Obsolete]
     public enum TestMessageLevel
     {
         /// <summary>

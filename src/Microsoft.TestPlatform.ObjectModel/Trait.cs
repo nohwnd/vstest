@@ -17,6 +17,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     [Serializable]
 #endif
     [DataContract]
+    [System.Obsolete]
     public class Trait
     {
         [DataMember(Name = "Key")]

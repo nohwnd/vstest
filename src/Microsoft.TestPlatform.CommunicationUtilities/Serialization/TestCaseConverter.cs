@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serializati
     /// <summary>
     /// Converter used by v1 protocol serializer to serialize TestCase object to and from v1 json
     /// </summary>
+    [System.Obsolete]
     public class TestCaseConverter : JsonConverter
     {
         /// <inheritdoc/>

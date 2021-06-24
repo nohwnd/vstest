@@ -16,6 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
 #if NETFRAMEWORK
     [Serializable]
 #endif
+    [System.Obsolete]
     public class TestCanceledException : Exception
     {
 #region Constructors

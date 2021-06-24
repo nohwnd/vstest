@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Interfaces
     /// <summary>
     /// Metadata that is available from Test Host.
     /// </summary>
+    [System.Obsolete]
     public interface ITestRuntimeCapabilities : ITestExtensionCapabilities
     {
         /// specifies the friendly name corresponding to the TestHost.

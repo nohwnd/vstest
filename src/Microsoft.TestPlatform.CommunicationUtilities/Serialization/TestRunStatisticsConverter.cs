@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serializati
     /// <summary>
     /// JSON converter for converting ITestRunStatistics to TestRunStatistics
     /// </summary>
+    [System.Obsolete]
     public class TestRunStatisticsConverter : JsonConverter
     {
         /// <inheritdoc/>

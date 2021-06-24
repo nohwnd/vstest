@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// name.  This name will be used to request the settings from the RunSettings.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [System.Obsolete]
     public sealed class SettingsNameAttribute : Attribute
     {
         #region Constructor

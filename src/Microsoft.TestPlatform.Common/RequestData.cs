@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common
     /// <summary>
     /// Provide common services and data for a discovery/run request.
     /// </summary>
+    [System.Obsolete]
     public class RequestData : IRequestData
     {
         /// <summary>

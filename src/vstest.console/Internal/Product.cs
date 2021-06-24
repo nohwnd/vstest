@@ -5,6 +5,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Internal
 {
     using System.Reflection;
 
+    [System.Obsolete]
     public class Product
     {
         public static readonly string Version = GetProductVersion();

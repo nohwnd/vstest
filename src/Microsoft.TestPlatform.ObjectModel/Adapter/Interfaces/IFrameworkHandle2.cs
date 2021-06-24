@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
     /// <summary>
     /// Handle to the framework which is passed to the test executors.
     /// </summary>
+    [System.Obsolete]
     public interface IFrameworkHandle2 : IFrameworkHandle
     {
         /// <summary>

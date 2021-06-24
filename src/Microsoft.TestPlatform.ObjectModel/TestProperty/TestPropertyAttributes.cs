@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     using System;
 
     [Flags]
+    [System.Obsolete]
     public enum TestPropertyAttributes
     {
         None = 0x00, // Default

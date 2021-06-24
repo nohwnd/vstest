@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// A class used to expose EqtTrace functionality across AppDomains.
     /// </summary>
+    [System.Obsolete]
     public sealed class RemoteEqtTrace : MarshalByRefObject
     {
         /// <summary>

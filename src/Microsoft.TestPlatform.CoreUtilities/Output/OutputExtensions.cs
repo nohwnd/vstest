@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     /// <summary>
     /// Utility Methods for sending output to IOutput.
     /// </summary>
+    [System.Obsolete]
     public static class OutputExtensions
     {
         private const string DefaultFormat = "{0}";

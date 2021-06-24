@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces
     /// <summary>
     /// Operating system environment abstractions.
     /// </summary>
+    [System.Obsolete]
     public interface IEnvironment
     {
         /// <summary>

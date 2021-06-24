@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serializati
     /// <summary>
     /// JSON contract resolver for mapping test platform types.
     /// </summary>
+    [System.Obsolete]
     public class DefaultTestPlatformContractResolver : DefaultContractResolver
     {
         /// <inheritdoc/>

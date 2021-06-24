@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.TestExecutor
     /// <summary>
     /// Initialization point for Old UWP application
     /// </summary>
+    [System.Obsolete]
     public static class UnitTestClient
     {
         /// <summary>

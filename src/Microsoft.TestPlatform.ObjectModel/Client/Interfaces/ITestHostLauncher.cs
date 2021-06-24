@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client.Interfaces
     /// <summary>
     /// Interface defining contract for custom test host implementations
     /// </summary>
+    [System.Obsolete]
     public interface ITestHostLauncher
     {
         /// <summary>

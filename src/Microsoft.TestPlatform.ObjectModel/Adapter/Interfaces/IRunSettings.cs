@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
     /// <summary>
     /// Used for loading settings for a run.
     /// </summary>
+    [System.Obsolete]
     public interface IRunSettings
     {
         /// <summary>

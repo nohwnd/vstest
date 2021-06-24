@@ -19,6 +19,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces
     /// <summary>
     /// The AssemblyResolver interface.
     /// </summary>
+    [System.Obsolete]
     public interface IAssemblyResolver : IDisposable
     {
         /// <summary>
@@ -30,6 +31,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces
     /// <summary>
     /// Provides data for loader resolution events, such as the AppDomain.AssemblyResolve events.
     /// </summary>
+    [System.Obsolete]
     public class AssemblyResolveEventArgs : EventArgs
     {
         /// <summary>

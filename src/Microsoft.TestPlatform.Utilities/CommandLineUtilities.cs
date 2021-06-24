@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     using System.Globalization;
     using System.Text;
 
+    [System.Obsolete]
     public static class CommandLineUtilities
     {
         public static bool SplitCommandLineIntoArguments(string args, out string[] arguments)

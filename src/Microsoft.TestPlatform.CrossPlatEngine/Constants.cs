@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
     /// <summary>
     /// The set of constants used throughout this project.
     /// </summary>
+    [System.Obsolete]
     public class Constants
     {
         // Replace this collection with a list of adapters we want to allow from the "Extensions" folder in Next Major VS Release.

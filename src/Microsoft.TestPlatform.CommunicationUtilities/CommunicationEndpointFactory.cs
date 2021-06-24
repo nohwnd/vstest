@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     /// <summary>
     /// Implements ICommunicationEndpointFactory.
     /// </summary>
+    [System.Obsolete]
     public class CommunicationEndpointFactory : ICommunicationEndpointFactory
     {
         /// <inheritdoc />

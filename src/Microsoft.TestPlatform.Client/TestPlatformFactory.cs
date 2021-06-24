@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client
     /// <summary>
     /// The factory class that provides an instance of the test platform.
     /// </summary>
+    [System.Obsolete]
     public class TestPlatformFactory
     {
         private static ITestPlatform testPlatform;

@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLineUtilities
     using Microsoft.VisualStudio.TestPlatform.CommandLine;
     using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 
+    [System.Obsolete]
     public static class GenerateFakesUtilities
     {
         internal static void GenerateFakesSettings(CommandLineOptions commandLineOptions, IEnumerable<string> sources, ref string runSettingsXml)

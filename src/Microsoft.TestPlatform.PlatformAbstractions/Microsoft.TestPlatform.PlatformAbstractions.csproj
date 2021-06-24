@@ -14,7 +14,7 @@
     <EnableCodeAnalysis>true</EnableCodeAnalysis>
 
     <!-- This causes a build error on netcoreapp1.0 -->
-    <NoWarn Condition="'$(TargetFramework)' != 'netcoreapp1.0'">NU1605</NoWarn>
+    <NoWarn Condition="'$(TargetFramework)' != 'netcoreapp1.0'">$(NoWarn);NU1605</NoWarn>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(TargetFramework)' == 'uap10.0'">

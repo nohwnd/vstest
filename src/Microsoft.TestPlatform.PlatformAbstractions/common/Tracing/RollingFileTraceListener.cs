@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// Performs logging to a file and rolls the output file when either time or size thresholds are
     /// exceeded.
     /// </summary>
+    [System.Obsolete]
     public class RollingFileTraceListener : TextWriterTraceListener
     {
         private readonly StreamWriterRollingHelper rollingHelper;

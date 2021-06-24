@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Telemetry
     /// <summary>
     /// If Telemetry is opted out, this class will be initialized and will do No operation.
     /// </summary>
+    [System.Obsolete]
     public class NoOpMetricsCollection : IMetricsCollection
     {
         /// <summary>

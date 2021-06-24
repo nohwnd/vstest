@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.TesthostProtoco
     /// <summary>
     /// Orchestrates test execution related functionality for the engine communicating with the test host process.
     /// </summary>
+    [System.Obsolete]
     public interface IExecutionManager
     {
         /// <summary>

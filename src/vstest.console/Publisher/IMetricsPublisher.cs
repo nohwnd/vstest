@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Publisher
     /// <summary>
     /// Publish the metrics
     /// </summary>
+    [System.Obsolete]
     public interface IMetricsPublisher : IDisposable
     {
         /// <summary>

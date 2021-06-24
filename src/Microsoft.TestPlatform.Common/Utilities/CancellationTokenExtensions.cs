@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Utilities
     using System.Threading;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
+    [System.Obsolete]
     public static class CancellationTokenExtensions
     {
         /// <summary>

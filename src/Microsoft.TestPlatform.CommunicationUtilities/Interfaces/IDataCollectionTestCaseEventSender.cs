@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
     /// <summary>
     /// Interface for sending test case events from test execution process to data collection process
     /// </summary>
+    [System.Obsolete]
     public interface IDataCollectionTestCaseEventSender
     {
         /// <summary>

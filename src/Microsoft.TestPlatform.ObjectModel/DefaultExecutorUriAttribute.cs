@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// This attribute is applied on the discoverers to inform the framework about their default executor.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [System.Obsolete]
     public sealed class DefaultExecutorUriAttribute : Attribute
     {
         #region Constructor

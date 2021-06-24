@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Helper methods for working with the TestOutcome enum.
     /// </summary>
+    [System.Obsolete]
     public static class TestOutcomeHelper
     {
         /// <summary>

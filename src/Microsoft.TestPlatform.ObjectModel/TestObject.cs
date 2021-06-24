@@ -16,6 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1012:AbstractTypesShouldNotHaveConstructors")]
     [DataContract]
+    [System.Obsolete]
     public abstract class TestObject
     {
         #region Fields

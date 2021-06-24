@@ -6,6 +6,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
     using System;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
+    [System.Obsolete]
     public class BlameTestObject
     {
         private Guid id;

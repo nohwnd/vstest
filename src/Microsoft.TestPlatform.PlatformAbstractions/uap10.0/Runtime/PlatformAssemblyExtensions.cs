@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions
     /// <summary>
     /// Assembly Extensions
     /// </summary>
+    [System.Obsolete]
     public static class PlatformAssemblyExtensions
     {
         /// <summary>

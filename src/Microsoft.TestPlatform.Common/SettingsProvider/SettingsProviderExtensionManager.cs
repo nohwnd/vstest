@@ -26,6 +26,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.SettingsProvider
     /// This is a non-shared instance because we want different settings provider instances to
     /// be used for each run settings instance.
     /// </remarks>
+    [System.Obsolete]
     public class SettingsProviderExtensionManager
     {
         #region Fields

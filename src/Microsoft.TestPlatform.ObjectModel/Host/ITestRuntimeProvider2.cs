@@ -7,6 +7,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Host
     /// Interface to define a TestRuntimeProvider with support for attaching the debugger to the
     /// default testhost process.
     /// </summary>
+    [System.Obsolete]
     public interface ITestRuntimeProvider2 : ITestRuntimeProvider
     {
         /// <summary>

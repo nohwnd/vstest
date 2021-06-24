@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Interfaces
     /// <summary>
     /// Metadata that is available from data collectors.
     /// </summary>
+    [System.Obsolete]
     public interface IDataCollectorCapabilities : ITestExtensionCapabilities
     {
         /// <summary>

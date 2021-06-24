@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Event arguments used when test run starts
     /// </summary>
+    [System.Obsolete]
     public class TestRunStartEventArgs : EventArgs
     {
         /// <summary>

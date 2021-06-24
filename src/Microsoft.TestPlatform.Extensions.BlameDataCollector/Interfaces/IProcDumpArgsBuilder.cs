@@ -5,6 +5,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
 {
     using System.Collections.Generic;
 
+    [System.Obsolete]
     public interface IProcDumpArgsBuilder
     {
         /// <summary>

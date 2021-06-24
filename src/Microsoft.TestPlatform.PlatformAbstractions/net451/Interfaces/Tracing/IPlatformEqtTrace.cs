@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     using System;
     using System.Diagnostics;
 
+    [System.Obsolete]
     public partial interface IPlatformEqtTrace
     {
         /// <summary>

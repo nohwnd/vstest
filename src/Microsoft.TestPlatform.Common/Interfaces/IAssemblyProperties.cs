@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Interfaces
     /// <summary>
     /// Metadata that is available for input test source, e.g. Whether it is native or managed dll, etc..
     /// </summary>
+    [System.Obsolete]
     public interface IAssemblyProperties
     {
         /// <summary>

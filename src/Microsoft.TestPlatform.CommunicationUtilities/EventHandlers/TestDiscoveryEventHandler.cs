@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     /// <summary>
     /// The test discovery event handler.
     /// </summary>
+    [System.Obsolete]
     public class TestDiscoveryEventHandler : ITestDiscoveryEventsHandler2
     {
         private ITestRequestHandler requestHandler;

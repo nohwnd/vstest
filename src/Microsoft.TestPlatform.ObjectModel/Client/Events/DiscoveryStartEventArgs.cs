@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Event arguments used when test discovery starts
     /// </summary>
+    [System.Obsolete]
     public class DiscoveryStartEventArgs : EventArgs
     {
         /// <summary>

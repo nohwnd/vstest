@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.InProcDataCollector
     /// <summary>
     /// Listener interface for external exe from test host
     /// </summary>
+    [System.Obsolete]
     public interface InProcDataCollection
     {
         /// <summary>

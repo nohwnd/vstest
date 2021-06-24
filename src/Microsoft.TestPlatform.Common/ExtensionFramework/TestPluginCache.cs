@@ -23,6 +23,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
     /// The test plugin cache.
     /// </summary>
     /// <remarks>Making this a singleton to offer better unit testing.</remarks>
+    [System.Obsolete]
     public class TestPluginCache
     {
         #region Private Members

@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions
     using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 
+    [System.Obsolete]
     public class PlatformThread : IThread
     {
         /// <inheritdoc/>

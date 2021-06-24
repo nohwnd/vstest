@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Represents the outcomes of a test case.
     /// </summary>
+    [System.Obsolete]
     public enum TestOutcome
     {
         /// <summary>

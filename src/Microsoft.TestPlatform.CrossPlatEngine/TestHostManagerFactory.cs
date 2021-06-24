@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
     /// <summary>
     /// The factory that provides discovery and execution managers to the test host.
     /// </summary>
+    [System.Obsolete]
     public class TestHostManagerFactory : ITestHostManagerFactory
     {
         private IDiscoveryManager discoveryManager;

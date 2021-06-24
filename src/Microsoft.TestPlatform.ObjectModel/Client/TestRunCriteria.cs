@@ -16,6 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Defines the test run criterion.
     /// </summary>
+    [System.Obsolete]
     public class TestRunCriteria : BaseTestRunCriteria, ITestRunConfiguration
     {
         private string testCaseFilter;
@@ -651,6 +652,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Defines the base test run criterion.
     /// </summary>
+    [System.Obsolete]
     public class BaseTestRunCriteria
     {
         /// <summary>

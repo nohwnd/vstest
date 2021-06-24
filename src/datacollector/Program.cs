@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.DataCollector
     /// <summary>
     /// The program.
     /// </summary>
+    [System.Obsolete]
     public class Program
     {
         /// <summary>

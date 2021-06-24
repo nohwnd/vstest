@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// <summary>
     /// Represents required and optional information needed for requesting a file transfer.
     /// </summary>
+    [System.Obsolete]
     public class FileTransferInformation : BasicTransferInformation
     {
         private readonly IFileHelper fileHelper;

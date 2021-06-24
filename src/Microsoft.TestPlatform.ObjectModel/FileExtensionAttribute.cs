@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// called for all file types.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    [System.Obsolete]
     public sealed class FileExtensionAttribute : Attribute
     {
         #region Constructor

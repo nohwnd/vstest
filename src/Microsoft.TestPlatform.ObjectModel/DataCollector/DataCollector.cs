@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// <summary>
     /// Interface for data collector add-ins
     /// </summary>
+    [System.Obsolete]
     public abstract class DataCollector : IDisposable
     {
         #region Methods

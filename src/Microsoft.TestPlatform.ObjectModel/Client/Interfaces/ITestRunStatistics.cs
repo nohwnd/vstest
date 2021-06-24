@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Stats on the test run state
     /// </summary>
+    [System.Obsolete]
     public interface ITestRunStatistics
     {
         /// <summary>

@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Exposes events that Test Loggers can register for.
     /// </summary>
+    [System.Obsolete]
     public abstract class TestLoggerEvents
     {
         #region Constructor

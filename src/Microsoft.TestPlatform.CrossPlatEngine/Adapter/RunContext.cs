@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Adapter
     /// <summary>
     /// Provides user specified runSettings and framework provided context of the run. 
     /// </summary>
+    [System.Obsolete]
     public class RunContext : DiscoveryContext, IRunContext
     {
         /// <summary>

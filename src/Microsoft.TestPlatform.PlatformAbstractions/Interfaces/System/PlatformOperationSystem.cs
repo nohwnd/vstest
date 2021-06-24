@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions
     /// <summary>
     /// Available operating systems.
     /// </summary>
+    [System.Obsolete]
     public enum PlatformOperatingSystem
     {
         Windows,

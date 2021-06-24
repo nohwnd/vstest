@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
     using System;
     using System.Threading.Tasks;
 
+    [System.Obsolete]
     public interface ICommunicationChannel : IDisposable
     {
         /// <summary>

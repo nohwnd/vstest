@@ -37,6 +37,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Hosting
     /// </summary>
     [ExtensionUri(DefaultTestHostUri)]
     [FriendlyName(DefaultTestHostFriendlyName)]
+    [System.Obsolete]
     public class DefaultTestHostManager : ITestRuntimeProvider2
     {
         private const string X64TestHostProcessName = "testhost{0}.exe";

@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Utilities
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
     using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
+    [System.Obsolete]
     public class InstallationContext
     {
         private const string DevenvExe = "devenv.exe";

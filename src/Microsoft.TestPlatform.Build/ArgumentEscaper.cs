@@ -3,6 +3,7 @@ using System.Text;
 
 namespace Microsoft.TestPlatform.Build.Utils
 {
+    [System.Obsolete]
     public static class ArgumentEscaper
     {
         /// <summary>

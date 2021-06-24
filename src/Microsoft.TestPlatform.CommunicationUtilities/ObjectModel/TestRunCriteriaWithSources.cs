@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
     /// <summary>
     /// The test run criteria with sources.
     /// </summary>
+    [System.Obsolete]
     public class TestRunCriteriaWithSources
     {
         /// <summary>

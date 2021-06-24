@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing
 
     /// <inheritdoc/>
     [EventSource(Name = "TestPlatform")]
+    [System.Obsolete]
     public class TestPlatformEventSource : EventSource, ITestPlatformEventSource
     {
         private static readonly TestPlatformEventSource LocalInstance = new TestPlatformEventSource();

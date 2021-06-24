@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// implements this interface will be available for use if it exports its type via
     /// MEF, and if its containing assembly is placed in the Extensions folder.
     /// </summary>
+    [System.Obsolete]
     public interface ITestLogger
     {
         /// <summary>

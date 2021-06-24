@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// This attribute is optional.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [System.Obsolete]
     public sealed class FriendlyNameAttribute : Attribute
     {
         #region Constructor

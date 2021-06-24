@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// IDiscoverTestsRequest returned after calling GetDiscoveredTestsAsync
     /// </summary>
+    [System.Obsolete]
     public interface IDiscoveryRequest : IRequest
     {
         /// <summary>

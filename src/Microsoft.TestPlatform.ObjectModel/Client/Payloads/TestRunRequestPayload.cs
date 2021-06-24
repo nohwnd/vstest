@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Class used to define the TestRunRequestPayload sent by the Vstest.console translation layers into design mode
     /// </summary>
+    [System.Obsolete]
     public class TestRunRequestPayload
     {
         /// <summary>

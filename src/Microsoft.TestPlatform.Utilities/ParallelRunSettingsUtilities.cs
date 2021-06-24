@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     /// Utility class for MaxCpuCount element of RunSetting
     /// </summary>
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [System.Obsolete]
     public static class ParallelRunSettingsUtilities
     {
         private static string XpathOfRunSettings = @"/RunSettings";

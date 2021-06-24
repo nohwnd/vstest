@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CoreUtilities
     /// <summary>
     /// The set of constants required for across various(Communication, CrossPlatform, etc.) modules.
     /// </summary>
+    [System.Obsolete]
     public class Constants
     {
         /// <summary>

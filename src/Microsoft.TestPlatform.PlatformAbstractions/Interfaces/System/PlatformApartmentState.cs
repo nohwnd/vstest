@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions
     /// <summary>
     /// Available apartment states for test platform.
     /// </summary>
+    [System.Obsolete]
     public enum PlatformApartmentState
     {
         MTA,

@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// The start info of the test runner
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestProcessStartInfo
     {
         /// <summary>

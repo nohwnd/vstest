@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Interfaces
     /// <summary>
     /// Basic metadata for extensions which are identified by a URI.
     /// </summary>
+    [System.Obsolete]
     public interface ITestExtensionCapabilities
     {
         /// <summary>

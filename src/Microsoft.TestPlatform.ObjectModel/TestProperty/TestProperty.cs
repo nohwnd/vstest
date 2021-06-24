@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     public delegate bool ValidateValueCallback(object value);
 
     [DataContract]
+    [System.Obsolete]
     public class TestProperty : IEquatable<TestProperty>
     {
         #region Fields

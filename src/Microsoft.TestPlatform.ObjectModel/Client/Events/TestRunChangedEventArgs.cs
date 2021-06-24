@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// The test run changed event args that provides the test results available.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestRunChangedEventArgs : EventArgs
     {
         /// <summary>

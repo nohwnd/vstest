@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// <summary>
     /// Collects the required and optional information needed for requesting a file transfer from a data collector.
     /// </summary>
+    [System.Obsolete]
     public abstract class BasicTransferInformation
     {
         #region Fields

@@ -7,6 +7,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     /// Construct with version used for communication
     /// Introduced in 15.1.0 version and default message protocol v2 onwards.
     /// </summary>
+    [System.Obsolete]
     public class VersionedMessage : Message
     {
         /// <summary>

@@ -20,6 +20,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
     /// <summary>
     /// Utilities for the run settings XML.
     /// </summary>
+    [System.Obsolete]
     public static class XmlRunSettingsUtilities
     {
         /// <summary>

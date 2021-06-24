@@ -3,6 +3,7 @@ using System;
 
 namespace Microsoft.TestPlatform.Build.Trace
 {
+    [System.Obsolete]
     public static class Tracing
     {
         public static bool traceEnabled = false;

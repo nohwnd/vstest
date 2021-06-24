@@ -21,6 +21,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.TestRunAttachments
     /// <summary>
     /// Orchestrates test run attachments processing operations.
     /// </summary>
+    [System.Obsolete]
     public class TestRunAttachmentsProcessingManager : ITestRunAttachmentsProcessingManager
     {
         private static string AttachmentsProcessingCompleted = "Completed";

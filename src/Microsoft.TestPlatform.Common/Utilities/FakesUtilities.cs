@@ -16,6 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Utilities
     /// <summary>
     /// Provides helper to configure run settings for Fakes. Works even when Fakes are not installed on the machine.
     /// </summary>
+    [System.Obsolete]
     public static class FakesUtilities
     {
         private const string ConfiguratorAssemblyQualifiedName = "Microsoft.VisualStudio.TestPlatform.Fakes.FakesDataCollectorConfiguration";

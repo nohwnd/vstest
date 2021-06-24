@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces
     /// <summary>
     /// Helper class to return platform specific stream.
     /// </summary>
+    [System.Obsolete]
     public interface IStream
     {
         /// <summary>

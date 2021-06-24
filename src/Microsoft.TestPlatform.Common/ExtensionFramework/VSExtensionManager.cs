@@ -17,6 +17,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
     /// <summary>
     /// Manager for VisualStudio based extensions
     /// </summary>
+    [System.Obsolete]
     public class VSExtensionManager : IVSExtensionManager
     {
         private const string ExtensionManagerService = "Microsoft.VisualStudio.ExtensionManager.ExtensionManagerService";

@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// to be public.  This interface is not intended for external consumption.
     /// </remarks>
     [SuppressMessage("Microsoft.MSInternal", "CA903:InternalNamespaceShouldNotContainPublicTypes", Justification = "This interface is only public due to limitations in MEF which require metadata interfaces to be public.")]
+    [System.Obsolete]
     public interface ITestPlatformCapabilities
     {
         /// <summary>
@@ -21,6 +22,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         TestPlatformType TestPlatformType { get; }
     }
 
+    [System.Obsolete]
     public enum TestPlatformType
     {
         [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly")]

@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
     /// <summary>
     /// Utility methods for manipulating strings.
     /// </summary>
+    [System.Obsolete]
     public static class StringUtilities
     {
         /// <summary>

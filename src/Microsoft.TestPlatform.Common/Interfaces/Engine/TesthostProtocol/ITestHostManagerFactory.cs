@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.TesthostProtoco
     /// <summary>
     /// The factory that provides discovery and execution managers to the test host.
     /// </summary>
+    [System.Obsolete]
     public interface ITestHostManagerFactory
     {
         /// <summary>

@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     /// <summary>
     /// A communication channel using a length prefix packet frame for communication.
     /// </summary>
+    [System.Obsolete]
     public class LengthPrefixCommunicationChannel : ICommunicationChannel
     {
         private readonly BinaryReader reader;

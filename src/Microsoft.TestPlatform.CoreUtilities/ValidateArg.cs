@@ -16,6 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Helper to validate parameters.
     /// </summary>
+    [System.Obsolete]
     public static class ValidateArg
     {
         /// <summary>
@@ -172,6 +173,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Helper to validate parameter properties.
     /// </summary>
+    [System.Obsolete]
     public static class ValidateArgProperty
     {
         /// <summary>

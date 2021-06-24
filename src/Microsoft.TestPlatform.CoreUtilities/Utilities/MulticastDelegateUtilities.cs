@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     /// <summary>
     /// Utility methods for MulticastDelegates.
     /// </summary>
+    [System.Obsolete]
     public static class MulticastDelegateUtilities
     {
         /// <summary>

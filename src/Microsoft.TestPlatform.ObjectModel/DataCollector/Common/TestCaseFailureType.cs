@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// <summary>
     /// Type of test case failure which occurred.
     /// </summary>
+    [System.Obsolete]
     public enum TestCaseFailureType
     {
         None = 0,

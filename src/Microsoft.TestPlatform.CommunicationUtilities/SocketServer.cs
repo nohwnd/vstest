@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     /// <summary>
     /// Communication server implementation over sockets.
     /// </summary>
+    [System.Obsolete]
     public class SocketServer : ICommunicationEndPoint
     {
         private readonly CancellationTokenSource cancellation;

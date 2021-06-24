@@ -40,6 +40,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Hosting
     /// </remarks>
     [ExtensionUri(DotnetTestHostUri)]
     [FriendlyName(DotnetTestHostFriendlyName)]
+    [System.Obsolete]
     public class DotnetTestHostManager : ITestRuntimeProvider2
     {
         private const string DotnetTestHostUri = "HostProvider://DotnetTestHost";

@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
     /// <summary>
     /// Event arguments used for raising Test Result events.
     /// </summary>
+    [System.Obsolete]
     public class TestResultEventArgs : EventArgs
     {
         #region Constructor

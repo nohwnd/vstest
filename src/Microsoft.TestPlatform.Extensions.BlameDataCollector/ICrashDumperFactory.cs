@@ -3,6 +3,7 @@
 
 namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
 {
+    [System.Obsolete]
     public interface ICrashDumperFactory
     {
         ICrashDumper Create(string targetFramework);

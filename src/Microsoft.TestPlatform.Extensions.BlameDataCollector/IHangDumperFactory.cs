@@ -5,6 +5,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
 {
     using System;
 
+    [System.Obsolete]
     public interface IHangDumperFactory
     {
         Action<string> LogWarning { get; set; }

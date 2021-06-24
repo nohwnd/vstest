@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine
     /// <summary>
     /// Orchestrates logger operations for this engine.
     /// </summary>
+    [System.Obsolete]
     public interface ITestLoggerManager : IDisposable
     {
         /// <summary>

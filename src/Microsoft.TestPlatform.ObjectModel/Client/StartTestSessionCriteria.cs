@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// Class used to define the start test session criteria.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class StartTestSessionCriteria
     {
         /// <summary>

@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// parameters to loggers such as TfsPublisher.
     /// Currently it is marked for internal consumption (ex: TfsPublisher)
     /// </summary>
+    [System.Obsolete]
     public interface ITestLoggerWithParameters : ITestLogger
     {
         /// <summary>

@@ -21,6 +21,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     using CrossPlatResources = Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Resources.Resources;
     using ObjectModelConstants = Microsoft.VisualStudio.TestPlatform.ObjectModel.Constants;
 
+    [System.Obsolete]
     public class TestRequestHandler : ITestRequestHandler
     {
         private int protocolVersion = 1;

@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
     /// <summary>
     /// The test run complete payload.
     /// </summary>
+    [System.Obsolete]
     public class TestRunCompletePayload
     {
         /// <summary>

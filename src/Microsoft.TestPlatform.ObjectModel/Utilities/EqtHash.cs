@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
     /// Wrapper class for cryptographic hashing.
     /// This class uses SHA1 instead of MD5 in order to conform to the FIPS standard.
     /// </summary>
+    [System.Obsolete]
     public static class EqtHash
     {
         /// <summary>

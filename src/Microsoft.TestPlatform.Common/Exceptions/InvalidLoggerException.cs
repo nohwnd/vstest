@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Exceptions
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using System;
 
+    [System.Obsolete]
     public class InvalidLoggerException : TestPlatformException
     {
         #region Constructors

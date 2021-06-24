@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     using System.Runtime.Serialization;
 
     [DataContract]
+    [System.Obsolete]
     public class TestRunAttachmentsProcessingProgressEventArgs : EventArgs
     {
         /// <summary>

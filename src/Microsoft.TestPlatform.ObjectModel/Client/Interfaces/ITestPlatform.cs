@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Defines the functionality of the test platform.
     /// </summary>
+    [System.Obsolete]
     public interface ITestPlatform : IDisposable
     {
         /// <summary>

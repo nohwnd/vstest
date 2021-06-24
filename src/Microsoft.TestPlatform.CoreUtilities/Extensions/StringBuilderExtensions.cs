@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CoreUtilities.Extensions
     using System;
     using System.Text;
 
+    [System.Obsolete]
     public static class StringBuilderExtensions
     {
         /// <summary>

@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
     /// <summary>
     /// The Communication Manager interface.
     /// </summary>
+    [System.Obsolete]
     public interface ICommunicationManager
     {
         /// <summary>

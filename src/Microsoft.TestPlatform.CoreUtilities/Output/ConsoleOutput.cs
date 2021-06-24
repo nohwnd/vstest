@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     /// <summary>
     /// Sends output to the console.
     /// </summary>
+    [System.Obsolete]
     public class ConsoleOutput : IOutput
     {
         private static object lockObject = new object();

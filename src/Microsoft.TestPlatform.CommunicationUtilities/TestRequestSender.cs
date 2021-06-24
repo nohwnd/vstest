@@ -20,6 +20,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     /// <summary>
     /// Test request sender implementation.
     /// </summary>
+    [System.Obsolete]
     public class TestRequestSender : ITestRequestSender
     {
         // Time to wait for test host exit

@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces
     /// <summary>
     /// TestPlatform Instrumentation events
     /// </summary>
+    [System.Obsolete]
     public interface ITestPlatformEventSource
     {
         /// <summary>

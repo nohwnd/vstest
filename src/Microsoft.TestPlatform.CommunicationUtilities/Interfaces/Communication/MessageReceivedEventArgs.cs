@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
     /// <summary>
     /// Provides a framed data and related properties.
     /// </summary>
+    [System.Obsolete]
     public class MessageReceivedEventArgs : EventArgs
     {
         /// <summary>

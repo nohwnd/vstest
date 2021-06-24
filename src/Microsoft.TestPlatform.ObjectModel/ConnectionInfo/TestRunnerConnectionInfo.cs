@@ -40,6 +40,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// <summary>
     /// Specifies the role of application, whether as host or client
     /// </summary>
+    [System.Obsolete]
     public enum ConnectionRole
     {
         /// <summary>
@@ -57,6 +58,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// Specifies the underneath Transport channel to be used
     /// E.g. For UWP/Desktop it is Sockets, for Android it could be SSH
     /// </summary>
+    [System.Obsolete]
     public enum Transport
     {
         /// <summary>

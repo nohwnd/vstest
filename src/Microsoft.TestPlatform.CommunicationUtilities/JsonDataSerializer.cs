@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     /// <summary>
     /// JsonDataSerializes serializes and deserializes data using Json format
     /// </summary>
+    [System.Obsolete]
     public class JsonDataSerializer : IDataSerializer
     {
         private static JsonDataSerializer instance;

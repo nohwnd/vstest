@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Interface contract for handling test run events during run operation
     /// </summary>
+    [System.Obsolete]
     public interface ITestRunEventsHandler : ITestMessageEventHandler
     {
         /// <summary>
@@ -38,6 +39,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Interface for handling generic message events during various operations
     /// </summary>
+    [System.Obsolete]
     public interface ITestMessageEventHandler
     {
         /// <summary>

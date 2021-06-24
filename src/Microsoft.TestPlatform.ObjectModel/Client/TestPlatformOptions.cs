@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// Options to be passed into the Test Platform during Discovery/Execution.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestPlatformOptions
     {
         /// <summary>

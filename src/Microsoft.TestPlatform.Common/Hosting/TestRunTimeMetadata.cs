@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Hosting
     /// <summary>
     /// Hold data about the Test Host.
     /// </summary>
+    [System.Obsolete]
     public class TestRuntimeMetadata : ITestRuntimeCapabilities
     {
         /// <summary>

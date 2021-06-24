@@ -16,6 +16,7 @@ namespace Microsoft.TestPlatform.Extensions.BlameDataCollector
     /// </summary>
     [FriendlyName(BlameLogger.FriendlyName)]
     [ExtensionUri(BlameLogger.ExtensionUri)]
+    [System.Obsolete]
     public class BlameLogger : ITestLogger
     {
         #region Constants

@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// Session Start event arguments
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public sealed class SessionStartEventArgs : DataCollectionEventArgs
     {
         private IDictionary<string, object> Properties;
@@ -102,6 +103,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// Session End event arguments
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public sealed class SessionEndEventArgs : DataCollectionEventArgs
     {
         #region Constructor

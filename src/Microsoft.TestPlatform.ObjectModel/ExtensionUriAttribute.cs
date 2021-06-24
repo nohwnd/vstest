@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     /// the extensions will not be used.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [System.Obsolete]
     public sealed class ExtensionUriAttribute : Attribute
     {
         #region Constructor

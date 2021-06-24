@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.SettingsMigrator
     /// <summary>
     /// Migrator used to migrate test settings and run settings with embedded testsettings to run settings.
     /// </summary>
+    [System.Obsolete]
     public class Migrator
     {
         private const string TestTimeoutAttributeName = "testTimeout";

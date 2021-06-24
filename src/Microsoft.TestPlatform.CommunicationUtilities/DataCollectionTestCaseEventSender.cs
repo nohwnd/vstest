@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection;
 
+    [System.Obsolete]
     public class DataCollectionTestCaseEventSender : IDataCollectionTestCaseEventSender
     {
         private static readonly object SyncObject = new object();

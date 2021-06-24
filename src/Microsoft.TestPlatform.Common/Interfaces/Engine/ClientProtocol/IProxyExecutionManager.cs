@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine
     /// <summary>
     /// Orchestrates test execution related functionality for the engine communicating with the client.
     /// </summary>
+    [System.Obsolete]
     public interface IProxyExecutionManager
     {
         /// <summary>

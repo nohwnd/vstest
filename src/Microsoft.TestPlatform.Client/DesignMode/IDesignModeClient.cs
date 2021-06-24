@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
     /// <summary>
     /// The interface for design mode client.
     /// </summary>
+    [System.Obsolete]
     public interface IDesignModeClient : IDisposable
     {
         /// <summary>

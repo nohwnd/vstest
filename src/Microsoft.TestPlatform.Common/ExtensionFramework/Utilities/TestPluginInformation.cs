@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilitie
     using System;
     using System.Collections.Generic;
 
+    [System.Obsolete]
     public abstract class TestPluginInformation
     {
         /// <summary>

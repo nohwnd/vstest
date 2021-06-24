@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     /// <summary>
     /// Defines the level of output.
     /// </summary>
+    [System.Obsolete]
     public enum OutputLevel
     {
         /// <summary>

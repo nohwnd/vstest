@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection.Int
     /// <summary>
     /// The DataCollectorsSettingsProvider interface.
     /// </summary>
+    [System.Obsolete]
     public interface IDataCollectorsSettingsProvider : ISettingsProvider
     {
         /// <summary>

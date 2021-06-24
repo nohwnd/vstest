@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
     //  assembly is either placed in the Extensions folder or is marked as a 'UnitTestExtension' type 
     //  in the vsix package.
     /// </summary>
+    [System.Obsolete]
     public interface ITestExecutor2 : ITestExecutor
     {
         /// <summary>

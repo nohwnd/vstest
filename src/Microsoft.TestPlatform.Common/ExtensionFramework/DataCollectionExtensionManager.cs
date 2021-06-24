@@ -64,6 +64,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework
     /// <summary>
     /// Hold data about the Data Collector.
     /// </summary>
+    [System.Obsolete]
     public class DataCollectorMetadata : IDataCollectorCapabilities
     {
         /// <summary>

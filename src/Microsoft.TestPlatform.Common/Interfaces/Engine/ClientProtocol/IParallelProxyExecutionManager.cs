@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine
     /// <summary>
     /// Interface defining the parallel execution manager
     /// </summary>
+    [System.Obsolete]
     public interface IParallelProxyExecutionManager : IParallelOperationManager, IProxyExecutionManager
     {
         /// <summary>

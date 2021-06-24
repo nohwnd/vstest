@@ -17,6 +17,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
     /// <summary>
     /// Orchestrates test session operations for the engine communicating with the client.
     /// </summary>
+    [System.Obsolete]
     public class ProxyTestSessionManager : IProxyTestSessionManager
     {
         private readonly object lockObject = new object();

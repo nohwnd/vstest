@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Event arguments used to notify the availability of new tests
     /// </summary>
+    [System.Obsolete]
     public partial class DiscoveredTestsEventArgs : EventArgs
     {
         public DiscoveredTestsEventArgs(IEnumerable<TestCase> discoveredTestCases)

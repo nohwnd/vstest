@@ -20,6 +20,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.DataCollect
     /// <summary>
     /// Utility class that facilitates the IPC communication. Acts as server.
     /// </summary>
+    [System.Obsolete]
     public sealed class DataCollectionRequestSender : IDataCollectionRequestSender
     {
         private ICommunicationManager communicationManager;

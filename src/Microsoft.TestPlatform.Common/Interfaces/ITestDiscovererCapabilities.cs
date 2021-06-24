@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Interfaces
     /// <summary>
     /// Metadata that is available from Test Discoverers.
     /// </summary>
+    [System.Obsolete]
     public interface ITestDiscovererCapabilities
     {
         /// <summary>

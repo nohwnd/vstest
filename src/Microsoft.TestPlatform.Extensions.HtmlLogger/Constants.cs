@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.HtmlLogger
     using System;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
+    [System.Obsolete]
     public static class Constants
     {
         /// <summary>

@@ -3,6 +3,7 @@
 
 namespace Microsoft.VisualStudio.TestPlatform.CoreUtilities.Extensions
 {
+    [System.Obsolete]
     public static class StringExtensions
     {
         /// <summary>

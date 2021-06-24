@@ -7,6 +7,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// Class used by data collectors to send data to up-stream components
     /// (agent, controller, client, etc).
     /// </summary>
+    [System.Obsolete]
     public interface IDataCollectionSink
     {
         /// <summary>

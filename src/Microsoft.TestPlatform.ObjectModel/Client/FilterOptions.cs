@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// Filter options to be passed into the Test Platform during Discovery/Execution.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class FilterOptions
     {
         /// <summary>

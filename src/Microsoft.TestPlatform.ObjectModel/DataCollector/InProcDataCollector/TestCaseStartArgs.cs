@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollector.InProcDa
     /// <summary>
     /// The test case start args.
     /// </summary>
+    [System.Obsolete]
     public class TestCaseStartArgs : InProcDataCollectionArgs
     {
         /// <summary>

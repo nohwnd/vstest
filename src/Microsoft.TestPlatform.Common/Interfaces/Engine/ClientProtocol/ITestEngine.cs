@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine
     /// <summary>
     /// Defines the functionality of a test engine.
     /// </summary>
+    [System.Obsolete]
     public interface ITestEngine
     {
         /// <summary>

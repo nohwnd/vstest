@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities
     /// <summary>
     /// Implementation of finding assembly references using "managed route", i.e. Assembly.Load.
     /// </summary>
+    [System.Obsolete]
     public static class AssemblyHelper
     {
 #if NETFRAMEWORK

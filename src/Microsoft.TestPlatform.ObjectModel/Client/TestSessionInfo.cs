@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// vstest.console wrapper in order to indentify the current session.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestSessionInfo : IEquatable<TestSessionInfo>
     {
         /// <summary>

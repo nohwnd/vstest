@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
     /// <summary>
     /// Handle to the framework which is passed to the test executors.
     /// </summary>
+    [System.Obsolete]
     public interface IFrameworkHandle : ITestExecutionRecorder, IMessageLogger
     {
         /// <summary>

@@ -12,6 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Filtering
     /// <summary>
     /// Implements ITestCaseFilterExpression, providing test case filtering functionality.
     /// </summary>
+    [System.Obsolete]
     public class TestCaseFilterExpression : ITestCaseFilterExpression
     {
         private FilterExpressionWrapper filterWrapper;

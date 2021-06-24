@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serializati
     /// <summary>
     /// JSON converter for the <see cref="TestObject"/> and derived entities.
     /// </summary>
+    [System.Obsolete]
     public class TestObjectConverter : JsonConverter
     {
         /// <inheritdoc/>

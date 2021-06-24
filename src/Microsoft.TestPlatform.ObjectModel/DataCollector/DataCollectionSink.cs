@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection
     /// <summary>
     /// Class used by data collectors to send data to up-stream components
     /// </summary>
+    [System.Obsolete]
     public abstract class DataCollectionSink
     {
         #region Constructor

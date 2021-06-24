@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.SettingsMigrator
     /// <summary>
     /// Used to resolve the inputs provided by the user to paths needed by migrator.
     /// </summary>
+    [System.Obsolete]
     public class PathResolver
     {
         private const string RunSettingsExtension = ".runsettings";

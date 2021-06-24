@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
     /// <summary>
     /// Return values from argument processors.
     /// </summary>
+    [System.Obsolete]
     public enum ArgumentProcessorResult
     {
         /// <summary>

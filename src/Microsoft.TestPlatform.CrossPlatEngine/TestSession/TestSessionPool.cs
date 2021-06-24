@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
     /// <summary>
     /// Represents the test session pool.
     /// </summary>
+    [System.Obsolete]
     public class TestSessionPool
     {
         private static object instanceLockObject = new object();

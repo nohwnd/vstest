@@ -13,6 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
     /// <summary>
     /// Defines contract to send test platform requests to test host
     /// </summary>
+    [System.Obsolete]
     public interface ITestRequestSender : IDisposable
     {
         /// <summary>

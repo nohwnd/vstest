@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common
     /// <summary>
     /// Defines the defaults used across different components.
     /// </summary>
+    [System.Obsolete]
     public static class TestPlatformDefaults
     {
         /// <summary>
@@ -42,6 +43,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common
     /// <summary>
     /// Defines the constants used across different components.
     /// </summary>
+    [System.Obsolete]
     public static class TestPlatformConstants
     {
         /// <summary>

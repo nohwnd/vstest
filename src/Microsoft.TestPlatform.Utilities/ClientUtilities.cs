@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Utilities
     /// <summary>
     /// Utilities used by the client to understand the environment of the current run.
     /// </summary>
+    [System.Obsolete]
     public static class ClientUtilities
     {
         private const string TestSettingsFileXPath = "RunSettings/MSTest/SettingsFile";

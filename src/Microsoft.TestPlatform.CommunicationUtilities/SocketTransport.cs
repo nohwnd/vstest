@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
     /// <inheritdoc/>
+    [System.Obsolete]
     public sealed class SocketTransport : ITransport
     {
         /// <summary>

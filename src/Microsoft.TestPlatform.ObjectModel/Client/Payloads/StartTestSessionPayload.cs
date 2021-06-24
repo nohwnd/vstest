@@ -10,6 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client.Payloads
     /// Class used to define the start test session payload sent by the vstest.console translation
     /// layers into design mode.
     /// </summary>
+    [System.Obsolete]
     public class StartTestSessionPayload
     {
         /// <summary>

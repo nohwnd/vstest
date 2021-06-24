@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Interface contract for handling test run attachments processing events
     /// </summary>
+    [System.Obsolete]
     public interface ITestRunAttachmentsProcessingEventsHandler : ITestMessageEventHandler
     {
         /// <summary>

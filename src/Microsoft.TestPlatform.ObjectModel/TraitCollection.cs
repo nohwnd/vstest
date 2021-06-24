@@ -14,6 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
 #if NETFRAMEWORK
     [Serializable]
 #endif
+    [System.Obsolete]
     public class TraitCollection : IEnumerable<Trait>
     {
         internal const string TraitPropertyId = "TestObject.Traits";

@@ -8,6 +8,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
     /// <summary>
     /// Exception thrown when communication on a channel fails.
     /// </summary>
+    [System.Obsolete]
     public class CommunicationException : Exception
     {
         /// <summary>

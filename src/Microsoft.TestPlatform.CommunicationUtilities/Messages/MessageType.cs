@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
     /// <summary>
     /// The message type.
     /// </summary>
+    [System.Obsolete]
     public static class MessageType
     {
         /// <summary>

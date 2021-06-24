@@ -11,6 +11,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Extensions.HtmlLogger.ObjectModel
     /// Stores the list of failed results and list of all results corresponding to the source.
     /// </summary>
     [DataContract]
+    [System.Obsolete]
     public class TestResultCollection
     {
         private readonly string source;

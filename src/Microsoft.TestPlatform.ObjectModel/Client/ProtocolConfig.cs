@@ -6,6 +6,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
     /// <summary>
     /// Class for Protocol related information
     /// </summary>
+    [System.Obsolete]
     public class ProtocolConfig
     {
         /// <summary>

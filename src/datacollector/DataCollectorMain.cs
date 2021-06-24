@@ -18,6 +18,7 @@ namespace Microsoft.VisualStudio.TestPlatform.DataCollector
     using CommunicationUtilitiesResources = Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Resources.Resources;
     using CoreUtilitiesConstants = Microsoft.VisualStudio.TestPlatform.CoreUtilities.Constants;
 
+    [System.Obsolete]
     public class DataCollectorMain
     {
         /// <summary>
