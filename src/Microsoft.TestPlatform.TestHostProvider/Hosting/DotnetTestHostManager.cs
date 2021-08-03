@@ -219,6 +219,24 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Hosting
                 EqtTrace.Verbose("DotnetTestHostmanager: File {0}, does not exist", depsFilePath);
             }
 
+            // Use the deps.json for test source
+            var additionalProbingPaths = Environment.GetEnvironmentVariable("VSTEST_TESTHOST_PROBINGPATHS");
+            if (!string.IsNullOrWhiteSpace(additionalProbingPaths))
+            {
+                string argsToAdd = " --additionalprobingpath " + additionalProbingPaths;
+                args += argsToAdd;
+                EqtTrace.Verbose("DotnetTestHostmanager: Adding {0} in args", argsToAdd);
+            }
+
+            // Use the deps.json for test source
+            var deps = Environment.GetEnvironmentVariable("VSTEST_TESTHOST_DEPS");
+            if (!string.IsNullOrWhiteSpace(deps))
+            {
+                string argsToAdd = " --additional-deps " + deps;
+                args += argsToAdd;
+                EqtTrace.Verbose("DotnetTestHostmanager: Adding {0} in args", argsToAdd);
+            }
+
             var runtimeConfigDevPath = Path.Combine(sourceDirectory, string.Concat(sourceFile, ".runtimeconfig.dev.json"));
             string testHostPath = string.Empty;
             bool useCustomDotnetHostpath = !string.IsNullOrEmpty(this.dotnetHostPath);
@@ -522,6 +540,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Hosting
             else
             {
                 errorMessage = string.Format(CultureInfo.CurrentCulture, Resources.UnableToFindDepsFile, depsFilePath);
+            }
+
+            var customTestHostPath = Environment.GetEnvironmentVariable("VSTEST_DOTEST_TESTHOST_PATH");
+            if (!string.IsNullOrWhiteSpace(customTestHostPath))
+            {
+                return customTestHostPath;
             }
 
             // If we are here it means it couldn't resolve testhost.dll from nuget cache.
