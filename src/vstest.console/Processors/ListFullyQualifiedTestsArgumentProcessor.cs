@@ -39,6 +39,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 
         private Lazy<IArgumentExecutor> executor;
 
+        private IServiceLocator serviceLocator;
+
+        public ListFullyQualifiedTestsArgumentProcessor(IServiceLocator serviceLocator)
+        {
+            this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
+        }
+
         /// <summary>
         /// Gets the metadata.
         /// </summary>
@@ -69,7 +76,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                             () =>
                             new ListFullyQualifiedTestsArgumentExecutor(
                                 CommandLineOptions.Instance,
-                                RunSettingsManager.Instance,
+                                this.serviceLocator.GetShared<IRunSettingsProvider>(),
                                 TestRequestManager.Instance));
                 }
 

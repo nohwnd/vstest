@@ -29,6 +29,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 
         private Lazy<IArgumentExecutor> executor;
 
+        private IServiceLocator serviceLocator;
+
+        public RunSpecificTestsArgumentProcessor(IServiceLocator serviceLocator)
+        {
+            this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
+        }
+
         public Lazy<IArgumentProcessorCapabilities> Metadata
         {
             get
@@ -51,7 +58,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                     this.executor = new Lazy<IArgumentExecutor>(() =>
                     new RunSpecificTestsArgumentExecutor(
                         CommandLineOptions.Instance,
-                        RunSettingsManager.Instance,
+                        this.serviceLocator.GetShared<IRunSettingsProvider>(),
                         TestRequestManager.Instance,
                         ConsoleOutput.Instance));
                 }

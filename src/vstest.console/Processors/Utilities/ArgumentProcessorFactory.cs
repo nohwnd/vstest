@@ -9,6 +9,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
     using System.Linq;
 
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+    using Microsoft.VisualStudio.TestPlatform.Utilities;
 
     /// <summary>
     /// Used to create the appropriate instance of an argument processor.
@@ -51,28 +52,27 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
         /// <remarks>
         /// This is not public because the static Create method should be used to access the instance.
         /// </remarks>
-        protected ArgumentProcessorFactory(IEnumerable<IArgumentProcessor> argumentProcessors)
+        private ArgumentProcessorFactory(IEnumerable<IArgumentProcessor> argumentProcessors)
         {
             Contract.Requires(argumentProcessors != null);
             this.argumentProcessors = argumentProcessors;
         }
 
         #endregion
-
-        #region Static Methods
-
         /// <summary>
         /// Creates ArgumentProcessorFactory.
         /// </summary>
         /// <returns>ArgumentProcessorFactory.</returns>
-        internal static ArgumentProcessorFactory Create()
+        internal static ArgumentProcessorFactory Create(IServiceLocator serviceLocator)
         {
             // Get the ArgumentProcessorFactory
-            return new ArgumentProcessorFactory(DefaultArgumentProcessors);
+            // TODO: this will now create new list of processors every time we get here (but is that once per procees or many times???),
+            // if that is a problem we need to register the list to the current provider and return it on subsequent queries
+            // GetOrAdd<T>(Func<IServiceLocator, T> add);
+            // Exactly GetOrAdd<IEnumerable<IArgumentProcessor>(s => GetDefaultArgumentProcessors(s));
+            // return new ArgumentProcessorFactory(serviceLocator.GetOrAdd(GetDefaultArgumentProcessors));
+            return new ArgumentProcessorFactory(GetDefaultArgumentProcessors(serviceLocator));
         }
-
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -213,38 +213,38 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 
         #region Private Methods
 
-        private static IEnumerable<IArgumentProcessor> DefaultArgumentProcessors => new List<IArgumentProcessor> {
-                new HelpArgumentProcessor(),
+        private static IEnumerable<IArgumentProcessor> GetDefaultArgumentProcessors(IServiceLocator serviceLocator) => new List<IArgumentProcessor> {
+                new HelpArgumentProcessor(serviceLocator),
                 new TestSourceArgumentProcessor(),
-                new ListTestsArgumentProcessor(),
-                new RunTestsArgumentProcessor(),
-                new RunSpecificTestsArgumentProcessor(),
-                new TestAdapterPathArgumentProcessor(),
+                new ListTestsArgumentProcessor(serviceLocator),
+                new RunTestsArgumentProcessor(serviceLocator),
+                new RunSpecificTestsArgumentProcessor(serviceLocator),
+                new TestAdapterPathArgumentProcessor(serviceLocator),
                 new TestCaseFilterArgumentProcessor(),
                 new ParentProcessIdArgumentProcessor(),
                 new PortArgumentProcessor(),
-                new RunSettingsArgumentProcessor(),
-                new PlatformArgumentProcessor(),
-                new FrameworkArgumentProcessor(),
-                new EnableLoggerArgumentProcessor(),
-                new ParallelArgumentProcessor(),
+                new RunSettingsArgumentProcessor(serviceLocator),
+                new PlatformArgumentProcessor(serviceLocator),
+                new FrameworkArgumentProcessor(serviceLocator),
+                new EnableLoggerArgumentProcessor(serviceLocator),
+                new ParallelArgumentProcessor(serviceLocator),
                 new EnableDiagArgumentProcessor(),
-                new CLIRunSettingsArgumentProcessor(),
-                new ResultsDirectoryArgumentProcessor(),
-                new InIsolationArgumentProcessor(),
-                new CollectArgumentProcessor(),
-                new EnableCodeCoverageArgumentProcessor(),
+                new CLIRunSettingsArgumentProcessor(serviceLocator),
+                new ResultsDirectoryArgumentProcessor(serviceLocator),
+                new InIsolationArgumentProcessor(serviceLocator),
+                new CollectArgumentProcessor(serviceLocator),
+                new EnableCodeCoverageArgumentProcessor(serviceLocator),
                 new DisableAutoFakesArgumentProcessor(),
                 new ResponseFileArgumentProcessor(),
-                new EnableBlameArgumentProcessor(),
+                new EnableBlameArgumentProcessor(serviceLocator),
                 new UseVsixExtensionsArgumentProcessor(),
                 new ListDiscoverersArgumentProcessor(),
                 new ListExecutorsArgumentProcessor(),
                 new ListLoggersArgumentProcessor(),
                 new ListSettingsProvidersArgumentProcessor(),
-                new ListFullyQualifiedTestsArgumentProcessor(),
+                new ListFullyQualifiedTestsArgumentProcessor(serviceLocator),
                 new ListTestsTargetPathArgumentProcessor(),
-                new EnvironmentArgumentProcessor()
+                new EnvironmentArgumentProcessor(serviceLocator)
         };
 
         /// <summary>

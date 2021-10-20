@@ -33,11 +33,14 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 
         private Lazy<IArgumentExecutor> executor;
 
+        private IServiceLocator serviceLocator;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="EnableBlameArgumentProcessor"/> class.
         /// </summary>
-        public EnableBlameArgumentProcessor()
+        public EnableBlameArgumentProcessor(IServiceLocator serviceLocator)
         {
+            this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
         }
 
         public Lazy<IArgumentProcessorCapabilities> Metadata
@@ -62,7 +65,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             {
                 if (this.executor == null)
                 {
-                    this.executor = new Lazy<IArgumentExecutor>(() => new EnableBlameArgumentExecutor(RunSettingsManager.Instance, new PlatformEnvironment(), new FileHelper()));
+                    this.executor = new Lazy<IArgumentExecutor>(() => new EnableBlameArgumentExecutor(this.serviceLocator.GetShared<IRunSettingsProvider>(), new PlatformEnvironment(), new FileHelper()));
                 }
 
                 return this.executor;

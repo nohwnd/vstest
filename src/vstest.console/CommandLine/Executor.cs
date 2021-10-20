@@ -33,11 +33,10 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
     using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
     using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
     using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
-    using Microsoft.VisualStudio.TestPlatform.Common;
+    using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
     using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
     using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
     using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
-    using Microsoft.VisualStudio.TestPlatform.Execution;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Microsoft.VisualStudio.TestPlatform.Utilities;
     using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
@@ -48,6 +47,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
     internal class Executor
     {
         private ITestPlatformEventSource testPlatformEventSource;
+        private IServiceLocator serviceLocator;
         private bool showHelp;
 
         #region Constructor
@@ -55,14 +55,18 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
         /// <summary>
         /// Default constructor.
         /// </summary>
-        public Executor(IOutput output) : this(output, TestPlatformEventSource.Instance)
+        # if DEBUG
+        [Obsolete]
+        # endif
+        public Executor(IOutput output) : this(output, TestPlatformEventSource.Instance, InstanceServiceLocator.Instance)
         {
         }
 
-        internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource)
+        internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IServiceLocator serviceLocator)
         {
             this.Output = output;
             this.testPlatformEventSource = testPlatformEventSource;
+            this.serviceLocator = serviceLocator;
             this.showHelp = true;
         }
 
@@ -174,7 +178,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
         {
             processors = new List<IArgumentProcessor>();
             int result = 0;
-            var processorFactory = ArgumentProcessorFactory.Create();
+            var processorFactory = ArgumentProcessorFactory.Create(this.serviceLocator);
             for (var index = 0; index < args.Length; index++)
             {
                 var arg = args[index];
@@ -213,7 +217,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
             processors.AddRange(processorsToAlwaysExecute);
 
             // Initialize Runsettings with defaults
-            RunSettingsManager.Instance.AddDefaultRunSettings();
+            this.serviceLocator.GetShared<IRunSettingsProvider>().AddDefaultRunSettings();
 
             // Ensure we have an action argument.
             this.EnsureActionArgumentIsPresent(processors, processorFactory);

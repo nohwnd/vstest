@@ -5,6 +5,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common
 {
     using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+    using System;
 
     /// <summary>
     /// Manages the active run settings.
@@ -24,7 +25,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common
         /// <summary>
         /// Default constructor.
         /// </summary>
-        private RunSettingsManager()
+        internal RunSettingsManager()
         {
             this.ActiveRunSettings = new RunSettings();
         }
@@ -42,7 +43,9 @@ namespace Microsoft.VisualStudio.TestPlatform.Common
         #endregion
 
         #region Public Methods
-
+# if DEBUG
+        [Obsolete()]
+#endif
         public static RunSettingsManager Instance
         {
             get

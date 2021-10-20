@@ -54,6 +54,8 @@
     <When Condition="$(TestProject) == 'true'"> 
       <PropertyGroup>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <!-- Ignore Obsolete in tests. -->
+        <NoWarn>$(NoWarn);CS0612;CS0618</NoWarn>
       </PropertyGroup>
 
       <!-- Test projects are not discovered in test window without test container capability -->

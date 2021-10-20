@@ -36,6 +36,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 
         private Lazy<IArgumentExecutor> executor;
 
+        private IServiceLocator serviceLocator;
+
+        public CollectArgumentProcessor(IServiceLocator serviceLocator)
+        {
+            this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
+        }
+
         /// <summary>
         /// Gets the metadata.
         /// </summary>
@@ -61,7 +68,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             {
                 if (this.executor == null)
                 {
-                    this.executor = new Lazy<IArgumentExecutor>(() => new CollectArgumentExecutor(RunSettingsManager.Instance, new FileHelper()));
+                    this.executor = new Lazy<IArgumentExecutor>(() => new CollectArgumentExecutor(this.serviceLocator.GetShared<IRunSettingsProvider>(), new FileHelper()));
                 }
 
                 return this.executor;

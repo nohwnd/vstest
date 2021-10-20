@@ -34,6 +34,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 
         private Lazy<IArgumentExecutor> executor;
 
+        private IServiceLocator serviceLocator;
+
+        public HelpArgumentProcessor(IServiceLocator serviceLocator)
+        {
+            this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
+        }
+
         /// <summary>
         /// Gets the metadata.
         /// </summary>
@@ -59,7 +66,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             {
                 if (this.executor == null)
                 {
-                    this.executor = new Lazy<IArgumentExecutor>(() => new HelpArgumentExecutor());
+                    this.executor = new Lazy<IArgumentExecutor>(() => new HelpArgumentExecutor(this.serviceLocator));
                 }
 
                 return this.executor;
@@ -95,14 +102,16 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
     /// </summary>
     internal class HelpArgumentExecutor : IArgumentExecutor
     {
+        private readonly IServiceLocator serviceLocator;
         #region Constructor
 
         /// <summary>
         /// Constructs the HelpArgumentExecutor
         /// </summary>
-        public HelpArgumentExecutor()
+        public HelpArgumentExecutor(IServiceLocator serviceLocator)
         {
             this.Output = ConsoleOutput.Instance;
+            this.serviceLocator = serviceLocator;
         }
 
         #endregion
@@ -129,7 +138,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             OutputSection(CommandLineResources.HelpDescriptionText);
             OutputSection(CommandLineResources.HelpArgumentsText);
 
-            var argumentProcessorFactory = ArgumentProcessorFactory.Create();
+            // TODO: this probably generates the help, but why do we need a clean copy of ArgumentProcessorFactory? Is that because, the one that triggered this not having all the processors?
+            var argumentProcessorFactory = ArgumentProcessorFactory.Create(this.serviceLocator);
             List<IArgumentProcessor> processors = new List<IArgumentProcessor>();
             processors.AddRange(argumentProcessorFactory.AllArgumentProcessors);
             processors.Sort((p1, p2) => Comparer<HelpContentPriority>.Default.Compare(p1.Metadata.Value.HelpPriority, p2.Metadata.Value.HelpPriority));

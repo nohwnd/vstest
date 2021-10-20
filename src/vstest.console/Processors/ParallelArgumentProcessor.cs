@@ -10,6 +10,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
     using Microsoft.VisualStudio.TestPlatform.Common;
     using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
     using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
+    using Microsoft.VisualStudio.TestPlatform.Utilities;
+
 
     using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
@@ -28,6 +30,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
         private Lazy<IArgumentProcessorCapabilities> metadata;
 
         private Lazy<IArgumentExecutor> executor;
+
+        private IServiceLocator serviceLocator;
+
+        public ParallelArgumentProcessor(IServiceLocator serviceLocator)
+        {
+            this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
+        }
 
         /// <summary>
         /// Gets the metadata.
@@ -54,7 +63,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             {
                 if (this.executor == null)
                 {
-                    this.executor = new Lazy<IArgumentExecutor>(() => new ParallelArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance));
+                    this.executor = new Lazy<IArgumentExecutor>(() => new ParallelArgumentExecutor(CommandLineOptions.Instance, this.serviceLocator.GetShared<IRunSettingsProvider>()));
                 }
 
                 return this.executor;

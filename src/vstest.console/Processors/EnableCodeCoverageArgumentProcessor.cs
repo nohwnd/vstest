@@ -15,6 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
     using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
     using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
+    using Microsoft.VisualStudio.TestPlatform.Utilities;
 
     /// <summary>
     /// The argument processor for enabling data collectors.
@@ -33,6 +34,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
         private Lazy<IArgumentProcessorCapabilities> metadata;
 
         private Lazy<IArgumentExecutor> executor;
+
+        private IServiceLocator serviceLocator;
+
+        public EnableCodeCoverageArgumentProcessor(IServiceLocator serviceLocator)
+        {
+            this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
+        }
 
         /// <summary>
         /// Gets the metadata.
@@ -59,7 +67,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             {
                 if (this.executor == null)
                 {
-                    this.executor = new Lazy<IArgumentExecutor>(() => new EnableCodeCoverageArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance, new FileHelper()));
+                    this.executor = new Lazy<IArgumentExecutor>(() => new EnableCodeCoverageArgumentExecutor(CommandLineOptions.Instance, this.serviceLocator.GetShared<IRunSettingsProvider>(), new FileHelper()));
                 }
 
                 return this.executor;
