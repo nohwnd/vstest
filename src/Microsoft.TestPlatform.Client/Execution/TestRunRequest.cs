@@ -75,6 +75,8 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         /// Request Data
         /// </summary>
         private IRequestData requestData;
+        private static int idSource = 0;
+        private int id;
 
         internal TestRunRequest(IRequestData requestData, TestRunCriteria testRunCriteria, IProxyExecutionManager executionManager, ITestLoggerManager loggerManager) :
             this(requestData, testRunCriteria, executionManager, loggerManager, JsonDataSerializer.Instance)
@@ -83,6 +85,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
 
         internal TestRunRequest(IRequestData requestData, TestRunCriteria testRunCriteria, IProxyExecutionManager executionManager, ITestLoggerManager loggerManager, IDataSerializer dataSerializer)
         {
+            this.id = Interlocked.Increment(ref idSource);
             Debug.Assert(testRunCriteria != null, "Test run criteria cannot be null");
             Debug.Assert(executionManager != null, "ExecutionManager cannot be null");
             Debug.Assert(requestData != null, "request Data is null");
@@ -90,7 +93,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
 
             if (EqtTrace.IsVerboseEnabled)
             {
-                EqtTrace.Verbose("TestRunRequest.ExecuteAsync: Creating test run request.");
+                EqtTrace.Verbose("TestRunRequest.ExecuteAsync: id: {0} Creating test run request.", this.id);
             }
 
             this.testRunCriteria = testRunCriteria;
@@ -109,7 +112,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         /// <returns>The process id of test host.</returns>
         public int ExecuteAsync()
         {
-            EqtTrace.Verbose("TestRunRequest.ExecuteAsync: Starting.");
+            EqtTrace.Verbose("TestRunRequest.ExecuteAsync: id: {0} Starting.", this.id);
 
             lock (this.syncObject)
             {
@@ -131,13 +134,13 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
 
                 if (EqtTrace.IsInfoEnabled)
                 {
-                    EqtTrace.Info("TestRunRequest.ExecuteAsync: Starting run with settings:{0}", this.testRunCriteria);
+                    EqtTrace.Info("TestRunRequest.ExecuteAsync: id: {0} Starting run with settings:{1}", this.id, this.testRunCriteria);
                 }
 
                 if (EqtTrace.IsVerboseEnabled)
                 {
                     // Waiting for warm up to be over.
-                    EqtTrace.Verbose("TestRunRequest.ExecuteAsync: Wait for the first run request is over.");
+                    EqtTrace.Verbose("TestRunRequest.ExecuteAsync: id: {0} Wait for the first run request is over.", this.id);
                 }
 
                 this.State = TestRunState.InProgress;
@@ -156,7 +159,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
                     {
                         if (EqtTrace.IsVerboseEnabled)
                         {
-                            EqtTrace.Verbose(String.Format("TestRunRequest.ExecuteAsync: TestSessionTimeout is {0} milliseconds.", testSessionTimeout));
+                            EqtTrace.Verbose(String.Format("TestRunRequest.ExecuteAsync: id: {0} TestSessionTimeout is {1} milliseconds.", this.id, testSessionTimeout));
                         }
 
                         this.timer = new Timer(this.OnTestSessionTimeout, null, TimeSpan.FromMilliseconds(testSessionTimeout), TimeSpan.FromMilliseconds(0));
@@ -190,7 +193,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         {
             if (EqtTrace.IsVerboseEnabled)
             {
-                EqtTrace.Verbose(string.Format("TestRunRequest.OnTestSessionTimeout: calling cancellation as test run exceeded testSessionTimeout {0} milliseconds", testSessionTimeout));
+                EqtTrace.Verbose(string.Format("TestRunRequest.OnTestSessionTimeout: id: {0} calling cancellation as test run exceeded testSessionTimeout {1} milliseconds", this.id, testSessionTimeout));
             }
 
             string message = string.Format(ClientResources.TestSessionTimeoutMessage, this.testSessionTimeout);
@@ -207,7 +210,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         /// </summary>
         public bool WaitForCompletion(int timeout)
         {
-            EqtTrace.Verbose("TestRunRequest.WaitForCompletion: Waiting with timeout {0}.", timeout);
+            EqtTrace.Verbose("TestRunRequest.WaitForCompletion: id: {0} Waiting with timeout {1}.", this.id, timeout);
 
             if (this.disposed)
             {
@@ -240,19 +243,19 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         /// </summary>
         public void CancelAsync()
         {
-            EqtTrace.Verbose("TestRunRequest.CancelAsync: Canceling.");
+            EqtTrace.Verbose("TestRunRequest.CancelAsync: id: {0} Canceling.", this.id);
 
             lock (this.cancelSyncObject)
             {
                 if (this.disposed)
                 {
-                    EqtTrace.Warning("Ignoring TestRunRequest.CancelAsync() as testRunRequest object has already been disposed.");
+                    EqtTrace.Warning("id: {0}, Ignoring TestRunRequest.CancelAsync() as testRunRequest object has already been disposed.", this.id);
                     return;
                 }
 
                 if (this.State != TestRunState.InProgress)
                 {
-                    EqtTrace.Info("Ignoring TestRunRequest.CancelAsync(). No test run in progress.");
+                    EqtTrace.Info("id: {0}, Ignoring TestRunRequest.CancelAsync(). No test run in progress.", this.id);
                 }
                 else
                 {
@@ -261,7 +264,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
                 }
             }
 
-            EqtTrace.Info("TestRunRequest.CancelAsync: Canceled.");
+            EqtTrace.Info("TestRunRequest.CancelAsync: id: {0} Canceled.", this.id);
         }
 
         /// <summary>
@@ -269,19 +272,19 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         /// </summary>
         public void Abort()
         {
-            EqtTrace.Verbose("TestRunRequest.Abort: Aborting.");
+            EqtTrace.Verbose("TestRunRequest.Abort: id: {0} Aborting.", this.id);
 
             lock (this.cancelSyncObject)
             {
                 if (this.disposed)
                 {
-                    EqtTrace.Warning("Ignoring TestRunRequest.Abort() as testRunRequest object has already been disposed");
+                    EqtTrace.Warning("id: {0}, Ignoring TestRunRequest.Abort() as testRunRequest object has already been disposed", this.id);
                     return;
                 }
 
                 if (this.State != TestRunState.InProgress)
                 {
-                    EqtTrace.Info("Ignoring TestRunRequest.Abort(). No test run in progress.");
+                    EqtTrace.Info("id: {0} Ignoring TestRunRequest.Abort(). No test run in progress.", this.id);
                 }
                 else
                 {
@@ -289,7 +292,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
                 }
             }
 
-            EqtTrace.Info("TestRunRequest.Abort: Aborted.");
+            EqtTrace.Info("TestRunRequest.Abort: id: {0} Aborted.", this.id);
         }
 
 
@@ -392,20 +395,20 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
             bool isAborted = runCompleteArgs.IsAborted;
             bool isCanceled = runCompleteArgs.IsCanceled;
 
-            EqtTrace.Verbose("TestRunRequest:TestRunComplete: Starting. IsAborted:{0} IsCanceled:{1}.", isAborted, isCanceled);
+            EqtTrace.Verbose("TestRunRequest:TestRunComplete: id: {0}, Starting. IsAborted:{1} IsCanceled:{2}.",this.id, isAborted, isCanceled);
 
             lock (this.syncObject)
             {
                 // If this object is disposed, don't do anything
                 if (this.disposed)
                 {
-                    EqtTrace.Warning("TestRunRequest.TestRunComplete: Ignoring as the object is disposed.");
+                    EqtTrace.Warning("TestRunRequest.TestRunComplete: id: {0} Ignoring as the object is disposed.", this.id);
                     return;
                 }
 
                 if (this.runCompletionEvent.WaitOne(0))
                 {
-                    EqtTrace.Info("TestRunRequest:TestRunComplete:Ignoring duplicate event. IsAborted:{0} IsCanceled:{1}.", isAborted, isCanceled);
+                    EqtTrace.Info("TestRunRequest:TestRunComplete: id: {0} Ignoring duplicate event. IsAborted:{1} IsCanceled:{2}.", this.id, isAborted, isCanceled);
                     return;
                 }
 
@@ -474,7 +477,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
                     }
                 }
 
-                EqtTrace.Info("TestRunRequest:TestRunComplete: Completed.");
+                EqtTrace.Info("TestRunRequest:TestRunComplete: id: {0} Completed.", this.id);
             }
         }
 
@@ -486,7 +489,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         {
             if (testRunChangedArgs != null)
             {
-                EqtTrace.Verbose("TestRunRequest:SendTestRunStatsChange: Starting.");
+                EqtTrace.Verbose("TestRunRequest:SendTestRunStatsChange: id: {0} Starting.", this.id);
                 if (testRunChangedArgs.ActiveTests != null)
                 {
                     // Do verbose check to save performance in iterating test cases
@@ -504,7 +507,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
                     // If this object is disposed, don't do anything
                     if (this.disposed)
                     {
-                        EqtTrace.Warning("TestRunRequest.SendTestRunStatsChange: Ignoring as the object is disposed.");
+                        EqtTrace.Warning("TestRunRequest.SendTestRunStatsChange: id: {0}, Ignoring as the object is disposed.", this.id);
                         return;
                     }
 
@@ -514,7 +517,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
                     this.OnRunStatsChange.SafeInvoke(this, testRunChangedArgs, "TestRun.RunStatsChanged");
                 }
 
-                EqtTrace.Info("TestRunRequest:SendTestRunStatsChange: Completed.");
+                EqtTrace.Info("TestRunRequest:SendTestRunStatsChange: id: {0},  Completed.", this.id);
             }
         }
 
@@ -673,7 +676,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
-            EqtTrace.Verbose("TestRunRequest.Dispose: Starting.");
+            EqtTrace.Verbose("TestRunRequest.Dispose: id: {0} Starting.", this.id);
 
             lock (this.syncObject)
             {
@@ -690,7 +693,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
                 }
             }
 
-            EqtTrace.Info("TestRunRequest.Dispose: Completed.");
+            EqtTrace.Info("TestRunRequest.Dispose: id: {0} Completed.",this.id);
         }
     }
 }

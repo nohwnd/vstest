@@ -40,6 +40,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
 
         private bool sessionStarted;
 
+        private static readonly SemaphoreSlim _initializing = new SemaphoreSlim(1, 1);
+
         /// <summary>
         /// Path to additional extensions to reinitialize vstest.console
         /// </summary>
@@ -553,7 +555,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             this.testPlatformEventSource.TranslationLayerInitializeStart();
 
             var timeout = EnvironmentHelper.GetConnectionTimeout();
-            // Start communication
+            // Start communication, this should not block on waiting for the server to connect, instead 
+            // it should figure out the port, start waiting for connection and return port
             var port = await this.requestSender.InitializeCommunicationAsync(timeout * 1000);
 
             if (port > 0)
@@ -571,6 +574,11 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                 this.requestSender.Close();
                 throw new TransationLayerException("Error hosting communication channel and connecting to console");
             }
+
+            // todo: this is not async, we should make InitializeCommunicationAsync report a port, and then trigger process start, 
+            // and then await the communication initialization, because console needs port and process id to start, and now the InitializeCommunicationAsync
+            // just kicks off background work and returns the port, so we can actually start the process
+            this.sessionStarted = this.WaitForConnection();
         }
 
         /// <inheritdoc/>
@@ -953,13 +961,23 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
 
         private async Task EnsureInitializedAsync()
         {
-            if (!this.vstestConsoleProcessManager.IsProcessInitialized())
+            // TODO: extract this to AsyncLock class and use it in 'using'
+            try
             {
-                EqtTrace.Info("VsTestConsoleWrapper.EnsureInitializedAsync: Process is not started.");
-                await this.StartSessionAsync();
+                // make sure we only initialize one process even if requests come at the same time
+                await _initializing.WaitAsync();
+                if (!this.vstestConsoleProcessManager.IsProcessInitialized())
+                {
+                    EqtTrace.Info("VsTestConsoleWrapper.EnsureInitializedAsync: Process is not started.");
+                    await this.StartSessionAsync();
 
-                EqtTrace.Info("VsTestConsoleWrapper.EnsureInitializedAsync: Send a request to initialize extensions.");
-                this.requestSender.InitializeExtensions(this.pathToAdditionalExtensions);
+                    EqtTrace.Info("VsTestConsoleWrapper.EnsureInitializedAsync: Send a request to initialize extensions.");
+                    this.requestSender.InitializeExtensions(this.pathToAdditionalExtensions);
+                }
+            }
+            finally
+            {
+                _initializing.Release();
             }
         }
 

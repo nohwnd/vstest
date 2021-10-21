@@ -7,7 +7,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
     using System.Diagnostics.Contracts;
     using System.Globalization;
     using System.Linq;
-
+    using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
     using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
     using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
@@ -57,7 +57,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                     new RunTestsArgumentExecutor(
                         CommandLineOptions.Instance,
                         this.serviceLocator.GetShared<IRunSettingsProvider>(),
-                        TestRequestManager.Instance,
+                        this.serviceLocator.GetShared<ITestRequestManager>(),
                         ConsoleOutput.Instance));
                 }
 
@@ -215,7 +215,15 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             var keepAlive = false;
 
             var runRequestPayload = new TestRunRequestPayload() { Sources = this.commandLineOptions.Sources.ToList(), RunSettings = runSettings, KeepAlive = keepAlive, TestPlatformOptions= new TestPlatformOptions() { TestCaseFilter = this.commandLineOptions.TestCaseFilterValue } };
-            this.testRequestManager.RunTests(runRequestPayload, null, this.testRunEventsRegistrar, Constants.DefaultProtocolConfig);
+            var runRequestPayload2 = new TestRunRequestPayload() { Sources = this.commandLineOptions.Sources.ToList(), RunSettings = runSettings, KeepAlive = keepAlive, TestPlatformOptions= new TestPlatformOptions() { TestCaseFilter = this.commandLineOptions.TestCaseFilterValue } };
+            var runRequestPayload3 = new TestRunRequestPayload() { Sources = this.commandLineOptions.Sources.ToList(), RunSettings = runSettings, KeepAlive = keepAlive, TestPlatformOptions= new TestPlatformOptions() { TestCaseFilter = this.commandLineOptions.TestCaseFilterValue } };
+            var runRequestPayload4 = new TestRunRequestPayload() { Sources = this.commandLineOptions.Sources.ToList(), RunSettings = runSettings, KeepAlive = keepAlive, TestPlatformOptions= new TestPlatformOptions() { TestCaseFilter = this.commandLineOptions.TestCaseFilterValue } };
+            var t = Task.Run( () => this.testRequestManager.RunTests(runRequestPayload, null, this.testRunEventsRegistrar, Constants.DefaultProtocolConfig));
+            var tt = Task.Run(() => this.testRequestManager.RunTests(runRequestPayload2, null, this.testRunEventsRegistrar, Constants.DefaultProtocolConfig));
+            var  ttt = Task.Run(() => this.testRequestManager.RunTests(runRequestPayload3, null, this.testRunEventsRegistrar, Constants.DefaultProtocolConfig));
+            var tttt = Task.Run(() => this.testRequestManager.RunTests(runRequestPayload4, null, this.testRunEventsRegistrar, Constants.DefaultProtocolConfig));
+
+            Task.WaitAll(t, tt, ttt, tttt);
 
             if (EqtTrace.IsInfoEnabled)
             {

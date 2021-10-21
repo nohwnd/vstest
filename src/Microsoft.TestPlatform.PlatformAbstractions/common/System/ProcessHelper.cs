@@ -75,8 +75,15 @@ namespace Microsoft.VisualStudio.TestPlatform.PlatformAbstractions
                     };
                 }
 
-                // EqtTrace.Verbose("ProcessHelper: Starting process '{0}' with command line '{1}'", processPath, arguments);
-                process.Start();
+                try
+                {
+                    // EqtTrace.Verbose("ProcessHelper: Starting process '{0}' with command line '{1}'", processPath, arguments);
+                    process.Start();
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"Starting process {process.StartInfo.FileName} failed with the following exception: {ex.Message}.", ex);
+                }
 
                 if (errorCallback != null)
                 {

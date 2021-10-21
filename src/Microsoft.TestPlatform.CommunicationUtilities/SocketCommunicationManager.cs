@@ -335,10 +335,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
         /// <returns>
         /// Raw message string
         /// </returns>
-        public async Task<string> ReceiveRawMessageAsync(CancellationToken cancellationToken)
+        public Task<string> ReceiveRawMessageAsync(CancellationToken cancellationToken)
         {
-            var str = await Task.Run(() => this.TryReceiveRawMessage(cancellationToken));
-            return str;
+            // TODO: make this actually async, before it just offloaded work to Task.Run
+            var result = this.TryReceiveRawMessage(cancellationToken);
+            return Task.FromResult(result);
         }
 
         /// <summary>

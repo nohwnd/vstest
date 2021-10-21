@@ -12,7 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
-
+    using Microsoft.VisualStudio.TestPlatform.Utilities;
     using TestPlatformHelpers;
 
     using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
@@ -34,6 +34,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
         private Lazy<IArgumentProcessorCapabilities> metadata;
 
         private Lazy<IArgumentExecutor> executor;
+
+        private IServiceLocator serviceLocator;
+
+        public PortArgumentProcessor(IServiceLocator serviceLocator)
+        {
+            this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
+        }
 
         /// <summary>
         /// Gets the metadata.
@@ -61,7 +68,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                 if (this.executor == null)
                 {
                     this.executor = new Lazy<IArgumentExecutor>(() =>
-                    new PortArgumentExecutor(CommandLineOptions.Instance, TestRequestManager.Instance));
+                    new PortArgumentExecutor(CommandLineOptions.Instance, this.serviceLocator.GetShared<ITestRequestManager>()));
                 }
 
                 return this.executor;

@@ -21,7 +21,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Logging
         /// <summary>
         /// Initializes a new instance of the <see cref="TestSessionMessageLogger"/> class.
         /// </summary>
-        protected TestSessionMessageLogger()
+        internal TestSessionMessageLogger()
         {
             this.TreatTestAdapterErrorsAsWarnings = Constants.DefaultTreatTestAdapterErrorsAsWarnings;
         }

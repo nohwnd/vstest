@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "vstest.console": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\t\\mstest30\\bin\\Debug\\net48\\mstest30.dll --diag:logs\\log.txt"
+    }
+  }
+}

@@ -3,6 +3,10 @@
 
 namespace Microsoft.VisualStudio.TestPlatform.TestHost
 {
+#if NETFRAMEWORK && DEBUG
+    using EnvDTE;
+    using EnvDTE80;
+#endif
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -14,6 +18,7 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
     using Microsoft.VisualStudio.TestPlatform.Execution;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
+    using System.Linq;
 
     /// <summary>
     /// The program.
@@ -52,6 +57,37 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
         // In UWP(App models) Run will act as entry point from Application end, so making this method public
         public static void Run(string[] args)
         {
+#if NETFRAMEWORK && DEBUG
+            // This will get the first instance of VS with this version that is running
+            // and attach to it, if you have multiple instances of VS started, make sure this is the first 
+            // one. It will still attach correctly if VS is ready, but there is a lot of delay if debugger 
+            // is not running already, so some bps might be skipped.
+            if (!System.Diagnostics.Debugger.IsAttached)
+            {
+                var vsVersion = Environment.GetEnvironmentVariable("VisualStudioVersion");
+                var inVs = !string.IsNullOrWhiteSpace(vsVersion);
+                if (inVs)
+                {
+                    var process = System.Diagnostics.Process.GetCurrentProcess();
+                    try
+                    {
+                        // grab the automation object and attach to debugger
+                        DTE2 dte = (DTE2)Marshal.GetActiveObject($"VisualStudio.DTE.{vsVersion}");
+
+                        // attach to the current process 
+                        var id = process.Id;
+                        var processes = dte.Debugger.LocalProcesses;
+                        var proc = processes.Cast<Process2>().SingleOrDefault(p => p.ProcessID == id);
+                        proc.Attach();
+                    }
+                    catch (Exception ex)
+                    {
+                        // no logging is setup yet
+                        Console.WriteLine($"Process {process.ProcessName} ({process.Id}) failed to attach to VS debugger, because of an error: {ex}");
+                    }
+                }
+            }
+#endif
             DebuggerBreakpoint.WaitForNativeDebugger("VSTEST_HOST_NATIVE_DEBUG");
             DebuggerBreakpoint.WaitForDebugger("VSTEST_HOST_DEBUG");
             UILanguageOverride.SetCultureSpecifiedByUser();

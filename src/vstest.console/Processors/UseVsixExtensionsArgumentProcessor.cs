@@ -32,6 +32,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
 
         private Lazy<IArgumentExecutor> executor;
 
+        private IServiceLocator serviceLocator;
+
+        public UseVsixExtensionsArgumentProcessor(IServiceLocator serviceLocator)
+        {
+            this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
+        }
+
         /// <summary>
         /// Gets the metadata.
         /// </summary>
@@ -57,7 +64,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
             {
                 if (this.executor == null)
                 {
-                    this.executor = new Lazy<IArgumentExecutor>(() => new UseVsixExtensionsArgumentExecutor(CommandLineOptions.Instance, TestRequestManager.Instance, new VSExtensionManager(), ConsoleOutput.Instance));
+                    this.executor = new Lazy<IArgumentExecutor>(() => new UseVsixExtensionsArgumentExecutor(CommandLineOptions.Instance, this.serviceLocator.GetShared<ITestRequestManager>(), new VSExtensionManager(), ConsoleOutput.Instance));
                 }
 
                 return this.executor;

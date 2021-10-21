@@ -31,6 +31,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="envdte" Version="17.0.31820.362" />
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="$(MicrosoftExtensionsFileSystemGlobbingPackageVersion)" />
   </ItemGroup>
   <ItemGroup>
@@ -61,4 +62,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(TestPlatformRoot)scripts\build\TestPlatform.targets" />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /i /y C:\p\vstest2\src\Microsoft.TestPlatform.TestHostProvider\bin\Debug\net451\ C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\Extensions\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest2\src\testhost.x86\bin\Debug\net48\win7-x86\ C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest2\src\testhost\bin\Debug\net48\win7-x64\ C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest2\src\testhost.x86\bin\Debug\net472\win7-x86\ C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest2\src\testhost\bin\Debug\net472\win7-x64\ C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;" />
+  </Target>
 </Project>

@@ -30,6 +30,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
     using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
     using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
     using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
@@ -157,7 +158,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine
             this.testPlatformEventSource.MetricsDisposeStart();
 
             // Disposing Metrics Publisher when VsTestConsole ends
-            TestRequestManager.Instance.Dispose();
+            this.serviceLocator.GetShared<ITestRequestManager>().Dispose();
 
             this.testPlatformEventSource.MetricsDisposeStop();
             return exitCode;

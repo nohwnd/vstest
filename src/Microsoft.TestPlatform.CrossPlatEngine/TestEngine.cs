@@ -263,8 +263,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine
         {
             return new TestLoggerManager(
                 requestData,
-                TestSessionMessageLogger.Instance,
-                new InternalTestLoggerEvents(TestSessionMessageLogger.Instance));
+                new TestSessionMessageLogger(),
+                new InternalTestLoggerEvents(new TestSessionMessageLogger()));
         }
 
         #endregion

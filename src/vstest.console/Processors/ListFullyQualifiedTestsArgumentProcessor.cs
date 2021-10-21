@@ -77,7 +77,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                             new ListFullyQualifiedTestsArgumentExecutor(
                                 CommandLineOptions.Instance,
                                 this.serviceLocator.GetShared<IRunSettingsProvider>(),
-                                TestRequestManager.Instance));
+                                this.serviceLocator.GetShared<ITestRequestManager>()));
                 }
 
                 return this.executor;

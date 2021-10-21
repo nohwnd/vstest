@@ -80,7 +80,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors
                             new ListTestsArgumentExecutor(
                                 CommandLineOptions.Instance,
                                 this.serviceLocator.GetShared<IRunSettingsProvider>(),
-                                TestRequestManager.Instance));
+                                this.serviceLocator.GetShared<ITestRequestManager>()));
                 }
 
                 return this.executor;

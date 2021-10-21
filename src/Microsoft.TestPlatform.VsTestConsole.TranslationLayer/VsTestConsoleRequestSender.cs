@@ -132,41 +132,18 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
         }
 
         /// <inheritdoc/>
-        public async Task<int> InitializeCommunicationAsync(int clientConnectionTimeout)
+        public Task<int> InitializeCommunicationAsync(int clientConnectionTimeout)
         {
-            if (EqtTrace.IsInfoEnabled)
-            {
-                EqtTrace.Info($"VsTestConsoleRequestSender.InitializeCommunicationAsync: Started with client connection timeout {clientConnectionTimeout} milliseconds.");
-            }
+            // This method tried to await connection on process that was not started yet. The async api
+            // does not make sense as it stands, we need to return the port before starting the console,
+            // so it knows where to connect back to, we should return (int port, Task waitForConsoleToConnect)
+            // and also take cancellation token that we would pass on to the async tasks we start. 
+            // 
+            // So this is the next best thing that matches the api, non-blocking start of background task,
+            // and return port as task result: 
 
-            this.processExitCancellationTokenSource = new CancellationTokenSource();
-            this.handShakeSuccessful = false;
-            this.handShakeComplete.Reset();
-            int port = -1;
-            try
-            {
-                port = this.communicationManager.HostServer(new IPEndPoint(IPAddress.Loopback, 0)).Port;
-                var timeoutSource = new CancellationTokenSource(clientConnectionTimeout);
-                await Task.Run(() =>
-                    this.communicationManager.AcceptClientAsync(), timeoutSource.Token);
-
-                this.handShakeSuccessful = await this.HandShakeWithVsTestConsoleAsync();
-                this.handShakeComplete.Set();
-            }
-            catch (Exception ex)
-            {
-                EqtTrace.Error(
-                    "VsTestConsoleRequestSender.InitializeCommunicationAsync: Error initializing communication with VstestConsole: {0}",
-                    ex);
-                this.handShakeComplete.Set();
-            }
-
-            if (EqtTrace.IsInfoEnabled)
-            {
-                EqtTrace.Info("VsTestConsoleRequestSender.InitializeCommunicationAsync: Ended.");
-            }
-
-            return this.handShakeSuccessful ? port : -1;
+            var port = InitializeCommunication();
+            return Task.FromResult(port);
         }
 
         /// <inheritdoc/>
@@ -1221,12 +1198,16 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             this.testPlatformEventSource.TranslationLayerExecutionStop();
         }
 
-        private async Task SendMessageAndListenAndReportTestResultsAsync(
+        private Task SendMessageAndListenAndReportTestResultsAsync(
             string messageType,
             object payload,
             ITestRunEventsHandler eventHandler,
             ITestHostLauncher customHostLauncher)
         {
+            //TODO: this is all wrong, we are sending message using the current communication manager to vstest console, and it can send us requests back, 
+            //but it does not know which request posted it, so we need to add some id to disambiguate which request triggered this, because 
+            //when it replies and asks for custom testhost to start or something like that we need to know who triggered it, and which custom launcher needs to be used
+            //also we need to figure out which handler should the messages be sent back to.
             try
             {
                 this.communicationManager.SendMessage(messageType, payload, this.protocolVersion);
@@ -1237,51 +1218,78 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                 // much time to complete.
                 //
                 // This is just a notification.
-                while (!isTestRunComplete)
-                {
-                    var message = await this.TryReceiveMessageAsync();
 
-                    if (string.Equals(MessageType.TestRunStatsChange, message.MessageType))
-                    {
-                        var testRunChangedArgs = this.dataSerializer
-                            .DeserializePayload<TestRunChangedEventArgs>(message);
-                        eventHandler.HandleTestRunStatsChange(testRunChangedArgs);
-                    }
-                    else if (string.Equals(MessageType.ExecutionComplete, message.MessageType))
-                    {
-                        if (EqtTrace.IsInfoEnabled)
-                        {
-                            EqtTrace.Info(
-                                "VsTestConsoleRequestSender.SendMessageAndListenAndReportTestResultsAsync: Execution complete.");
-                        }
+                // TODO: I am just offloading the work to background right now, to make this call non-blocking; this also breaks the error handling
+                return Task.Run(async () =>
+                  {
+                      try
+                      {
+                          while (!isTestRunComplete)
+                          {
+                              var message = await this.TryReceiveMessageAsync();
 
-                        var testRunCompletePayload = this.dataSerializer
-                            .DeserializePayload<TestRunCompletePayload>(message);
+                              if (string.Equals(MessageType.TestRunStatsChange, message.MessageType))
+                              {
+                                  var testRunChangedArgs = this.dataSerializer
+                                      .DeserializePayload<TestRunChangedEventArgs>(message);
+                                  eventHandler.HandleTestRunStatsChange(testRunChangedArgs);
+                              }
+                              else if (string.Equals(MessageType.ExecutionComplete, message.MessageType))
+                              {
+                                  if (EqtTrace.IsInfoEnabled)
+                                  {
+                                      EqtTrace.Info(
+                                          "VsTestConsoleRequestSender.SendMessageAndListenAndReportTestResultsAsync: Execution complete.");
+                                  }
 
-                        eventHandler.HandleTestRunComplete(
-                            testRunCompletePayload.TestRunCompleteArgs,
-                            testRunCompletePayload.LastRunTests,
-                            testRunCompletePayload.RunAttachments,
-                            testRunCompletePayload.ExecutorUris);
-                        isTestRunComplete = true;
-                    }
-                    else if (string.Equals(MessageType.TestMessage, message.MessageType))
-                    {
-                        var testMessagePayload = this.dataSerializer
-                            .DeserializePayload<TestMessagePayload>(message);
-                        eventHandler.HandleLogMessage(
-                            testMessagePayload.MessageLevel,
-                            testMessagePayload.Message);
-                    }
-                    else if (string.Equals(MessageType.CustomTestHostLaunch, message.MessageType))
-                    {
-                        this.HandleCustomHostLaunch(customHostLauncher, message);
-                    }
-                    else if (string.Equals(MessageType.EditorAttachDebugger, message.MessageType))
-                    {
-                        this.AttachDebuggerToProcess(customHostLauncher, message);
-                    }
-                }
+                                  var testRunCompletePayload = this.dataSerializer
+                                      .DeserializePayload<TestRunCompletePayload>(message);
+
+                                  eventHandler.HandleTestRunComplete(
+                                      testRunCompletePayload.TestRunCompleteArgs,
+                                      testRunCompletePayload.LastRunTests,
+                                      testRunCompletePayload.RunAttachments,
+                                      testRunCompletePayload.ExecutorUris);
+                                  isTestRunComplete = true;
+                              }
+                              else if (string.Equals(MessageType.TestMessage, message.MessageType))
+                              {
+                                  var testMessagePayload = this.dataSerializer
+                                      .DeserializePayload<TestMessagePayload>(message);
+                                  eventHandler.HandleLogMessage(
+                                      testMessagePayload.MessageLevel,
+                                      testMessagePayload.Message);
+                              }
+                              else if (string.Equals(MessageType.CustomTestHostLaunch, message.MessageType))
+                              {
+                                  this.HandleCustomHostLaunch(customHostLauncher, message);
+                              }
+                              else if (string.Equals(MessageType.EditorAttachDebugger, message.MessageType))
+                              {
+                                  this.AttachDebuggerToProcess(customHostLauncher, message);
+                              }
+                          }
+                      }
+                      catch (Exception exception)
+                      {
+                          EqtTrace.Error("Aborting Test Run Operation: {0}", exception);
+                          eventHandler.HandleLogMessage(
+                              TestMessageLevel.Error,
+                              TranslationLayerResources.AbortedTestsRun);
+                          var completeArgs = new TestRunCompleteEventArgs(
+                              null, false, true, exception, null, TimeSpan.Zero);
+                          eventHandler.HandleTestRunComplete(completeArgs, null, null, null);
+
+                          // Earlier we were closing the connection with vstest.console in case of exceptions.
+                          // Removing that code because vstest.console might be in a healthy state and letting
+                          // the client know of the error, so that the TL can wait for the next instruction
+                          // from the client itself.
+                          // Also, connection termination might not kill the process which could result in
+                          // files being locked by testhost.
+                      }
+
+                      this.testPlatformEventSource.TranslationLayerExecutionStop();
+                  });
             }
             catch (Exception exception)
             {
@@ -1301,7 +1309,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                 // files being locked by testhost.
             }
 
-            this.testPlatformEventSource.TranslationLayerExecutionStop();
+            return Task.FromResult(0);
         }
 
         private async Task SendMessageAndListenAndReportAttachmentsProcessingResultAsync(
@@ -1383,7 +1391,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                 EqtTrace.Error("Aborting Test Session End Operation: {0}", exception);
                 eventHandler.HandleLogMessage(
                     TestMessageLevel.Error,
-                    TranslationLayerResources.AbortedTestRunAttachmentsProcessing);               
+                    TranslationLayerResources.AbortedTestRunAttachmentsProcessing);
                 eventHandler.HandleTestRunAttachmentsProcessingComplete(
                     new TestRunAttachmentsProcessingCompleteEventArgs(false, exception),
                     null);
