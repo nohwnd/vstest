@@ -11,19 +11,26 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
     [DataContract]
     public class TestProcessAttachDebuggerPayload
     {
-        /// <summary>
-        /// Creates a new instance of this class.
-        /// </summary>
-        /// <param name="pid">The process id the debugger should attach to.</param>
-        public TestProcessAttachDebuggerPayload(int pid)
+
+#pragma warning disable RS0016 // Add public types and members to the declared API
+        public TestProcessAttachDebuggerPayload (int pid, string debuggerHint)
+#pragma warning restore RS0016 // Add public types and members to the declared API
         {
             this.ProcessID = pid;
+            this.DebuggerHint = debuggerHint;
         }
-
+#pragma warning disable RS0016 // Add public types and members to the declared API
         /// <summary>
         /// The process id the debugger should attach to.
         /// </summary>
         [DataMember]
         public int ProcessID { get; set; }
+
+        /// <summary>
+        /// A hint to the debugger, describing which engine to use, or other additional info it needs to setup the correct debugger.
+        /// </summary>
+        [DataMember]
+        public string DebuggerHint { get; set; }
+#pragma warning restore RS0016 // Add public types and members to the declared API
     }
 }

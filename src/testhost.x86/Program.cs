@@ -57,7 +57,8 @@ namespace Microsoft.VisualStudio.TestPlatform.TestHost
         // In UWP(App models) Run will act as entry point from Application end, so making this method public
         public static void Run(string[] args)
         {
-#if NETFRAMEWORK && DEBUG
+            // using DEBUG && !DEBUG to disable this
+#if NETFRAMEWORK && DEBUG && !DEBUG
             // This will get the first instance of VS with this version that is running
             // and attach to it, if you have multiple instances of VS started, make sure this is the first 
             // one. It will still attach correctly if VS is ready, but there is a lot of delay if debugger 

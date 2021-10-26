@@ -49,6 +49,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
         /// Used to cancel blocking tasks associated with the vstest.console process.
         /// </summary>
         private CancellationTokenSource processExitCancellationTokenSource;
+        private ITestRunEventsHandler _testRunEventHandler;
+        private ITestDiscoveryEventsHandler2 _discoveryEventHandler;
 
         #region Constructor
 
@@ -167,6 +169,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             TestPlatformOptions options,
             ITestDiscoveryEventsHandler2 eventHandler)
         {
+            this.EnsureSameDiscoveryEventHandler(eventHandler);
             if (EqtTrace.IsInfoEnabled)
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.DiscoverTests: Starting test discovery.");
@@ -186,6 +189,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             TestPlatformOptions options,
             ITestDiscoveryEventsHandler2 eventHandler)
         {
+            this.EnsureSameDiscoveryEventHandler(eventHandler);
+
             if (EqtTrace.IsInfoEnabled)
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.DiscoverTestsAsync: Starting test discovery.");
@@ -206,6 +211,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             TestSessionInfo testSessionInfo,
             ITestRunEventsHandler runEventsHandler)
         {
+            this.EnsureSameTestRunEventHandler(runEventsHandler);
             if (EqtTrace.IsInfoEnabled)
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.StartTestRun: Starting test run.");
@@ -232,6 +238,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             TestSessionInfo testSessionInfo,
             ITestRunEventsHandler runEventsHandler)
         {
+            this.EnsureSameTestRunEventHandler(runEventsHandler);
+
             if (EqtTrace.IsInfoEnabled)
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.StartTestRunAsync: Starting test run.");
@@ -258,6 +266,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             TestSessionInfo testSessionInfo,
             ITestRunEventsHandler runEventsHandler)
         {
+            this.EnsureSameTestRunEventHandler(runEventsHandler);
+
             if (EqtTrace.IsInfoEnabled)
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.StartTestRun: Starting test run.");
@@ -284,6 +294,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             TestSessionInfo testSessionInfo,
             ITestRunEventsHandler runEventsHandler)
         {
+            this.EnsureSameTestRunEventHandler(runEventsHandler);
+
             if (EqtTrace.IsInfoEnabled)
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.StartTestRunAsync: Starting test run.");
@@ -311,6 +323,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             ITestRunEventsHandler runEventsHandler,
             ITestHostLauncher customHostLauncher)
         {
+            this.EnsureSameTestRunEventHandler(runEventsHandler);
+
             if (EqtTrace.IsInfoEnabled)
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.StartTestRunWithCustomHost: Starting test run.");
@@ -339,6 +353,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             ITestRunEventsHandler runEventsHandler,
             ITestHostLauncher customHostLauncher)
         {
+            this.EnsureSameTestRunEventHandler(runEventsHandler);
+
             if (EqtTrace.IsInfoEnabled)
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.StartTestRunWithCustomHostAsync: Starting test run.");
@@ -367,6 +383,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             ITestRunEventsHandler runEventsHandler,
             ITestHostLauncher customHostLauncher)
         {
+            this.EnsureSameTestRunEventHandler(runEventsHandler);
+
             if (EqtTrace.IsInfoEnabled)
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.StartTestRunWithCustomHost: Starting test run.");
@@ -395,6 +413,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             ITestRunEventsHandler runEventsHandler,
             ITestHostLauncher customHostLauncher)
         {
+            this.EnsureSameTestRunEventHandler(runEventsHandler);
+
             if (EqtTrace.IsInfoEnabled)
             {
                 EqtTrace.Info("VsTestConsoleRequestSender.StartTestRunWithCustomHostAsync: Starting test run.");
@@ -464,7 +484,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
 
                 while (true)
                 {
-                    var message = this.TryReceiveMessage();
+                    var message =  this.TryReceiveMessage();
 
                     switch (message.MessageType)
                     {
@@ -480,7 +500,11 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                             break;
 
                         case MessageType.EditorAttachDebugger:
-                            this.AttachDebuggerToProcess(testHostLauncher, message);
+                            this.AttachDebuggerToProcess(testHostLauncher, message, false);
+                            break;
+
+                        case MessageType.EditorAttachDebuggerWithHint:
+                            this.AttachDebuggerToProcess(testHostLauncher, message, true);
                             break;
 
                         case MessageType.TestMessage:
@@ -580,7 +604,11 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                             break;
 
                         case MessageType.EditorAttachDebugger:
-                            this.AttachDebuggerToProcess(testHostLauncher, message);
+                            this.AttachDebuggerToProcess(testHostLauncher, message, false);
+                            break;
+
+                        case MessageType.EditorAttachDebuggerWithHint:
+                            this.AttachDebuggerToProcess(testHostLauncher, message, true);
                             break;
 
                         case MessageType.TestMessage:
@@ -941,6 +969,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             TestPlatformOptions options,
             ITestDiscoveryEventsHandler2 eventHandler)
         {
+            this.EnsureSameDiscoveryEventHandler(eventHandler);
+
             try
             {
                 this.communicationManager.SendMessage(
@@ -1030,6 +1060,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             TestPlatformOptions options,
             ITestDiscoveryEventsHandler2 eventHandler)
         {
+            this.EnsureSameDiscoveryEventHandler(eventHandler);
+
             try
             {
                 this.communicationManager.SendMessage(
@@ -1120,6 +1152,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             ITestRunEventsHandler eventHandler,
             ITestHostLauncher customHostLauncher)
         {
+            this.EnsureSameTestRunEventHandler(eventHandler);
+
             try
             {
                 this.communicationManager.SendMessage(messageType, payload, this.protocolVersion);
@@ -1173,7 +1207,11 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                     }
                     else if (string.Equals(MessageType.EditorAttachDebugger, message.MessageType))
                     {
-                        this.AttachDebuggerToProcess(customHostLauncher, message);
+                        this.AttachDebuggerToProcess(customHostLauncher, message, false);
+                    }
+                    else if (string.Equals(MessageType.EditorAttachDebuggerWithHint, message.MessageType))
+                    {
+                        this.AttachDebuggerToProcess(customHostLauncher, message, true);
                     }
                 }
             }
@@ -1204,6 +1242,8 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             ITestRunEventsHandler eventHandler,
             ITestHostLauncher customHostLauncher)
         {
+            this.EnsureSameTestRunEventHandler(eventHandler);
+
             //TODO: this is all wrong, we are sending message using the current communication manager to vstest console, and it can send us requests back, 
             //but it does not know which request posted it, so we need to add some id to disambiguate which request triggered this, because 
             //when it replies and asks for custom testhost to start or something like that we need to know who triggered it, and which custom launcher needs to be used
@@ -1266,7 +1306,11 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                               }
                               else if (string.Equals(MessageType.EditorAttachDebugger, message.MessageType))
                               {
-                                  this.AttachDebuggerToProcess(customHostLauncher, message);
+                                  this.AttachDebuggerToProcess(customHostLauncher, message, false);
+                              }
+                              else if (string.Equals(MessageType.EditorAttachDebuggerWithHint, message.MessageType))
+                              {
+                                  this.AttachDebuggerToProcess(customHostLauncher, message, true);
                               }
                           }
                       }
@@ -1477,7 +1521,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
             }
         }
 
-        private void AttachDebuggerToProcess(ITestHostLauncher customHostLauncher, Message message)
+        private void AttachDebuggerToProcess(ITestHostLauncher customHostLauncher, Message message, bool hasHint)
         {
             var ackPayload = new EditorAttachDebuggerAckPayload()
             {
@@ -1487,10 +1531,26 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
 
             try
             {
-                var pid = this.dataSerializer.DeserializePayload<int>(message);
+                if (!hasHint)
+                {
+                    var pid = this.dataSerializer.DeserializePayload<int>(message);
 
-                ackPayload.Attached = customHostLauncher is ITestHostLauncher2 launcher
-                && launcher.AttachDebuggerToProcess(pid);
+                    ackPayload.Attached = customHostLauncher is ITestHostLauncher2 launcher2
+                    && launcher2.AttachDebuggerToProcess(pid);
+                }
+                else
+                {
+                    var debuggerAttach = this.dataSerializer.DeserializePayload<AttachDebuggerPayload>(message);
+                    
+                    var launcher3 = customHostLauncher as ITestHostLauncher3;
+                    if (launcher3 != null) {
+                        ackPayload.Attached = launcher3.AttachDebuggerToProcess(debuggerAttach.Pid, debuggerAttach.DebuggerHint, CancellationToken.None);
+                    }
+                    else
+                    {
+                        ackPayload.ErrorMessage = "launcher is not ITestHostLauncher3";
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -1511,6 +1571,32 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                     MessageType.EditorAttachDebuggerCallback,
                     ackPayload,
                     this.protocolVersion);
+            }
+        }
+
+        private void EnsureSameTestRunEventHandler(ITestRunEventsHandler eventHandler)
+        {
+            if (_testRunEventHandler != null && eventHandler != _testRunEventHandler)
+            {
+                throw new InvalidOperationException("Only one event handler can be provided at the same time, use the same instance");
+            }
+
+            if (_testRunEventHandler == null)
+            {
+                _testRunEventHandler = eventHandler;
+            }
+        }
+
+        private void EnsureSameDiscoveryEventHandler(ITestDiscoveryEventsHandler2 eventHandler)
+        {
+            if (_discoveryEventHandler != null && eventHandler != _discoveryEventHandler)
+            {
+                throw new InvalidOperationException("Only one event handler can be provided at the same time, use the same instance");
+            }
+
+            if (_discoveryEventHandler == null)
+            {
+                _discoveryEventHandler = eventHandler;
             }
         }
     }

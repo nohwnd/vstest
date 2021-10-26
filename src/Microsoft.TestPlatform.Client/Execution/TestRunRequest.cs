@@ -25,7 +25,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
     using ClientResources = Microsoft.VisualStudio.TestPlatform.Client.Resources.Resources;
     using CommunicationObjectModel = Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
 
-    public class TestRunRequest : ITestRunRequest, ITestRunEventsHandler2
+    public class TestRunRequest : ITestRunRequest, ITestRunEventsHandler3
     {
         /// <summary>
         /// The criteria/config for this test run request.
@@ -666,8 +666,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         /// <inheritdoc />
         public bool AttachDebuggerToProcess(int pid)
         {
-            return this.testRunCriteria.TestHostLauncher is ITestHostLauncher2 launcher
-                    && launcher.AttachDebuggerToProcess(pid);
+            return AttachDebuggerToProcess(pid, null);      
         }
 
         /// <summary>
@@ -694,6 +693,21 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
             }
 
             EqtTrace.Info("TestRunRequest.Dispose: id: {0} Completed.",this.id);
+        }
+
+        public bool AttachDebuggerToProcess(int pid, string debuggerHint)
+        {
+            if (this.testRunCriteria.TestHostLauncher is ITestHostLauncher3 launcher3)
+            {
+                return launcher3.AttachDebuggerToProcess(pid, debuggerHint, CancellationToken.None);
+            }
+
+            if (this.testRunCriteria.TestHostLauncher is ITestHostLauncher2 launcher2)
+            {
+                return launcher2.AttachDebuggerToProcess(pid);
+            }
+
+            return false;
         }
     }
 }

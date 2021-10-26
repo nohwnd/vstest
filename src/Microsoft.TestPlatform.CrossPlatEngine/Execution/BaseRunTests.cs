@@ -442,7 +442,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Execution
 
                     attachedToTestHost = true;
                     var pid = Process.GetCurrentProcess().Id;
-                    if (!this.frameworkHandle.AttachDebuggerToProcess(pid))
+                    var debuggerHint = this.runConfiguration.TargetFramework.ToString();
+                    if (!this.frameworkHandle.AttachDebuggerToProcess(pid, debuggerHint))
                     {
                         EqtTrace.Warning(
                             string.Format(

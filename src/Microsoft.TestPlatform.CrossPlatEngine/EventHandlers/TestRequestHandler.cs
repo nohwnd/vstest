@@ -21,7 +21,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
     using CrossPlatResources = Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Resources.Resources;
     using ObjectModelConstants = Microsoft.VisualStudio.TestPlatform.ObjectModel.Constants;
 
-    public class TestRequestHandler : ITestRequestHandler
+    public class TestRequestHandler : ITestRequestHandler2
     {
         private int protocolVersion = 1;
 
@@ -235,34 +235,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
         /// <inheritdoc />
         public bool AttachDebuggerToProcess(int pid)
         {
-            // If an attach request is issued but there is no support for attaching on the other
-            // side of the communication channel, we simply return and let the caller know the
-            // request failed.
-            if (this.protocolVersion < ObjectModelConstants.MinimumProtocolVersionWithDebugSupport)
-            {
-                return false;
-            }
-
-            Message ackMessage = null;
-            var waitHandle = new ManualResetEventSlim(false);
-
-            this.onAttachDebuggerAckRecieved = (ackRawMessage) =>
-            {
-                ackMessage = ackRawMessage;
-                waitHandle.Set();
-            };
-
-            var data = dataSerializer.SerializePayload(
-                MessageType.AttachDebugger,
-                new TestProcessAttachDebuggerPayload(pid),
-                protocolVersion);
-            this.SendData(data);
-
-            EqtTrace.Verbose("Waiting for AttachDebuggerToProcess ack ...");
-            waitHandle.Wait();
-
-            this.onAttachDebuggerAckRecieved = null;
-            return this.dataSerializer.DeserializePayload<bool>(ackMessage);
+            return AttachDebuggerToProcess(pid, null);
         }
 
         public void OnMessageReceived(object sender, MessageReceivedEventArgs messageReceivedArgs)
@@ -540,6 +513,53 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
         {
             EqtTrace.Verbose("TestRequestHandler.SendData:  sending data from testhost: {0}", data);
             this.channel.Send(data);
+        }
+
+        public bool AttachDebuggerToProcess(int pid, string debuggerHint)
+        {
+            // If an attach request is issued but there is no support for attaching on the other
+            // side of the communication channel, we simply return and let the caller know the
+            // request failed.
+            if (this.protocolVersion < ObjectModelConstants.MinimumProtocolVersionWithDebugSupport)
+            {
+                return false;
+            }
+
+            Message ackMessage = null;
+            var waitHandle = new ManualResetEventSlim(false);
+
+            this.onAttachDebuggerAckRecieved = (ackRawMessage) =>
+            {
+                ackMessage = ackRawMessage;
+                waitHandle.Set();
+            };
+
+            string data;
+            if (this.protocolVersion < ObjectModelConstants.MinimumProtocolVersionWithDebuggerHintSupport)
+            {
+                data = dataSerializer.SerializePayload(
+                    MessageType.AttachDebugger,
+                    pid,
+                    protocolVersion);
+            }
+            else
+            {
+                data = dataSerializer.SerializePayload(
+                    MessageType.AttachDebuggerWithHint,
+                    new AttachDebuggerPayload
+                    {
+                        Pid = pid,
+                        DebuggerHint = debuggerHint,
+                    },
+                    protocolVersion);
+            }
+            this.SendData(data);
+
+            EqtTrace.Verbose("Waiting for AttachDebuggerToProcess ack ...");
+            waitHandle.Wait();
+
+            this.onAttachDebuggerAckRecieved = null;
+            return this.dataSerializer.DeserializePayload<bool>(ackMessage);
         }
     }
 }

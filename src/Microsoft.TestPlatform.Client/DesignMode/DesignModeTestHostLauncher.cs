@@ -10,7 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
     /// <summary>
     /// DesignMode TestHost Launcher for hosting of test process
     /// </summary>
-    internal class DesignModeTestHostLauncher : ITestHostLauncher2
+    internal class DesignModeTestHostLauncher : ITestHostLauncher3
     {
         private readonly IDesignModeClient designModeClient;
 
@@ -29,13 +29,18 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
         /// <inheritdoc/>
         public bool AttachDebuggerToProcess(int pid)
         {
-            return this.designModeClient.AttachDebuggerToProcess(pid, CancellationToken.None);
+            return this.designModeClient.AttachDebuggerToProcess(pid, null, CancellationToken.None);
         }
 
         /// <inheritdoc/>
         public bool AttachDebuggerToProcess(int pid, CancellationToken cancellationToken)
         {
-            return this.designModeClient.AttachDebuggerToProcess(pid, cancellationToken);
+            return this.designModeClient.AttachDebuggerToProcess(pid, null, cancellationToken);
+        }
+
+        public bool AttachDebuggerToProcess(int pid, string debuggerHint, CancellationToken cancellationToken)
+        {
+            return this.designModeClient.AttachDebuggerToProcess(pid, debuggerHint, cancellationToken);
         }
 
         /// <inheritdoc/>

@@ -185,6 +185,13 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel
         public const int MinimumProtocolVersionWithDebugSupport = 3;
 
         /// <summary>
+        /// The minimum protocol version that has AttachDebuggerToProcess with debugger hint support
+        /// </summary>
+#pragma warning disable RS0016 // Add public types and members to the declared API
+        public const int MinimumProtocolVersionWithDebuggerHintSupport = 4;
+#pragma warning restore RS0016 // Add public types and members to the declared API
+
+        /// <summary>
         /// Name of the results directory
         /// </summary>
         public const string ResultsDirectoryName = "TestResults";

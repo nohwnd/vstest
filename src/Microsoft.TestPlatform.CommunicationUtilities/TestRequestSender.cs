@@ -333,7 +333,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                 && this.runtimeProvider is ITestRuntimeProvider2 convertedRuntimeProvider
                 && this.protocolVersion < ObjectModelConstants.MinimumProtocolVersionWithDebugSupport)
             {
-                var handler = (ITestRunEventsHandler2)eventHandler;
+                var handler = (ITestRunEventsHandler3)eventHandler;
                 if (!convertedRuntimeProvider.AttachDebuggerToTestHost())
                 {
                     EqtTrace.Warning(
@@ -382,7 +382,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                 && this.runtimeProvider is ITestRuntimeProvider2 convertedRuntimeProvider
                 && this.protocolVersion < ObjectModelConstants.MinimumProtocolVersionWithDebugSupport)
             {
-                var handler = (ITestRunEventsHandler2)eventHandler;
+                var handler = (ITestRunEventsHandler3)eventHandler;
                 if (!convertedRuntimeProvider.AttachDebuggerToTestHost())
                 {
                     EqtTrace.Warning(
@@ -544,8 +544,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                         break;
 
                     case MessageType.AttachDebugger:
-                        var testProcessPid = this.dataSerializer.DeserializePayload<TestProcessAttachDebuggerPayload>(message);
-                        bool result = ((ITestRunEventsHandler2)testRunEventsHandler).AttachDebuggerToProcess(testProcessPid.ProcessID);
+                        var testProcessPid = this.dataSerializer.DeserializePayload<int>(message);
+                        bool result = ((ITestRunEventsHandler3)testRunEventsHandler).AttachDebuggerToProcess(testProcessPid);
 
                         var resultMessage = this.dataSerializer.SerializePayload(
                             MessageType.AttachDebuggerCallback,
@@ -558,6 +558,24 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                         }
 
                         this.channel.Send(resultMessage);
+
+                        break;
+
+                    case MessageType.AttachDebuggerWithHint:
+                        var testProcess = this.dataSerializer.DeserializePayload<AttachDebuggerPayload>(message);
+                        bool attached = ((ITestRunEventsHandler3)testRunEventsHandler).AttachDebuggerToProcess(testProcess.Pid, testProcess.DebuggerHint);
+
+                        var attachResultMessage = this.dataSerializer.SerializePayload(
+                            MessageType.AttachDebuggerCallback,
+                            attached,
+                            this.protocolVersion);
+
+                        if (EqtTrace.IsVerboseEnabled)
+                        {
+                            EqtTrace.Verbose("TestRequestSender.OnExecutionMessageReceived: Sending AttachDebugger with message: {0}", message);
+                        }
+
+                        this.channel.Send(attachResultMessage);
 
                         break;
                 }

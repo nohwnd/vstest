@@ -174,6 +174,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
         public const string AttachDebugger = "TestExecution.AttachDebugger";
 
         /// <summary>
+        /// Attach debugger to process.
+        /// </summary>
+        public const string AttachDebuggerWithHint = "TestExecution.AttachDebuggerWithHint";
+
+        /// <summary>
         /// Attach debugger to process callback.
         /// </summary>
         public const string AttachDebuggerCallback = "TestExecution.AttachDebuggerCallback";
@@ -182,6 +187,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel
         /// Attach debugger to process.
         /// </summary>
         public const string EditorAttachDebugger = "TestExecution.EditorAttachDebugger";
+
+        /// <summary>
+        /// Attach debugger to process with debugger hint.
+        /// </summary>
+        public const string EditorAttachDebuggerWithHint = "TestExecution.EditorAttachDebuggerWithHint";
 
         /// <summary>
         /// Attach debugger to process callback.

@@ -94,4 +94,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
         /// <returns><see cref="true"/> if the debugger was successfully attached to the requested process, <see cref="false"/> otherwise.</returns>
         bool AttachDebuggerToProcess(int pid);
     }
+
+    public interface ITestRequestHandler2 : ITestRequestHandler
+    {
+        bool AttachDebuggerToProcess(int pid, string debuggerHint);
+    }
 }

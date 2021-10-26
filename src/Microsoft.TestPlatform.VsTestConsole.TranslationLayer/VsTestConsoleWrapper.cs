@@ -40,7 +40,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
 
         private bool sessionStarted;
 
-        private static readonly SemaphoreSlim _initializing = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _initializing = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// Path to additional extensions to reinitialize vstest.console
@@ -939,17 +939,25 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
 
         private void EnsureInitialized()
         {
-            if (!this.vstestConsoleProcessManager.IsProcessInitialized())
+            try
             {
-                EqtTrace.Info("VsTestConsoleWrapper.EnsureInitialized: Process is not started.");
-                this.StartSession();
-                this.sessionStarted = this.WaitForConnection();
-
-                if (this.sessionStarted)
+                _initializing.Wait();
+                if (!this.vstestConsoleProcessManager.IsProcessInitialized())
                 {
-                    EqtTrace.Info("VsTestConsoleWrapper.EnsureInitialized: Send a request to initialize extensions.");
-                    this.requestSender.InitializeExtensions(this.pathToAdditionalExtensions);
+                    EqtTrace.Info("VsTestConsoleWrapper.EnsureInitialized: Process is not started.");
+                    this.StartSession();
+                    this.sessionStarted = this.WaitForConnection();
+
+                    if (this.sessionStarted)
+                    {
+                        EqtTrace.Info("VsTestConsoleWrapper.EnsureInitialized: Send a request to initialize extensions.");
+                        this.requestSender.InitializeExtensions(this.pathToAdditionalExtensions);
+                    }
                 }
+            }
+            finally
+            {
+                _initializing.Release();
             }
 
             if (!this.sessionStarted && this.requestSender != null)

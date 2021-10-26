@@ -336,7 +336,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
         }
 
         /// <inheritdoc/>
-        public bool AttachDebuggerToProcess(int pid, CancellationToken cancellationToken)
+        public bool AttachDebuggerToProcess(int pid, string debuggerHint, CancellationToken cancellationToken)
         {
             // If an attach request is issued but there is no support for attaching on the other
             // side of the communication channel, we simply return and let the caller know the
@@ -344,6 +344,15 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
             if (this.protocolConfig.Version < ObjectModel.Constants.MinimumProtocolVersionWithDebugSupport)
             {
                 return false;
+            }
+
+            // If an attach request is issued but there is no support for attaching on the other
+            // side of the communication channel, we simply return and let the caller know the
+            // request failed.
+            var passDebuggerHint = true;
+            if (this.protocolConfig.Version < ObjectModel.Constants.MinimumProtocolVersionWithDebuggerHintSupport)
+            {
+                passDebuggerHint = false;
             }
 
             lock (this.lockObject)
@@ -355,8 +364,15 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
                     ackMessage = ackRawMessage;
                     waitHandle.Set();
                 };
-
-                this.communicationManager.SendMessage(MessageType.EditorAttachDebugger, pid);
+                
+                if (passDebuggerHint)
+                {
+                    this.communicationManager.SendMessage(MessageType.EditorAttachDebuggerWithHint, new AttachDebuggerPayload { Pid = pid, DebuggerHint = debuggerHint });
+                }
+                else
+                {
+                    this.communicationManager.SendMessage(MessageType.EditorAttachDebugger, pid);
+                }
 
                 WaitHandle.WaitAny(new WaitHandle[] { waitHandle, cancellationToken.WaitHandle });
 

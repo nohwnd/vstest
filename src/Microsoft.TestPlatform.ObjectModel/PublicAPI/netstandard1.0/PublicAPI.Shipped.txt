@@ -629,7 +629,7 @@ Microsoft.VisualStudio.TestPlatform.ObjectModel.TestPlatformException.TestPlatfo
 Microsoft.VisualStudio.TestPlatform.ObjectModel.TestProcessAttachDebuggerPayload
 Microsoft.VisualStudio.TestPlatform.ObjectModel.TestProcessAttachDebuggerPayload.ProcessID.get -> int
 Microsoft.VisualStudio.TestPlatform.ObjectModel.TestProcessAttachDebuggerPayload.ProcessID.set -> void
-Microsoft.VisualStudio.TestPlatform.ObjectModel.TestProcessAttachDebuggerPayload.TestProcessAttachDebuggerPayload(int pid) -> void
+Microsoft.VisualStudio.TestPlatform.ObjectModel.TestProcessAttachDebuggerPayload.TestProcessAttachDebuggerPayload(int pid, string debuggerHint) -> void
 Microsoft.VisualStudio.TestPlatform.ObjectModel.TestProcessStartInfo
 Microsoft.VisualStudio.TestPlatform.ObjectModel.TestProcessStartInfo.Arguments.get -> string
 Microsoft.VisualStudio.TestPlatform.ObjectModel.TestProcessStartInfo.Arguments.set -> void

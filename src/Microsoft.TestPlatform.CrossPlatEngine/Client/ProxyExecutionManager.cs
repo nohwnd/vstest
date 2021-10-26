@@ -28,7 +28,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
     /// <summary>
     /// Orchestrates test execution operations for the engine communicating with the client.
     /// </summary>
-    internal class ProxyExecutionManager : IProxyExecutionManager, IBaseProxy, ITestRunEventsHandler2
+    internal class ProxyExecutionManager : IProxyExecutionManager, IBaseProxy, ITestRunEventsHandler3
     {
         private readonly ITestRuntimeProvider testHostManager;
         private readonly IFileHelper fileHelper;
@@ -296,7 +296,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
         /// <inheritdoc />
         public bool AttachDebuggerToProcess(int pid)
         {
-            return ((ITestRunEventsHandler2)this.baseTestRunEventsHandler).AttachDebuggerToProcess(pid);
+            return AttachDebuggerToProcess(pid, null);
+        }
+
+        /// <inheritdoc />
+        public bool AttachDebuggerToProcess(int pid, string debuggerHint)
+        {
+            return ((ITestRunEventsHandler3)this.baseTestRunEventsHandler).AttachDebuggerToProcess(pid, debuggerHint);
         }
 
         /// <inheritdoc/>

@@ -1,11 +1,13 @@
 ﻿using Microsoft.TestPlatform.VsTestConsole.TranslationLayer;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ParallelTests.IntegrationTests
@@ -31,20 +33,20 @@ namespace ParallelTests.IntegrationTests
                     },
                     Handler = new TestRunHandler("net472")
                 },
-                 new {
-                    Sources = new [] {
-                        @"C:\p\vstest2\TestProject2\bin\Debug\net5.0\TestProject2.dll",
-                    },
-                    Handler = new TestRunHandler("net5.0")
-                },
-                 new
-                 {
-                     Sources = new []
-                     {
-                         @"C:\p\vstest2\TestProject2\bin\Debug\netcoreapp3.1\TestProject2.dll",
-                     },
-                     Handler = new TestRunHandler("net3.1")
-                 },
+                // new {
+                //    Sources = new [] {
+                //        @"C:\p\vstest2\TestProject2\bin\Debug\net5.0\TestProject2.dll",
+                //    },
+                //    Handler = new TestRunHandler("net5.0")
+                //},
+                // new
+                // {
+                //     Sources = new []
+                //     {
+                //         @"C:\p\vstest2\TestProject2\bin\Debug\netcoreapp3.1\TestProject2.dll",
+                //     },
+                //     Handler = new TestRunHandler("net3.1")
+                // },
             };
 
             var console = @"C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\vstest.console.exe";
@@ -54,34 +56,77 @@ namespace ParallelTests.IntegrationTests
                 TraceLevel = System.Diagnostics.TraceLevel.Verbose
             };
             var r = new VsTestConsoleWrapper(console, consoleOptions);
-            // ITestRunEventsHandler handler = new TestRunHandler();
 
             //var sw = Stopwatch.StartNew();
             //foreach (var source in sources)
             //{
-            //    // this in increased by 2 seconds because the session is not prestarted,
+            //    // the first run is increased by 2 seconds because the session is not prestarted,
             //    // good for a basic comparison still
-            //    r.RunTests(new[] { source }, settings, handler);
+            //    var currentSettings = String.Format(settings, string.Join(";", source.Sources));
+            //    r.RunTests(source.Sources, currentSettings, source.Handler);
             //    Console.WriteLine($"Run tests in:{source}.");
             //}
             //Console.WriteLine($"serial run took: {(int)sw.ElapsedMilliseconds} ms");
 
-
-            var tasks = new List<Task>();
-            var sw2 = Stopwatch.StartNew();
+            var sw3 = Stopwatch.StartNew();
+            var syncTasks = new List<Task>();
+            var handler = new TestRunHandler("common");
             foreach (var source in sources)
             {
-                // this includes <Source> node in the runsettings, so we can distinguish the settings
-                // along their way through vstest.console, runsettings should just keep it, because users 
-                // are allowed to add their own config values.
-                var currentSettings = String.Format(settings, source);
-                tasks.Add(r.RunTestsAsync(source.Sources, currentSettings, source.Handler));
-                Console.WriteLine($"Run tests in:'{string.Join("','", source.Sources)}.");
+                var currentSettings = String.Format(settings, string.Join(";", source.Sources));
+                syncTasks.Add(Task.Run(() => r.RunTestsWithCustomTestHost(source.Sources, currentSettings, handler, new DebuggerTestHostLauncher ()))); ;
+                Console.WriteLine($"Run tests in:{source}.");
             }
 
-            Task.WaitAll(tasks.ToArray());
-            Console.WriteLine($"parallel run took: {(int)sw2.ElapsedMilliseconds} ms");
+            Task.WaitAll(syncTasks.ToArray());
+            Console.WriteLine($"serial run took: {(int)sw3.ElapsedMilliseconds} ms");
 
+
+            //var tasks = new List<Task>();
+            //var sw2 = Stopwatch.StartNew();
+            //foreach (var source in sources)
+            //{
+            //    // this includes <Source> node in the runsettings, so we can distinguish the settings
+            //    // along their way through vstest.console, runsettings should just keep it, because users 
+            //    // are allowed to add their own config values.
+            //    var currentSettings = String.Format(settings, string.Join(";", source.Sources));
+            //    tasks.Add(r.RunTestsAsync(source.Sources, currentSettings, source.Handler));
+            //    Console.WriteLine($"Run tests in:'{string.Join("','", source.Sources)}.");
+            //}
+
+            //Task.WaitAll(tasks.ToArray());
+            //Console.WriteLine($"parallel run took: {(int)sw2.ElapsedMilliseconds} ms");
+
+        }
+    }
+
+    internal class DebuggerTestHostLauncher : ITestHostLauncher3
+    {
+        public bool IsDebug => true;
+
+        public bool AttachDebuggerToProcess(int pid, string debuggerHint, CancellationToken cancellationToken)
+        {
+            return true;
+        }
+
+        public bool AttachDebuggerToProcess(int pid)
+        {
+            return true;
+        }
+
+        public bool AttachDebuggerToProcess(int pid, CancellationToken cancellationToken)
+        {
+            return true;
+        }
+
+        public int LaunchTestHost(TestProcessStartInfo defaultTestHostStartInfo)
+        {
+            return 1;
+        }
+
+        public int LaunchTestHost(TestProcessStartInfo defaultTestHostStartInfo, CancellationToken cancellationToken)
+        {
+            return 1;
         }
     }
 
@@ -111,7 +156,7 @@ namespace ParallelTests.IntegrationTests
 
         public void HandleTestRunStatsChange(TestRunChangedEventArgs testRunChangedArgs)
         {
-            Console.WriteLine($"{_name} [PROGRESS - RUNNING    ]: {WriteTests(testRunChangedArgs.ActiveTests)}");
+            //Console.WriteLine($"{_name} [PROGRESS - RUNNING    ]: {WriteTests(testRunChangedArgs.ActiveTests)}");
             Console.WriteLine($"{_name} [PROGRESS - NEW RESULTS]: {WriteTests(testRunChangedArgs.NewTestResults)}");
         }
 
@@ -133,7 +178,7 @@ namespace ParallelTests.IntegrationTests
             }
 
             return "\t" + string.Join("\n\t", testCases.Select(r => r.DisplayName));
-           
+
         }
     }
 
