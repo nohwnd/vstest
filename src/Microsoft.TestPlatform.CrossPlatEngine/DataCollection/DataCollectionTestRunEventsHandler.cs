@@ -161,14 +161,14 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection
         /// <inheritdoc />
         public bool AttachDebuggerToProcess(int pid)
         {
-            return AttachDebuggerToProcess(pid, null);
+            return AttachDebuggerToProcess(new AttachDebuggerPayload {  Pid = pid });
         }
 
 
         /// <inheritdoc />
-        public bool AttachDebuggerToProcess(int pid, string debuggerHint)
+        public bool AttachDebuggerToProcess(AttachDebuggerPayload data)
         {
-            return ((ITestRunEventsHandler3)this.testRunEventsHandler).AttachDebuggerToProcess(pid, debuggerHint);
+            return ((ITestRunEventsHandler3)this.testRunEventsHandler).AttachDebuggerToProcess(data);
         }
 
         /// <summary>

@@ -1544,7 +1544,7 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
                     
                     var launcher3 = customHostLauncher as ITestHostLauncher3;
                     if (launcher3 != null) {
-                        ackPayload.Attached = launcher3.AttachDebuggerToProcess(debuggerAttach.Pid, debuggerAttach.DebuggerHint, CancellationToken.None);
+                        ackPayload.Attached = launcher3.AttachDebuggerToProcess(debuggerAttach, CancellationToken.None);
                     }
                     else
                     {
@@ -1576,10 +1576,10 @@ namespace Microsoft.TestPlatform.VsTestConsole.TranslationLayer
 
         private void EnsureSameTestRunEventHandler(ITestRunEventsHandler eventHandler)
         {
-            if (_testRunEventHandler != null && eventHandler != _testRunEventHandler)
-            {
-                throw new InvalidOperationException("Only one event handler can be provided at the same time, use the same instance");
-            }
+            //if (_testRunEventHandler != null && eventHandler != _testRunEventHandler)
+            //{
+            //    throw new InvalidOperationException("Only one event handler can be provided at the same time, use the same instance");
+            //}
 
             if (_testRunEventHandler == null)
             {

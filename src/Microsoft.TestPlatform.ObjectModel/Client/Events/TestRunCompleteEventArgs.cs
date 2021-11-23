@@ -75,5 +75,10 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         /// </summary>
         [DataMember]
         public IDictionary<string, object> Metrics { get; set; }
+
+        [DataMember]
+#pragma warning disable RS0016 // Add public types and members to the declared API
+        public int TestRunId { get; set; } = -1;
+#pragma warning restore RS0016 // Add public types and members to the declared API
     }
 }

@@ -27,7 +27,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
         /// </summary>
         /// <param name="pid">Process ID of the process to which the debugger should be attached.</param>
         /// <returns><see cref="true"/> if the debugger was successfully attached to the requested process, <see cref="false"/> otherwise.</returns>
-        bool AttachDebuggerToProcess(int pid, string debuggerHint);
+        bool AttachDebuggerToProcess(AttachDebuggerPayload request);
     }
 #pragma warning restore RS0016 // Add public types and members to the declared API
 }

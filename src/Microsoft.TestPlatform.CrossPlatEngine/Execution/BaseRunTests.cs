@@ -443,7 +443,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Execution
                     attachedToTestHost = true;
                     var pid = Process.GetCurrentProcess().Id;
                     var debuggerHint = this.runConfiguration.TargetFramework.ToString();
-                    if (!this.frameworkHandle.AttachDebuggerToProcess(pid, debuggerHint))
+                    if (!this.frameworkHandle.AttachDebuggerToProcess(new AttachDebuggerPayload { Pid = pid, DebuggerHint = debuggerHint }))
                     {
                         EqtTrace.Warning(
                             string.Format(

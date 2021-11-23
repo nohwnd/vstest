@@ -18,7 +18,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client.Interfaces
         /// <param name="framework">Framework version.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns><see cref="true"/> if the debugger was successfully attached to the requested process, <see cref="false"/> otherwise.</returns>
-        bool AttachDebuggerToProcess(int pid, string debuggerHint, CancellationToken cancellationToken);
+        bool AttachDebuggerToProcess(AttachDebuggerPayload data, CancellationToken cancellationToken);
     }
 #pragma warning restore RS0016 // Add public types and members to the declared API
 }

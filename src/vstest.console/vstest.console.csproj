@@ -7,7 +7,7 @@
   <Import Project="$(TestPlatformRoot)scripts/build/TestPlatform.Settings.targets" />
   <PropertyGroup>
     <AssemblyName>vstest.console</AssemblyName>
-    <TargetFrameworks>netcoreapp2.1;net451</TargetFrameworks>
+    <TargetFrameworks>net451;netcoreapp2.1</TargetFrameworks>
     <TargetFrameworks Condition=" '$(DotNetBuildFromSource)' == 'true' ">net6.0</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
     <OutputType>Exe</OutputType>
@@ -63,6 +63,6 @@
   </ItemGroup>
   <Import Project="$(TestPlatformRoot)scripts\build\TestPlatform.targets" />
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /i /y C:\p\vstest2\src\Microsoft.TestPlatform.TestHostProvider\bin\Debug\net451\ C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\Extensions\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest2\src\testhost.x86\bin\Debug\net48\win7-x86\ C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest2\src\testhost\bin\Debug\net48\win7-x64\ C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest2\src\testhost.x86\bin\Debug\net472\win7-x86\ C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest2\src\testhost\bin\Debug\net472\win7-x64\ C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;" />
+    <Exec Command="xcopy /i /y C:\p\vstest\src\Microsoft.TestPlatform.TestHostProvider\bin\Debug\net451\ C:\p\vstest\src\vstest.console\bin\Debug\net451\win7-x64\Extensions\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest\src\testhost.x86\bin\Debug\net48\win7-x86\ C:\p\vstest\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest\src\testhost\bin\Debug\net48\win7-x64\ C:\p\vstest\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest\src\testhost.x86\bin\Debug\net472\win7-x86\ C:\p\vstest\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;xcopy /i /y C:\p\vstest\src\testhost\bin\Debug\net472\win7-x64\ C:\p\vstest\src\vstest.console\bin\Debug\net451\win7-x64\TestHost\&#xD;&#xA;&#xD;&#xA;" />
   </Target>
 </Project>

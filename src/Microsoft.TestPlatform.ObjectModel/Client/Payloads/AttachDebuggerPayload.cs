@@ -12,6 +12,9 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Client
 
         [DataMember]
         public string DebuggerHint { get; set; }
+
+        [DataMember]
+        public int TestRunId { get; set; } = -1;
 #pragma warning restore RS0016 // Add public types and members to the declared API
     }
 }

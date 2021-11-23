@@ -336,7 +336,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
         }
 
         /// <inheritdoc/>
-        public bool AttachDebuggerToProcess(int pid, string debuggerHint, CancellationToken cancellationToken)
+        public bool AttachDebuggerToProcess(AttachDebuggerPayload data, CancellationToken cancellationToken)
         {
             // If an attach request is issued but there is no support for attaching on the other
             // side of the communication channel, we simply return and let the caller know the
@@ -367,11 +367,11 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
                 
                 if (passDebuggerHint)
                 {
-                    this.communicationManager.SendMessage(MessageType.EditorAttachDebuggerWithHint, new AttachDebuggerPayload { Pid = pid, DebuggerHint = debuggerHint });
+                    this.communicationManager.SendMessage(MessageType.EditorAttachDebuggerWithHint, data, this.protocolConfig.Version);
                 }
                 else
                 {
-                    this.communicationManager.SendMessage(MessageType.EditorAttachDebugger, pid);
+                    this.communicationManager.SendMessage(MessageType.EditorAttachDebugger, data.Pid, this.protocolConfig.Version);
                 }
 
                 WaitHandle.WaitAny(new WaitHandle[] { waitHandle, cancellationToken.WaitHandle });
@@ -450,6 +450,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
                 {
                     try
                     {
+                        testRunPayload.TestRunId = Id.Next();
                         testRequestManager.ResetOptions();
 
                         // We must avoid re-launching the test host if the test run payload already
@@ -473,8 +474,9 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
                         var runCompletePayload = new TestRunCompletePayload()
                         {
                             TestRunCompleteArgs = new TestRunCompleteEventArgs(null, false, true, ex, null, TimeSpan.MinValue),
-                            LastRunTests = null
+                            LastRunTests = null,
                         };
+                        runCompletePayload.TestRunCompleteArgs.TestRunId = testRunPayload.TestRunId;
 
                         // Send run complete to translation layer
                         this.communicationManager.SendMessage(MessageType.ExecutionComplete, runCompletePayload);
@@ -610,5 +612,15 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
             Dispose(true);
         }
         #endregion
+    }
+
+    internal static class Id
+    {
+        private static int _id;
+        
+        public static int Next()
+        {
+            return Interlocked.Increment(ref _id);
+        }
     }
 }

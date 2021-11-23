@@ -60,6 +60,10 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
 
         private ITestRuntimeProvider runtimeProvider;
 
+        private Guid testRequestSenderId = Guid.NewGuid();
+
+        private int testRunId;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestRequestSender"/> class.
         /// </summary>
@@ -310,6 +314,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
         /// <inheritdoc />
         public void StartTestRun(TestRunCriteriaWithSources runCriteria, ITestRunEventsHandler eventHandler)
         {
+            this.testRunId = runCriteria.TestExecutionContext.TestRunId;
             this.messageEventHandler = eventHandler;
             this.onDisconnected = (disconnectedEventArgs) =>
             {
@@ -501,6 +506,9 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                     EqtTrace.Verbose("TestRequestSender.OnExecutionMessageReceived: Received message: {0}", rawMessage);
                 }
 
+                // Modify the message text to set Id
+                rawMessage = rawMessage.Replace($"\"{nameof(TestRunChangedEventArgs.TestRunId)}\":-1", $"\"{nameof(TestRunChangedEventArgs.TestRunId)}\":{this.testRunId}");
+
                 // Send raw message first to unblock handlers waiting to send message to IDEs
                 testRunEventsHandler.HandleRawMessage(rawMessage);
 
@@ -509,11 +517,14 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                 {
                     case MessageType.TestRunStatsChange:
                         var testRunChangedArgs = this.dataSerializer.DeserializePayload<TestRunChangedEventArgs>(message);
+
+                        // testRunChangedArgs.TestRunId = this.testRunId;
                         testRunEventsHandler.HandleTestRunStatsChange(testRunChangedArgs);
                         break;
                     case MessageType.ExecutionComplete:
                         var testRunCompletePayload = this.dataSerializer.DeserializePayload<TestRunCompletePayload>(message);
 
+                        // testRunCompletePayload.TestRunCompleteArgs.TestRunId = this.testRunId;
                         testRunEventsHandler.HandleTestRunComplete(
                             testRunCompletePayload.TestRunCompleteArgs,
                             testRunCompletePayload.LastRunTests,
@@ -524,10 +535,14 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                         break;
                     case MessageType.TestMessage:
                         var testMessagePayload = this.dataSerializer.DeserializePayload<TestMessagePayload>(message);
+
+                        // testMessagePayload.TestRunId = this.testRunId;
                         testRunEventsHandler.HandleLogMessage(testMessagePayload.MessageLevel, testMessagePayload.Message);
                         break;
                     case MessageType.LaunchAdapterProcessWithDebuggerAttached:
                         var testProcessStartInfo = this.dataSerializer.DeserializePayload<TestProcessStartInfo>(message);
+
+                        // testProcessStartInfo.TestRunId = this.testRunId;
                         int processId = testRunEventsHandler.LaunchProcessWithDebuggerAttached(testProcessStartInfo);
 
                         var data =
@@ -563,7 +578,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
 
                     case MessageType.AttachDebuggerWithHint:
                         var testProcess = this.dataSerializer.DeserializePayload<AttachDebuggerPayload>(message);
-                        bool attached = ((ITestRunEventsHandler3)testRunEventsHandler).AttachDebuggerToProcess(testProcess.Pid, testProcess.DebuggerHint);
+                        testProcess.TestRunId = this.testRunId;
+                        bool attached = ((ITestRunEventsHandler3)testRunEventsHandler).AttachDebuggerToProcess(testProcess);
 
                         var attachResultMessage = this.dataSerializer.SerializePayload(
                             MessageType.AttachDebuggerCallback,

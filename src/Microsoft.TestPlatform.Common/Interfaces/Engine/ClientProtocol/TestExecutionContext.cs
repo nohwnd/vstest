@@ -47,7 +47,8 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.ClientProtocol
             bool hasTestRun,
             bool isDebug,
             string testCaseFilter,
-            FilterOptions filterOptions)
+            FilterOptions filterOptions,
+            int testRunId)
         {
             this.FrequencyOfRunStatsChangeEvent = frequencyOfRunStatsChangeEvent;
             this.RunStatsChangeEventTimeout = runStatsChangeEventTimeout;
@@ -61,6 +62,7 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.ClientProtocol
             this.HasTestRun = hasTestRun;
             this.TestCaseFilter = testCaseFilter;
             this.FilterOptions = filterOptions;
+            TestRunId = testRunId;
         }
 
         #endregion
@@ -147,6 +149,9 @@ namespace Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.ClientProtocol
             get;
             set;
         }
+
+        [DataMember]
+        public int TestRunId { get; set; } = -1;
 
         /// <summary>
         /// Gets or sets a value indicating whether data collection is enabled or not.

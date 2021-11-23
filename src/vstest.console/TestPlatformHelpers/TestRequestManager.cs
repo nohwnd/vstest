@@ -363,6 +363,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers
                                       && testRunRequestPayload.DebuggingEnabled);
             }
 
+            runCriteria.TestRunId = testRunRequestPayload.TestRunId;
+
             // Run tests.
             try
             {

@@ -20,22 +20,22 @@ namespace ParallelTests.IntegrationTests
             var sources = new[] {
                 new {
                     Sources = new [] {
-                        @"C:\p\vstest2\TestProject1\bin\Debug\net48\TestProject1.dll",
-                        @"C:\p\vstest2\TestProject2\bin\Debug\net48\TestProject2.dll",
+                        @"C:\p\vstest\TestProject1\bin\Debug\net48\TestProject1.dll",
+                        @"C:\p\vstest\TestProject2\bin\Debug\net48\TestProject2.dll",
                     },
-                    Handler = new TestRunHandler("net48 ")
+                    Handler = new TestRunHandler("net48-handler")
                 },
                 new
                 {
                     Sources = new [] {
-                        @"C:\p\vstest2\TestProject1\bin\Debug\net472\TestProject1.dll",
-                        @"C:\p\vstest2\TestProject2\bin\Debug\net472\TestProject2.dll",
+                        @"C:\p\vstest\TestProject1\bin\Debug\net472\TestProject1.dll",
+                        @"C:\p\vstest\TestProject2\bin\Debug\net472\TestProject2.dll",
                     },
-                    Handler = new TestRunHandler("net472")
+                    Handler = new TestRunHandler("net472-handler")
                 },
                 // new {
                 //    Sources = new [] {
-                //        @"C:\p\vstest2\TestProject2\bin\Debug\net5.0\TestProject2.dll",
+                //        @"C:\p\vstest\TestProject2\bin\Debug\net5.0\TestProject2.dll",
                 //    },
                 //    Handler = new TestRunHandler("net5.0")
                 //},
@@ -43,17 +43,17 @@ namespace ParallelTests.IntegrationTests
                 // {
                 //     Sources = new []
                 //     {
-                //         @"C:\p\vstest2\TestProject2\bin\Debug\netcoreapp3.1\TestProject2.dll",
+                //         @"C:\p\vstest\TestProject2\bin\Debug\netcoreapp3.1\TestProject2.dll",
                 //     },
                 //     Handler = new TestRunHandler("net3.1")
                 // },
             };
 
-            var console = @"C:\p\vstest2\src\vstest.console\bin\Debug\net451\win7-x64\vstest.console.exe";
+            var console = @"C:\p\vstest\src\vstest.console\bin\Debug\net451\win7-x64\vstest.console.exe";
             var consoleOptions = new ConsoleParameters
             {
                 LogFilePath = @"c:\temp\logs\log.txt",
-                TraceLevel = System.Diagnostics.TraceLevel.Verbose
+                TraceLevel = TraceLevel.Verbose
             };
             var r = new VsTestConsoleWrapper(console, consoleOptions);
 
@@ -70,16 +70,16 @@ namespace ParallelTests.IntegrationTests
 
             var sw3 = Stopwatch.StartNew();
             var syncTasks = new List<Task>();
-            var handler = new TestRunHandler("common");
+            // var handler = new TestRunHandler("common");
             foreach (var source in sources)
             {
                 var currentSettings = String.Format(settings, string.Join(";", source.Sources));
-                syncTasks.Add(Task.Run(() => r.RunTestsWithCustomTestHost(source.Sources, currentSettings, handler, new DebuggerTestHostLauncher ()))); ;
+                syncTasks.Add(Task.Run(() => r.RunTestsWithCustomTestHost(source.Sources, currentSettings, source.Handler, new DebuggerTestHostLauncher ()))); ;
                 Console.WriteLine($"Run tests in:{source}.");
             }
 
             Task.WaitAll(syncTasks.ToArray());
-            Console.WriteLine($"serial run took: {(int)sw3.ElapsedMilliseconds} ms");
+            Console.WriteLine($"parallel run took: {(int)sw3.ElapsedMilliseconds} ms");
 
 
             //var tasks = new List<Task>();
@@ -104,7 +104,7 @@ namespace ParallelTests.IntegrationTests
     {
         public bool IsDebug => true;
 
-        public bool AttachDebuggerToProcess(int pid, string debuggerHint, CancellationToken cancellationToken)
+        public bool AttachDebuggerToProcess(AttachDebuggerPayload data, CancellationToken cancellationToken)
         {
             return true;
         }
@@ -151,13 +151,13 @@ namespace ParallelTests.IntegrationTests
 
         public void HandleTestRunComplete(TestRunCompleteEventArgs testRunCompleteArgs, TestRunChangedEventArgs lastChunkArgs, ICollection<AttachmentSet> runContextAttachments, ICollection<string> executorUris)
         {
-            Console.WriteLine($"{_name} [COMPLETE]: err: { testRunCompleteArgs.Error }, lastChunk: {WriteTests(lastChunkArgs?.NewTestResults)}");
+            Console.WriteLine($"{_name} - id: {testRunCompleteArgs.TestRunId} chunkid: {lastChunkArgs?.TestRunId} [COMPLETE]: err: { testRunCompleteArgs.Error }, lastChunk: {WriteTests(lastChunkArgs?.NewTestResults)}");
         }
 
         public void HandleTestRunStatsChange(TestRunChangedEventArgs testRunChangedArgs)
         {
             //Console.WriteLine($"{_name} [PROGRESS - RUNNING    ]: {WriteTests(testRunChangedArgs.ActiveTests)}");
-            Console.WriteLine($"{_name} [PROGRESS - NEW RESULTS]: {WriteTests(testRunChangedArgs.NewTestResults)}");
+            Console.WriteLine($"{_name} id: {testRunChangedArgs.TestRunId} [PROGRESS - NEW RESULTS]: {WriteTests(testRunChangedArgs.NewTestResults)}");
         }
 
         public int LaunchProcessWithDebuggerAttached(TestProcessStartInfo testProcessStartInfo)

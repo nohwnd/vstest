@@ -97,6 +97,6 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces
 
     public interface ITestRequestHandler2 : ITestRequestHandler
     {
-        bool AttachDebuggerToProcess(int pid, string debuggerHint);
+        bool AttachDebuggerToProcess(AttachDebuggerPayload data);
     }
 }

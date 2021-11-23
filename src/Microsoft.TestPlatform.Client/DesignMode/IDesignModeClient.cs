@@ -7,6 +7,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
     using System.Threading;
     using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+    using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
     /// <summary>
@@ -34,7 +35,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
         /// <param name="pid">Process ID of the process to which the debugger should be attached.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns><see cref="true"/> if the debugger was successfully attached to the requested process, <see cref="false"/> otherwise.</returns>
-        bool AttachDebuggerToProcess(int pid, string debuggerHint, CancellationToken cancellationToken);
+        bool AttachDebuggerToProcess(AttachDebuggerPayload data, CancellationToken cancellationToken);
 
 
         /// <summary>

@@ -666,7 +666,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
         /// <inheritdoc />
         public bool AttachDebuggerToProcess(int pid)
         {
-            return AttachDebuggerToProcess(pid, null);      
+            return AttachDebuggerToProcess( new AttachDebuggerPayload {  Pid = pid });      
         }
 
         /// <summary>
@@ -695,16 +695,16 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Execution
             EqtTrace.Info("TestRunRequest.Dispose: id: {0} Completed.",this.id);
         }
 
-        public bool AttachDebuggerToProcess(int pid, string debuggerHint)
+        public bool AttachDebuggerToProcess(AttachDebuggerPayload data)
         {
             if (this.testRunCriteria.TestHostLauncher is ITestHostLauncher3 launcher3)
             {
-                return launcher3.AttachDebuggerToProcess(pid, debuggerHint, CancellationToken.None);
+                return launcher3.AttachDebuggerToProcess(data, CancellationToken.None);
             }
 
             if (this.testRunCriteria.TestHostLauncher is ITestHostLauncher2 launcher2)
             {
-                return launcher2.AttachDebuggerToProcess(pid);
+                return launcher2.AttachDebuggerToProcess(data.Pid);
             }
 
             return false;

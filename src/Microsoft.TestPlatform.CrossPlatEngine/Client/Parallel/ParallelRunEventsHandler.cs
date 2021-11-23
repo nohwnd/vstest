@@ -177,12 +177,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel
         /// <inheritdoc />
         public bool AttachDebuggerToProcess(int pid)
         {
-            return AttachDebuggerToProcess(pid, null);
+            return AttachDebuggerToProcess(new AttachDebuggerPayload {  Pid = pid });
         }
 
-        public bool AttachDebuggerToProcess(int pid, string debuggerHint)
+        public bool AttachDebuggerToProcess(AttachDebuggerPayload data)
         {
-            return ((ITestRunEventsHandler3)this.actualRunEventsHandler).AttachDebuggerToProcess(pid, debuggerHint);
+            return ((ITestRunEventsHandler3)this.actualRunEventsHandler).AttachDebuggerToProcess(data);
         }
 
         private void ConvertToRawMessageAndSend(string messageType, object payload)

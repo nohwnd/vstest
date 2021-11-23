@@ -187,7 +187,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
                             (testRunCriteria.TestHostLauncher != null && testRunCriteria.TestHostLauncher.IsDebug)
                             || this.debugEnabledForTestSession,
                         testCaseFilter: testRunCriteria.TestCaseFilter,
-                        filterOptions: testRunCriteria.FilterOptions);
+                        filterOptions: testRunCriteria.FilterOptions,
+                        testRunCriteria.TestRunId);
 
                     // This is workaround for the bug https://github.com/Microsoft/vstest/issues/970
                     var runsettings = this.ProxyOperationManager.RemoveNodesFromRunsettingsIfRequired(
@@ -296,13 +297,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client
         /// <inheritdoc />
         public bool AttachDebuggerToProcess(int pid)
         {
-            return AttachDebuggerToProcess(pid, null);
+            return AttachDebuggerToProcess(new AttachDebuggerPayload {  Pid = pid});
         }
 
         /// <inheritdoc />
-        public bool AttachDebuggerToProcess(int pid, string debuggerHint)
+        public bool AttachDebuggerToProcess(AttachDebuggerPayload data)
         {
-            return ((ITestRunEventsHandler3)this.baseTestRunEventsHandler).AttachDebuggerToProcess(pid, debuggerHint);
+            return ((ITestRunEventsHandler3)this.baseTestRunEventsHandler).AttachDebuggerToProcess(data);
         }
 
         /// <inheritdoc/>

@@ -235,7 +235,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
         /// <inheritdoc />
         public bool AttachDebuggerToProcess(int pid)
         {
-            return AttachDebuggerToProcess(pid, null);
+            return AttachDebuggerToProcess(new AttachDebuggerPayload {  Pid = pid });
         }
 
         public void OnMessageReceived(object sender, MessageReceivedEventArgs messageReceivedArgs)
@@ -515,7 +515,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
             this.channel.Send(data);
         }
 
-        public bool AttachDebuggerToProcess(int pid, string debuggerHint)
+        public bool AttachDebuggerToProcess(AttachDebuggerPayload data)
         {
             // If an attach request is issued but there is no support for attaching on the other
             // side of the communication channel, we simply return and let the caller know the
@@ -534,26 +534,22 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities
                 waitHandle.Set();
             };
 
-            string data;
+            string payload;
             if (this.protocolVersion < ObjectModelConstants.MinimumProtocolVersionWithDebuggerHintSupport)
             {
-                data = dataSerializer.SerializePayload(
+                payload = dataSerializer.SerializePayload(
                     MessageType.AttachDebugger,
-                    pid,
+                    data.Pid,
                     protocolVersion);
             }
             else
             {
-                data = dataSerializer.SerializePayload(
+                payload = dataSerializer.SerializePayload(
                     MessageType.AttachDebuggerWithHint,
-                    new AttachDebuggerPayload
-                    {
-                        Pid = pid,
-                        DebuggerHint = debuggerHint,
-                    },
+                    data,
                     protocolVersion);
             }
-            this.SendData(data);
+            this.SendData(payload);
 
             EqtTrace.Verbose("Waiting for AttachDebuggerToProcess ack ...");
             waitHandle.Wait();

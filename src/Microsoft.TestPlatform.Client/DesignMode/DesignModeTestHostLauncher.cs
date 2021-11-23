@@ -5,6 +5,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
 {
     using System.Threading;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+    using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client.Interfaces;
 
     /// <summary>
@@ -29,18 +30,18 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.DesignMode
         /// <inheritdoc/>
         public bool AttachDebuggerToProcess(int pid)
         {
-            return this.designModeClient.AttachDebuggerToProcess(pid, null, CancellationToken.None);
+            return this.designModeClient.AttachDebuggerToProcess(new AttachDebuggerPayload { Pid = pid }, CancellationToken.None);
         }
 
         /// <inheritdoc/>
         public bool AttachDebuggerToProcess(int pid, CancellationToken cancellationToken)
         {
-            return this.designModeClient.AttachDebuggerToProcess(pid, null, cancellationToken);
+            return this.designModeClient.AttachDebuggerToProcess(new AttachDebuggerPayload {  Pid = pid }, cancellationToken);
         }
 
-        public bool AttachDebuggerToProcess(int pid, string debuggerHint, CancellationToken cancellationToken)
+        public bool AttachDebuggerToProcess(AttachDebuggerPayload data, CancellationToken cancellationToken)
         {
-            return this.designModeClient.AttachDebuggerToProcess(pid, debuggerHint, cancellationToken);
+            return this.designModeClient.AttachDebuggerToProcess(data, cancellationToken);
         }
 
         /// <inheritdoc/>
