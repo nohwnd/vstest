@@ -449,6 +449,7 @@ public class DefaultTestHostManager : ITestRuntimeProvider2
         {
             EqtTrace.Verbose("DefaultTestHostManager: Starting process '{0}' with command line '{1}'", testHostStartInfo.FileName, testHostStartInfo.Arguments);
             cancellationToken.ThrowIfCancellationRequested();
+            testHostStartInfo.EnvironmentVariables.Add("PROCESS_PRIORITY", "BELOWNORMAL");
             _testHostProcess = _processHelper.LaunchProcess(
                 testHostStartInfo.FileName,
                 testHostStartInfo.Arguments,

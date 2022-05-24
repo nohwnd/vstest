@@ -122,17 +122,39 @@ public partial class ProcessHelper : IProcessHelper
 
             // EqtTrace.Verbose("ProcessHelper: Starting process '{0}' with command line '{1}'", processPath, arguments);
             // TODO: Enable logging here, and consider wrapping Win32Exception into another that shows the path of the process.
-            process.Start();
 
-            if (errorCallback != null)
+            var priority = default(ProcessPriorityClass);
+            var prioritySet = envVariables.TryGetValue("PROCESS_PRIORITY", out var value) && Enum.TryParse<ProcessPriorityClass>(value, true, out priority) && Enum.IsDefined(typeof(ProcessPriorityClass), priority);
+            if (priority != default(ProcessPriorityClass))
             {
-                process.BeginErrorReadLine();
-            }
 
-            if (outputCallBack != null)
-            {
-                process.BeginOutputReadLine();
+                var currentProcess = Process.GetCurrentProcess();
+                var currentProcessPriority = currentProcess.PriorityClass;
+                try
+                {
+                    currentProcess.PriorityClass = priority;
+                    process.Start();
+                }
+                finally
+                {
+                    currentProcess.PriorityClass = currentProcessPriority;
+                }
             }
+            else
+            {
+
+                process.Start();
+            }
+        }
+
+        if (errorCallback != null)
+        {
+            process.BeginErrorReadLine();
+        }
+
+        if (outputCallBack != null)
+        {
+            process.BeginOutputReadLine();
         }
     }
 
