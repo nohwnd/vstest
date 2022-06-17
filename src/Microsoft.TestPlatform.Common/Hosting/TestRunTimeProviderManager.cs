@@ -45,14 +45,32 @@ public class TestRuntimeProviderManager : ITestRuntimeProviderManager
         return host?.Value;
     }
 
-    public virtual ITestRuntimeProvider GetTestHostManagerByRunConfiguration(string runConfiguration, List<string> _)
+    public virtual ITestRuntimeProvider GetTestHostManagerByRunConfiguration(string runConfiguration, List<string> sources)
     {
+        var canExecuteInfo = new CanExecuteInfo
+        {
+            RunsettingsXml = runConfiguration,
+            // TODO: I don't know why I chose to pass the collecton of sources here rather than just providing one, because I can't say if the sources have anything in common.
+            Source = sources[0],
+        };
+
         foreach (var testExtension in _testHostExtensionManager.TestExtensions)
         {
-            if (testExtension.Value.CanExecuteCurrentRunConfiguration(runConfiguration))
+            if (testExtension.Value is IInternalTestRuntimeProvider internalProvider)
             {
-                // we are creating a new Instance of ITestRuntimeProvider so that each POM gets it's own object of ITestRuntimeProvider
-                return (ITestRuntimeProvider)Activator.CreateInstance(testExtension.Value.GetType());
+                if (internalProvider.CanExecute(canExecuteInfo))
+                {
+                    // we are creating a new Instance of ITestRuntimeProvider so that each POM gets it's own object of ITestRuntimeProvider
+                    return (ITestRuntimeProvider)Activator.CreateInstance(testExtension.Value.GetType());
+                }
+            }
+            else
+            {
+                if (testExtension.Value.CanExecuteCurrentRunConfiguration(runConfiguration))
+                {
+                    // we are creating a new Instance of ITestRuntimeProvider so that each POM gets it's own object of ITestRuntimeProvider
+                    return (ITestRuntimeProvider)Activator.CreateInstance(testExtension.Value.GetType());
+                }
             }
         }
 

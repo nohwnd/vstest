@@ -20,3 +20,14 @@ public interface ITestRuntimeProvider2 : ITestRuntimeProvider
     /// </returns>
     bool AttachDebuggerToTestHost();
 }
+
+public interface IInternalTestRuntimeProvider : ITestRuntimeProvider
+{
+    bool CanExecute(CanExecuteInfo canExecuteInfo);
+}
+
+public class CanExecuteInfo
+{
+    public string RunsettingsXml { get; set; }
+    public string Source { get; set; }
+}

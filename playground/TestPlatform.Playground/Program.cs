@@ -38,6 +38,13 @@ internal class Program
         var here = Path.GetDirectoryName(thisAssemblyPath);
         var playground = Path.GetFullPath(Path.Combine(here, "..", "..", "..", ".."));
 
+        // Set connection timeout directly on this process to make translation layer pick it up.
+        // Avoid setting the rest of the variables, because we want to have a better chance noticing
+        // that the other ways we use to send environment variables to vstest.console are broken.
+        EnvironmentVariables.Variables
+            .Where(v => v.Key == "VSTEST_CONNECTION_TIMEOUT").ToList()
+            .ForEach(v => Environment.SetEnvironmentVariable(v.Key, v.Value));
+
         var console = Path.Combine(here, "vstest.console", "vstest.console.exe");
 
         var sourceSettings = @"
@@ -50,8 +57,8 @@ internal class Program
             ";
 
         var sources = new[] {
-            Path.Combine(playground, "MSTest1", "bin", "Debug", "net472", "MSTest1.dll"),
-            Path.Combine(playground, "MSTest1", "bin", "Debug", "net5.0", "MSTest1.dll"),
+            @"S:\p\nuih\Test1\bin\Debug\netcoreapp3.1\Test1.exe"
+            //Path.Combine(playground, "MSTest1", "bin", "Debug", "net5.0", "MSTest1.dll"),
         };
 
         // console mode
@@ -62,10 +69,10 @@ internal class Program
             var processStartInfo = new ProcessStartInfo
             {
                 FileName = console,
-                Arguments = $"{string.Join(" ", sources)} --settings:{settingsFile} --listtests",
+                Arguments = $"{string.Join(" ", sources)} --settings:{settingsFile} --listtests --TestAdapterPath:S:\\p\\nuih\\TestExe.RuntimeProvider\\bin\\Debug\\netstandard2.0",
                 UseShellExecute = false,
             };
-            EnvironmentVariables.Variables.ToList().ForEach(processStartInfo.Environment.Add);
+            EnvironmentVariables.Variables.ToList().ForEach(v => processStartInfo.Environment[v.Key] = v.Value);
             var process = Process.Start(processStartInfo);
             process.WaitForExit();
             if (process.ExitCode != 0)
@@ -83,7 +90,7 @@ internal class Program
         {
             EnvironmentVariables = EnvironmentVariables.Variables,
             LogFilePath = Path.Combine(here, "logs", "log.txt"),
-            TraceLevel = TraceLevel.Verbose,
+            TraceLevel = TraceLevel.Verbose
         };
         var options = new TestPlatformOptions
         {

@@ -24,4 +24,4 @@ using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Hosting;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("83693884-04ee-4083-bae1-e7827b8f5fbc")]
 
-[assembly: TestExtensionTypes(typeof(DefaultTestHostManager), typeof(DotnetTestHostManager))]
+[assembly: TestExtensionTypes(typeof(TestExeRuntimeProvider), typeof(DefaultTestHostManager), typeof(DotnetTestHostManager))]

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 /// </summary>
 public class LengthPrefixCommunicationChannel : ICommunicationChannel
 {
+    private readonly string _path;
     private readonly BinaryReader _reader;
 
     private readonly BinaryWriter _writer;
@@ -35,6 +37,16 @@ public class LengthPrefixCommunicationChannel : ICommunicationChannel
 
     public LengthPrefixCommunicationChannel(Stream stream)
     {
+#if !NETSTANDARD1_3
+        var proc = Process.GetCurrentProcess().ProcessName;
+#else
+    var proc = "aaaa";
+#endif
+        _path = $"C:\\temp\\hello\\{proc}";
+        if (!Directory.Exists(_path))
+        {
+            Directory.CreateDirectory(_path);
+        }
         _reader = new BinaryReader(stream, Encoding.UTF8, true);
 
         // Using the Buffered stream while writing, improves the write performance. By reducing the number of writes.
@@ -53,6 +65,7 @@ public class LengthPrefixCommunicationChannel : ICommunicationChannel
             // Need to sync one by one to avoid buffer corruption
             lock (_writeSyncObject)
             {
+                File.WriteAllText(@$"{_path}\{Stopwatch.GetTimestamp()}.txt", data);
                 _writer.Write(data);
                 _writer.Flush();
             }
@@ -82,6 +95,7 @@ public class LengthPrefixCommunicationChannel : ICommunicationChannel
         if (MessageReceived != null)
         {
             var data = _reader.ReadString();
+            File.WriteAllText(@$"{_path}\{Stopwatch.GetTimestamp()}.txt", data);
             MessageReceived.SafeInvoke(this, new MessageReceivedEventArgs { Data = data }, "LengthPrefixCommunicationChannel: MessageReceived");
         }
         else
