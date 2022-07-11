@@ -157,6 +157,7 @@ public class TestRequestSender : ITestRequestSender
         // Server start returns the listener port
         // return int.Parse(this.communicationServer.Start());
         var endpoint = _communicationEndpoint.Start(_connectionInfo.Endpoint);
+        
         // TODO: This is forcing us to use IP address and port for communication
         return endpoint.GetIpEndPoint().Port;
     }
