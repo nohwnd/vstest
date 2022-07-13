@@ -14,3 +14,14 @@ public interface ICommunicationEndpointFactory
     /// <returns cref="ICommunicationEndPoint">Return communication endpoint object.</returns>
     ICommunicationEndPoint Create(ConnectionRole role);
 }
+
+
+public interface IAsyncCommunicationEndpointFactory
+{
+    /// <summary>
+    /// Create communication endpoint.
+    /// </summary>
+    /// <param name="role" cref="ConnectionRole">Endpoint role.</param>
+    /// <returns cref="ICommunicationEndPoint">Return communication endpoint object.</returns>
+    Task<IAsyncCommunicationEndPoint> CreateAsync(ConnectionRole role);
+}
