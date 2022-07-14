@@ -70,6 +70,7 @@ public interface IAsyncCommunicationEndPoint
     /// <typeparam name="TContext"></typeparam>
     /// <param name="messageReceivedAsync"></param>
     /// <param name="context"></param>
+    // TODO: rename to SetHandler, because we can replace one with another
     void RegisterHandler<TContext>(Func<IAsyncCommunicationEndPoint, TContext, Message, CancellationToken, Task> messageReceivedAsync, TContext context);
 
 
