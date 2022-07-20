@@ -52,38 +52,39 @@ internal class Program
                     <RunConfiguration>
                         <InIsolation>true</InIsolation>
                         <MaxCpuCount>0</MaxCpuCount>
+                        <CollectSourceInformation>False</CollectSourceInformation>
                     </RunConfiguration>
                 </RunSettings>
             ";
 
         var sources = new[] {
-            @"S:\p\nuih\Test1\bin\Debug\netcoreapp3.1\Test1.exe"
+            @"S:\p\nuih\Test1\bin\Debug\net462\Test1.exe"
             //Path.Combine(playground, "MSTest1", "bin", "Debug", "net5.0", "MSTest1.dll"),
         };
 
-        // console mode
-        var settingsFile = Path.GetTempFileName();
-        try
-        {
-            File.WriteAllText(settingsFile, sourceSettings);
-            var processStartInfo = new ProcessStartInfo
-            {
-                FileName = console,
-                Arguments = $"{string.Join(" ", sources)} --settings:{settingsFile} --listtests --TestAdapterPath:S:\\p\\nuih\\TestExe.RuntimeProvider\\bin\\Debug\\netstandard2.0",
-                UseShellExecute = false,
-            };
-            EnvironmentVariables.Variables.ToList().ForEach(v => processStartInfo.Environment[v.Key] = v.Value);
-            var process = Process.Start(processStartInfo);
-            process.WaitForExit();
-            if (process.ExitCode != 0)
-            {
-                throw new Exception($"Process failed with {process.ExitCode}");
-            }
-        }
-        finally
-        {
-            try { File.Delete(settingsFile); } catch { }
-        }
+        //// console mode
+        //var settingsFile = Path.GetTempFileName();
+        //try
+        //{
+        //    File.WriteAllText(settingsFile, sourceSettings);
+        //    var processStartInfo = new ProcessStartInfo
+        //    {
+        //        FileName = console,
+        //        Arguments = $"{string.Join(" ", sources)} --settings:{settingsFile} --listtests --TestAdapterPath:S:\\p\\nuih\\TestExe.RuntimeProvider\\bin\\Debug\\netstandard2.0",
+        //        UseShellExecute = false,
+        //    };
+        //    EnvironmentVariables.Variables.ToList().ForEach(v => processStartInfo.Environment[v.Key] = v.Value);
+        //    var process = Process.Start(processStartInfo);
+        //    process.WaitForExit();
+        //    if (process.ExitCode != 0)
+        //    {
+        //        throw new Exception($"Process failed with {process.ExitCode}");
+        //    }
+        //}
+        //finally
+        //{
+        //    try { File.Delete(settingsFile); } catch { }
+        //}
 
         // design mode
         var consoleOptions = new ConsoleParameters
