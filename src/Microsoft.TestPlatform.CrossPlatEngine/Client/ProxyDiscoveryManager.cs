@@ -147,7 +147,7 @@ public class ProxyDiscoveryManager : IProxyDiscoveryManager, IBaseProxy, ITestDi
 
         try
         {
-            _isCommunicationEstablished = _proxyOperationManager.SetupChannel(discoverySources, discoveryCriteria.RunSettings);
+            _isCommunicationEstablished = _proxyOperationManager.SetupChannelAsync(discoverySources, discoveryCriteria.RunSettings);
 
             if (_isCommunicationEstablished)
             {

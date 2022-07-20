@@ -9,8 +9,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Extensions;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Helpers;
@@ -31,7 +33,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client;
 /// <summary>
 /// Base class for any operations that the client needs to drive through the engine.
 /// </summary>
-public class ProxyOperationManager
+internal class ProxyOperationManager
 {
     private readonly string _versionCheckPropertyName = "IsVersionCheckRequired";
     private readonly string _makeRunsettingsCompatiblePropertyName = "MakeRunsettingsCompatible";
@@ -56,7 +58,7 @@ public class ProxyOperationManager
     /// <param name="testHostManager">Test host manager instance.</param>
     public ProxyOperationManager(
         IRequestData? requestData,
-        ITestRequestSender requestSender,
+        AsyncTestRequestSender requestSender,
         ITestRuntimeProvider testHostManager,
         Framework testhostManagerFramework)
         : this(
@@ -77,7 +79,7 @@ public class ProxyOperationManager
     /// <param name="baseProxy">The base proxy.</param>
     public ProxyOperationManager(
         IRequestData? requestData,
-        ITestRequestSender requestSender,
+        AsyncTestRequestSender requestSender,
         ITestRuntimeProvider testHostManager,
         Framework? testhostManagerFramework,
         IBaseProxy? baseProxy)
@@ -103,7 +105,7 @@ public class ProxyOperationManager
     /// <summary>
     /// Gets or sets the server for communication.
     /// </summary>
-    public ITestRequestSender RequestSender { get; set; }
+    public AsyncTestRequestSender RequestSender { get; set; }
 
     /// <summary>
     /// Gets or sets the test host manager.
@@ -147,13 +149,13 @@ public class ProxyOperationManager
     /// <returns>
     /// Returns true if the communication is established b/w runner and host, false otherwise.
     /// </returns>
-    public virtual bool SetupChannel(
+    public virtual async Task<bool> SetupChannel(
         IEnumerable<string> sources,
         string runSettings,
         ITestMessageEventHandler eventHandler)
     {
         // NOTE: Event handler is ignored here, but it is used in the overloaded method.
-        return SetupChannel(sources, runSettings);
+        return await SetupChannelAsync(sources, runSettings);
     }
 
     /// <summary>
@@ -167,7 +169,7 @@ public class ProxyOperationManager
     /// <returns>
     /// Returns true if the communication is established b/w runner and host, false otherwise.
     /// </returns>
-    public virtual bool SetupChannel(IEnumerable<string> sources, string? runSettings)
+    public virtual async Task<bool> SetupChannelAsync(IEnumerable<string> sources, string? runSettings)
     {
         CancellationTokenSource.Token.ThrowTestPlatformExceptionIfCancellationRequested();
 
@@ -180,6 +182,8 @@ public class ProxyOperationManager
 
         _testHostProcessStdError = string.Empty;
         TestHostConnectionInfo testHostConnectionInfo = TestHostManager.GetTestHostConnectionInfo();
+
+        var connectionInfo = await RequestSender.InitializeCommunicationAsync(CancellationTokenSource.Token);
 
         var portNumber = 0;
         if (testHostConnectionInfo.Role == ConnectionRole.Client)
@@ -260,7 +264,7 @@ public class ProxyOperationManager
 
         // If test host does not launch then throw exception, otherwise wait for connection.
         if (!_testHostLaunched
-            || !RequestSender.WaitForRequestHandlerConnection(
+            || !RequestSender.WaitForRequestHandlerConnectionAsync(
                 connTimeout * 1000,
                 CancellationTokenSource.Token))
         {

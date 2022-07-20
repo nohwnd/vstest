@@ -340,7 +340,7 @@ public class ProxyTestSessionManager : IProxyTestSessionManager
             operationManagerProxy.Initialize(skipDefaultAdapters: false);
 
             // Start the test host associated to the proxy.
-            if (!operationManagerProxy.SetupChannel(sources, runtimeProviderInfo.RunSettings))
+            if (!operationManagerProxy.SetupChannelAsync(sources, runtimeProviderInfo.RunSettings))
             {
                 return false;
             }

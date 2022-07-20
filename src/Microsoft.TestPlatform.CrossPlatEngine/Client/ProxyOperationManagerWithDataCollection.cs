@@ -120,7 +120,7 @@ public class ProxyOperationManagerWithDataCollection : ProxyOperationManager
             DataCollectionRunEventsHandler.Messages.Clear();
         }
 
-        return base.SetupChannel(sources, runSettings);
+        return base.SetupChannelAsync(sources, runSettings);
     }
 
     /// <summary>

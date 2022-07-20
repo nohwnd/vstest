@@ -56,7 +56,7 @@ internal interface IAsyncCommunicationEndPoint<TMessage>
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task ConnectAsync(TimeSpan timeout, CancellationToken cancellationToken);
+    Task ConnectAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Stop the current connection, and dispose all the resources. This should not notify <see cref="DisconnectedAsync" >.
@@ -109,9 +109,9 @@ internal class AsyncCommunicationEndPointWrapper : IAsyncCommunicationEndPoint
 
     public Task Completion => _communicationEndPoint.Completion;
 
-    public Task ConnectAsync(TimeSpan timeout, CancellationToken cancellationToken)
+    public Task ConnectAsync(CancellationToken cancellationToken)
     {
-        return _communicationEndPoint.ConnectAsync(timeout, cancellationToken);
+        return _communicationEndPoint.ConnectAsync(cancellationToken);
     }
 
     public Task<string> ListenAsync(CancellationToken cancellationToken)
@@ -143,6 +143,7 @@ internal abstract class AsyncTcpCommunicationEndpoint<TMessage> : IAsyncCommunic
     private readonly CancellationTokenSource _cancellation = new();
     private readonly AsyncLock _handlerLock = new();
     protected readonly DisposableCollection _disposables = new();
+    private readonly TimeSpan _timeout;
 
     private IPEndPoint? _actualAddress;
 
@@ -158,11 +159,12 @@ internal abstract class AsyncTcpCommunicationEndpoint<TMessage> : IAsyncCommunic
     Task.CompletedTask;
 #endif
 
-    public AsyncTcpCommunicationEndpoint(string description, string address, ConnectionRole role, IMessageSerializer<TMessage> messageSerializer)
+    public AsyncTcpCommunicationEndpoint(string description, string address, ConnectionRole role, TimeSpan timeout, IMessageSerializer<TMessage> messageSerializer)
     {
         _description = description;
         _providedAddress = address;
         _role = role;
+        _timeout = timeout;
         _messageSerializer = messageSerializer;
     }
 
@@ -187,7 +189,7 @@ internal abstract class AsyncTcpCommunicationEndpoint<TMessage> : IAsyncCommunic
         return Task.FromResult(_actualAddress.ToString());
     }
 
-    public async Task ConnectAsync(TimeSpan timeout, CancellationToken cancellationToken)
+    public async Task ConnectAsync(CancellationToken cancellationToken)
     {
         if (_actualAddress == null)
         {
@@ -201,7 +203,7 @@ internal abstract class AsyncTcpCommunicationEndpoint<TMessage> : IAsyncCommunic
 
         var cancellationSource = new CancellationTokenSource();
 
-        var joinedCancellationTokenWithTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationSource.Token, cancellationToken, new CancellationTokenSource(timeout).Token).Token;
+        var joinedCancellationTokenWithTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationSource.Token, cancellationToken, new CancellationTokenSource(_timeout).Token).Token;
         TcpClient? tcpClient = null;
         using (joinedCancellationTokenWithTimeout.Register(StopEndpoint))
         {
@@ -448,8 +450,8 @@ internal class AsyncLengthPrefixCommunicationChannel : IDisposable
 
 internal class AsyncTcpClient<TMessage> : AsyncTcpCommunicationEndpoint<TMessage>
 {
-    public AsyncTcpClient(string description, string address, IMessageSerializer<TMessage> messageSerializer)
-        : base(description, address, ConnectionRole.Client, messageSerializer)
+    public AsyncTcpClient(string description, string address, TimeSpan timeout, IMessageSerializer<TMessage> messageSerializer)
+        : base(description, address, ConnectionRole.Client, timeout, messageSerializer)
     {
     }
 
@@ -473,8 +475,8 @@ internal class AsyncTcpServer<TMessage> : AsyncTcpCommunicationEndpoint<TMessage
 {
     private TcpListener? _tcpListener;
 
-    public AsyncTcpServer(string description, string address, IMessageSerializer<TMessage> messageSerializer)
-        : base(description, address, ConnectionRole.Host, messageSerializer)
+    public AsyncTcpServer(string description, string address, TimeSpan timeout, IMessageSerializer<TMessage> messageSerializer)
+        : base(description, address, ConnectionRole.Host, timeout, messageSerializer)
     {
     }
 
@@ -565,7 +567,7 @@ internal class DesignModeClientAsync
 {
     public async Task ListenAndProcessRequests(string address, TimeSpan timeout, CancellationToken cancellationToken)
     {
-        IAsyncCommunicationEndPoint communicationEndpoint = AsyncCommunicationEndpointFactory.Create("DesignModeClient", address, ConnectionRole.Client, Transport.Sockets);
+        IAsyncCommunicationEndPoint communicationEndpoint = new AsyncCommunicationEndpointFactory().Create("DesignModeClient", address, ConnectionRole.Client, Transport.Sockets);
         var _ = communicationEndpoint.ListenAsync(cancellationToken);
 
         var incomingMessages = new WorkQueue<StringMessage>();
@@ -585,7 +587,7 @@ internal class DesignModeClientAsync
 
         communicationEndpoint.SetHandler<WorkQueue<StringMessage>>(handleReceivedMessageAsync, incomingMessages);
 
-        await communicationEndpoint.ConnectAsync(timeout, cancellationToken);
+        await communicationEndpoint.ConnectAsync(cancellationToken);
 
 
     }
@@ -656,15 +658,13 @@ internal class TranslationLayerAsync
         // async lock over all of this, passing the cancellation token to the wait
         // so we dont' start 2 sessions at the same time accidentally.
 
-        TimeSpan connectionTimeout = TimeSpan.FromSeconds(90);
-
-        IAsyncCommunicationEndPoint communicationEndpoint = AsyncCommunicationEndpointFactory.Create("Translation layer", "127.0.0.1:0", ConnectionRole.Client, Transport.Sockets);
+        IAsyncCommunicationEndPoint communicationEndpoint = new AsyncCommunicationEndpointFactory().Create("Translation layer", "127.0.0.1:0", ConnectionRole.Client, Transport.Sockets);
 
         var realAddress = await communicationEndpoint.ListenAsync(cancellationToken);
 
         await StartTheOtherProcessAsync(realAddress, cancellationToken);
 
-        await communicationEndpoint.ConnectAsync(connectionTimeout, cancellationToken);
+        await communicationEndpoint.ConnectAsync(cancellationToken);
 
         // detect error here?
 
@@ -679,17 +679,25 @@ internal class TranslationLayerAsync
 }
 
 
-internal static class AsyncCommunicationEndpointFactory
+internal class AsyncCommunicationEndpointFactory : IAsyncCommunicationEndpointFactory
 {
-    public static IAsyncCommunicationEndPoint Create(string name, string address, ConnectionRole role, Transport transport)
+    private readonly TimeSpan _timeout;
+
+    public AsyncCommunicationEndpointFactory()
+    {
+        // TODO: init from env variable. Or can we configure it also in some other way?
+        _timeout = TimeSpan.FromSeconds(90);
+    }
+
+    public IAsyncCommunicationEndPoint Create(string name, string address, ConnectionRole role, Transport transport)
     {
         var messageSerializer = new StringMessageSerializer();
         return transport switch
         {
             Transport.Sockets => role switch
             {
-                ConnectionRole.Host => new AsyncCommunicationEndPointWrapper(new AsyncTcpServer<StringMessage>(name, address, messageSerializer)),
-                ConnectionRole.Client => new AsyncCommunicationEndPointWrapper(new AsyncTcpClient<StringMessage>(name, address, messageSerializer)),
+                ConnectionRole.Host => new AsyncCommunicationEndPointWrapper(new AsyncTcpServer<StringMessage>(name, address, _timeout, messageSerializer)),
+                ConnectionRole.Client => new AsyncCommunicationEndPointWrapper(new AsyncTcpClient<StringMessage>(name, address, _timeout, messageSerializer)),
                 _ => throw new NotSupportedException(),
             },
             _ => throw new NotSupportedException(),

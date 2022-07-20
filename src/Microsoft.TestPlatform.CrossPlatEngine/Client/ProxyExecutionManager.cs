@@ -186,7 +186,7 @@ internal class ProxyExecutionManager : IProxyExecutionManager, IBaseProxy, IInte
                     // If the test execution is with a test filter, group them by sources.
                     : testRunCriteria.Tests.GroupBy(tc => tc.Source).Select(g => g.Key));
 
-            _isCommunicationEstablished = _proxyOperationManager.SetupChannel(
+            _isCommunicationEstablished = _proxyOperationManager.SetupChannelAsync(
                 _testSources,
                 testRunCriteria.TestRunSettings);
 
@@ -428,7 +428,7 @@ internal class ProxyExecutionManager : IProxyExecutionManager, IBaseProxy, IInte
     /// </returns>
     public virtual bool SetupChannel(IEnumerable<string> sources, string runSettings)
     {
-        return _proxyOperationManager?.SetupChannel(sources, runSettings) ?? false;
+        return _proxyOperationManager?.SetupChannelAsync(sources, runSettings) ?? false;
     }
 
     private void LogMessage(TestMessageLevel testMessageLevel, string message)
