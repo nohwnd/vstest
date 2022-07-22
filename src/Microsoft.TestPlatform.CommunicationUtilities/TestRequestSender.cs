@@ -751,7 +751,7 @@ public class TestRequestSender : ITestRequestSender
         Interlocked.CompareExchange(ref _operationCompleted, 1, 0);
     }
 
-    private ICommunicationEndPoint SetCommunicationEndPoint(TestHostConnectionInfo testhostConnectionInfo)
+    private static ICommunicationEndPoint SetCommunicationEndPoint(TestHostConnectionInfo testhostConnectionInfo)
     {
         // TODO: Use factory to get the communication endpoint. It will abstract out the type of communication endpoint like socket, shared memory or named pipe etc.,
         // The connectionInfo here is what is provided to testhost, but we are in runner, and so the role needs
@@ -771,7 +771,9 @@ public class TestRequestSender : ITestRequestSender
 
 internal class MessageConverter
 {
+#pragma warning disable IDE0060 // Remove unused parameter // TODO: Use or remove this parameter and the associated method
     internal static AttachDebuggerInfo ConvertToAttachDebuggerInfo(TestProcessAttachDebuggerPayload attachDebuggerPayload, Message message, int protocolVersion)
+#pragma warning restore IDE0060 // Remove unused parameter
     {
         // There is nothing to do differently based on those versions.
         //var sourceVersion = GetVersion(message);
@@ -784,8 +786,8 @@ internal class MessageConverter
         };
     }
 
-    private static int GetVersion(Message message)
-    {
-        return (message as VersionedMessage)?.Version ?? 0;
-    }
+    //private static int GetVersion(Message message)
+    //{
+    //    return (message as VersionedMessage)?.Version ?? 0;
+    //}
 }

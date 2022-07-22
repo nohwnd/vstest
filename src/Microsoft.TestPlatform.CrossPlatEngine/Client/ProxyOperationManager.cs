@@ -33,7 +33,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client;
 /// <summary>
 /// Base class for any operations that the client needs to drive through the engine.
 /// </summary>
-internal class ProxyOperationManager
+[SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Would cause a breaking change if users are inheriting this class and implement IDisposable")]
+public class ProxyOperationManager
 {
     private readonly string _versionCheckPropertyName = "IsVersionCheckRequired";
     private readonly string _makeRunsettingsCompatiblePropertyName = "MakeRunsettingsCompatible";
