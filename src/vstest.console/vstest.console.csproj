@@ -13,7 +13,7 @@
     <OutputType>Exe</OutputType>
     <RollForward>Major</RollForward>
     <IsTestProject>false</IsTestProject>
-    <PlatformTarget Condition="'$(TargetFramework)' == '$(TargetNetFxVersion)' AND '$(RuntimeIdentifier)' == '' " >AnyCPU</PlatformTarget>
+    <PlatformTarget Condition="'$(TargetFramework)' == '$(TargetNetFxVersion)' AND '$(RuntimeIdentifier)' == '' ">AnyCPU</PlatformTarget>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <RootNamespace>Microsoft.VisualStudio.TestPlatform.CommandLine</RootNamespace>
     <UseBannedApiAnalyzers>true</UseBannedApiAnalyzers>

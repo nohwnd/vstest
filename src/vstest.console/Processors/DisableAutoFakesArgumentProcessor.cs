@@ -11,35 +11,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// An argument processor that allows the user to disable fakes
 /// from the command line using the --DisableAutoFakes|/DisableAutoFakes command line switch.
 /// </summary>
-internal class DisableAutoFakesArgumentProcessor : IArgumentProcessor
+internal class DisableAutoFakesArgumentProcessor : ArgumentProcessor<bool>
 {
-    public const string CommandName = "/DisableAutoFakes";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    public Lazy<IArgumentExecutor>? Executor
+    public DisableAutoFakesArgumentProcessor() :
+        base("/DisableAutoFakes", typeof(DisableAutoFakesArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new DisableAutoFakesArgumentExecutor(CommandLineOptions.Instance));
-
-        set => _executor = value;
+        HelpPriority = HelpContentPriority.DisableAutoFakesArgumentProcessorHelpPriority;
     }
-
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new DisableAutoFakesArgumentProcessorCapabilities());
-}
-
-internal class DisableAutoFakesArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override bool AllowMultiple => false;
-
-    public override string CommandName => DisableAutoFakesArgumentProcessor.CommandName;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.Normal;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.DisableAutoFakesArgumentProcessorHelpPriority;
 }
 
 internal class DisableAutoFakesArgumentExecutor : IArgumentExecutor
@@ -51,12 +29,6 @@ internal class DisableAutoFakesArgumentExecutor : IArgumentExecutor
         _commandLineOptions = commandLineOptions;
     }
 
-    #region IArgumentProcessor
-
-    /// <summary>
-    /// Initializes with the argument that was provided with the command.
-    /// </summary>
-    /// <param name="argument">Argument that was provided with the command.</param>
     public void Initialize(string? argument)
     {
         if (argument.IsNullOrWhiteSpace() || !bool.TryParse(argument, out bool value))
@@ -67,17 +39,9 @@ internal class DisableAutoFakesArgumentExecutor : IArgumentExecutor
         _commandLineOptions.DisableAutoFakes = value;
     }
 
-    /// <summary>
-    /// Execute.
-    /// </summary>
-    /// <returns>
-    /// The <see cref="ArgumentProcessorResult"/>.
-    /// </returns>
     public ArgumentProcessorResult Execute()
     {
         // Nothing to do since we updated the parameter during initialize parameter
         return ArgumentProcessorResult.Success;
     }
-
-    #endregion
 }

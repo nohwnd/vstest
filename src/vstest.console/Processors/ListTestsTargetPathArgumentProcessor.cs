@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-
+using System.IO;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
@@ -11,41 +10,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 //  An argument processor to provide path to the file for listing fully qualified tests.
 /// To be used only with ListFullyQualifiedTests
 /// </summary>
-internal class ListTestsTargetPathArgumentProcessor : IArgumentProcessor
+internal class ListTestsTargetPathArgumentProcessor : ArgumentProcessor<FileInfo>
 {
-    public const string CommandName = "/ListTestsTargetPath";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new ListTestsTargetPathArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public ListTestsTargetPathArgumentProcessor()
+        : base("/ListTestsTargetPath", typeof(ListTestsTargetPathArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new ListTestsTargetPathArgumentExecutor(CommandLineOptions.Instance));
-
-        set => _executor = value;
+        IsHiddenInHelp = true;
     }
-}
-
-internal class ListTestsTargetPathArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => ListTestsTargetPathArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.Normal;
 }
 
 internal class ListTestsTargetPathArgumentExecutor : IArgumentExecutor
@@ -55,19 +26,11 @@ internal class ListTestsTargetPathArgumentExecutor : IArgumentExecutor
     /// </summary>
     private readonly CommandLineOptions _commandLineOptions;
 
-    /// <summary>
-    /// Default constructor.
-    /// </summary>
-    /// <param name="options">
-    /// The options.
-    /// </param>
     public ListTestsTargetPathArgumentExecutor(CommandLineOptions options)
     {
         ValidateArg.NotNull(options, nameof(options));
         _commandLineOptions = options;
     }
-
-    #region IArgumentExecutor
 
     /// <summary>
     /// Initializes with the argument that was provided with the command.
@@ -92,5 +55,4 @@ internal class ListTestsTargetPathArgumentExecutor : IArgumentExecutor
     {
         return ArgumentProcessorResult.Success;
     }
-    #endregion
 }

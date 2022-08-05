@@ -8,107 +8,49 @@ using System.Linq;
 using System.Xml;
 
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities;
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
-using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
-internal class EnableBlameArgumentProcessor : IArgumentProcessor
+internal class EnableBlameArgumentProcessor : ArgumentProcessor<bool>
 {
-    /// <summary>
-    /// The name of the command line argument that the ListTestsArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/Blame";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EnableBlameArgumentProcessor"/> class.
-    /// </summary>
     public EnableBlameArgumentProcessor()
+        : base(new[] {
+            "--blame",
+            // TODO: move these to their own processors so they have their own help entries
+            "--blame-crash",
+            "--blame-crash-dump-type",
+            "--blame-hang",
+            "--blame-hang-timeout",
+            "--blame-hang-dump-type",
+            "--blame-crash-collect-always",
+        }, typeof(EnableBlameArgumentExecutor))
     {
-    }
-
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new EnableBlameArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
-    {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new EnableBlameArgumentExecutor(RunSettingsManager.Instance, new PlatformEnvironment(), new FileHelper()));
-
-        set => _executor = value;
+        Priority = ArgumentProcessorPriority.Logging;
+        HelpContentResourceName = CommandLineResources.EnableBlameUsage;
+        HelpPriority = HelpContentPriority.EnableDiagArgumentProcessorHelpPriority;
     }
 }
 
-/// <summary>
-/// The argument capabilities.
-/// </summary>
-internal class EnableBlameArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => EnableBlameArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.Logging;
-
-    public override string HelpContentResourceName => CommandLineResources.EnableBlameUsage;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.EnableDiagArgumentProcessorHelpPriority;
-}
-
-/// <summary>
-/// The argument executor.
-/// </summary>
 internal class EnableBlameArgumentExecutor : IArgumentExecutor
 {
-    /// <summary>
-    /// Blame logger and data collector friendly name
-    /// </summary>
-    private static readonly string BlameFriendlyName = "blame";
-
-    /// <summary>
-    /// Run settings manager
-    /// </summary>
     private readonly IRunSettingsProvider _runSettingsManager;
-
-    /// <summary>
-    /// Platform environment
-    /// </summary>
-    private readonly IEnvironment _environment;
-
-    /// <summary>
-    /// For file related operation
-    /// </summary>
+    private readonly IOutput _output;
     private readonly IFileHelper _fileHelper;
 
-    internal EnableBlameArgumentExecutor(IRunSettingsProvider runSettingsManager, IEnvironment environment, IFileHelper fileHelper)
+    internal EnableBlameArgumentExecutor(IRunSettingsProvider runSettingsManager, IOutput output, IFileHelper fileHelper)
     {
         _runSettingsManager = runSettingsManager;
-        _environment = environment;
-        Output = ConsoleOutput.Instance;
+        _output = output;
         _fileHelper = fileHelper;
     }
-
-    internal IOutput Output { get; set; }
-
 
     #region IArgumentExecutor
 
@@ -142,7 +84,7 @@ internal class EnableBlameArgumentExecutor : IArgumentExecutor
 
             if (!enableDump && !enableHangDump)
             {
-                Output.Warning(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.BlameIncorrectOption, argument));
+                _output.Warning(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.BlameIncorrectOption, argument));
             }
             else
             {
@@ -173,11 +115,13 @@ internal class EnableBlameArgumentExecutor : IArgumentExecutor
     /// <param name="blameParameters">Blame parameters.</param>
     private void InitializeBlame(bool enableCrashDump, bool enableHangDump, Dictionary<string, string>? collectDumpParameters)
     {
+        string blameFriendlyName = "blame";
+
         // Add Blame Logger
-        LoggerUtilities.AddLoggerToRunSettings(BlameFriendlyName, null, _runSettingsManager);
+        LoggerUtilities.AddLoggerToRunSettings(blameFriendlyName, null, _runSettingsManager);
 
         // Add Blame Data Collector
-        CollectArgumentExecutor.AddDataCollectorToRunSettings(BlameFriendlyName, _runSettingsManager, _fileHelper);
+        CollectArgumentExecutor.AddDataCollectorToRunSettings(blameFriendlyName, _runSettingsManager, _fileHelper);
 
 
         // Add default run settings if required.
@@ -239,7 +183,7 @@ internal class EnableBlameArgumentExecutor : IArgumentExecutor
         // Add blame configuration element to blame collector.
         foreach (var item in dataCollectionRunSettings.DataCollectorSettingsList)
         {
-            if (string.Equals(item.FriendlyName, BlameFriendlyName))
+            if (string.Equals(item.FriendlyName, blameFriendlyName))
             {
                 item.Configuration = outernode;
             }

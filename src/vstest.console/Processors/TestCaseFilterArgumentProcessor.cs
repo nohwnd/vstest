@@ -13,48 +13,14 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Argument Executor for the "/TestCaseFilter" command line argument.
 /// </summary>
-internal class TestCaseFilterArgumentProcessor : IArgumentProcessor
+internal class TestCaseFilterArgumentProcessor : ArgumentProcessor<string>
 {
-    /// <summary>
-    /// The name of the command line argument that the TestCaseFilterArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/TestCaseFilter";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new TestCaseFilterArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public TestCaseFilterArgumentProcessor()
+        : base(new string[] { "--filter", "/TestCaseFilter" }, typeof(TestCaseFilterArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new TestCaseFilterArgumentExecutor(CommandLineOptions.Instance));
-
-        set => _executor = value;
+        HelpContentResourceName = CommandLineResources.TestCaseFilterArgumentHelp;
+        HelpPriority = HelpContentPriority.TestCaseFilterArgumentProcessorHelpPriority;
     }
-}
-
-internal class TestCaseFilterArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => TestCaseFilterArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.Normal;
-
-    public override string HelpContentResourceName => CommandLineResources.TestCaseFilterArgumentHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.TestCaseFilterArgumentProcessorHelpPriority;
 }
 
 /// <summary>
@@ -78,8 +44,6 @@ internal class TestCaseFilterArgumentExecutor : IArgumentExecutor
         ValidateArg.NotNull(options, nameof(options));
         _commandLineOptions = options;
     }
-
-    #region IArgumentExecutor
 
     /// <summary>
     /// Initializes with the argument that was provided with the command.
@@ -114,5 +78,4 @@ internal class TestCaseFilterArgumentExecutor : IArgumentExecutor
     {
         return ArgumentProcessorResult.Success;
     }
-    #endregion
 }

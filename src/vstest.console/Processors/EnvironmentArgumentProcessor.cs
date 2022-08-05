@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
@@ -15,103 +12,78 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Argument Executor for the "-e|--Environment|/e|/Environment" command line argument.
 /// </summary>
-internal class EnvironmentArgumentProcessor : IArgumentProcessor
+internal class EnvironmentArgumentProcessor : ArgumentProcessor<string>
+{
+    public EnvironmentArgumentProcessor()
+        : base(new string[] { "-e", "--environment" }, typeof(EnvironmentArgumentExecutor))
+    {
+        AllowMultiple = true;
+        Priority = ArgumentProcessorPriority.Normal;
+        HelpContentResourceName = CommandLineResources.EnvironmentArgumentHelp;
+        HelpPriority = HelpContentPriority.EnvironmentArgumentProcessorHelpPriority;
+    }
+}
+
+internal class EnvironmentArgumentExecutor : IArgumentExecutor
 {
     /// <summary>
-    /// The short name of the command line argument that the EnvironmentArgumentProcessor handles.
+    /// Used when warning about overriden environment variables.
     /// </summary>
-    public const string ShortCommandName = "/e";
+    private readonly IOutput _output;
 
     /// <summary>
-    /// The name of the command line argument that the EnvironmentArgumentProcessor handles.
+    /// Used when setting Environemnt variables.
     /// </summary>
-    public const string CommandName = "/Environment";
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
+    private readonly IRunSettingsProvider _runSettingsProvider;
 
-    public Lazy<IArgumentExecutor>? Executor
+    /// <summary>
+    /// Used when checking and forcing InIsolation mode.
+    /// </summary>
+    private readonly CommandLineOptions _commandLineOptions;
+    public EnvironmentArgumentExecutor(CommandLineOptions commandLineOptions, IRunSettingsProvider runSettingsProvider, IOutput output)
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new ArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance, ConsoleOutput.Instance));
-
-        set => _executor = value;
+        _commandLineOptions = commandLineOptions;
+        _output = output;
+        _runSettingsProvider = runSettingsProvider;
     }
 
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() => new ArgumentProcessorCapabilities());
-
-    internal class ArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
+    /// <summary>
+    /// Set the environment variables in RunSettings.xml
+    /// </summary>
+    /// <param name="argument">
+    /// Environment variable to set.
+    /// </param>
+    public void Initialize(string? argument)
     {
-        public override string CommandName => EnvironmentArgumentProcessor.CommandName;
-        public override string ShortCommandName => EnvironmentArgumentProcessor.ShortCommandName;
-        public override bool AllowMultiple => true;
-        public override bool IsAction => false;
-        public override string HelpContentResourceName => CommandLineResources.EnvironmentArgumentHelp;
-        public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.Normal;
-        public override HelpContentPriority HelpPriority => HelpContentPriority.EnvironmentArgumentProcessorHelpPriority;
-    }
+        TPDebug.Assert(!StringUtils.IsNullOrWhiteSpace(argument));
+        TPDebug.Assert(_output != null);
+        TPDebug.Assert(_commandLineOptions != null);
+        TPDebug.Assert(!StringUtils.IsNullOrWhiteSpace(_runSettingsProvider.ActiveRunSettings?.SettingsXml));
 
-    internal class ArgumentExecutor : IArgumentExecutor
-    {
-        /// <summary>
-        /// Used when warning about overriden environment variables.
-        /// </summary>
-        private readonly IOutput _output;
+        var key = argument;
+        var value = string.Empty;
 
-        /// <summary>
-        /// Used when setting Environemnt variables.
-        /// </summary>
-        private readonly IRunSettingsProvider _runSettingsProvider;
-
-        /// <summary>
-        /// Used when checking and forcing InIsolation mode.
-        /// </summary>
-        private readonly CommandLineOptions _commandLineOptions;
-        public ArgumentExecutor(CommandLineOptions commandLineOptions, IRunSettingsProvider runSettingsProvider, IOutput output)
+        if (key.Contains("="))
         {
-            _commandLineOptions = commandLineOptions;
-            _output = output;
-            _runSettingsProvider = runSettingsProvider;
+            value = key.Substring(key.IndexOf("=") + 1);
+            key = key.Substring(0, key.IndexOf("="));
         }
 
-        /// <summary>
-        /// Set the environment variables in RunSettings.xml
-        /// </summary>
-        /// <param name="argument">
-        /// Environment variable to set.
-        /// </param>
-        public void Initialize(string? argument)
+        var node = _runSettingsProvider.QueryRunSettingsNode($"RunConfiguration.EnvironmentVariables.{key}");
+        if (node != null)
         {
-            TPDebug.Assert(!StringUtils.IsNullOrWhiteSpace(argument));
-            TPDebug.Assert(_output != null);
-            TPDebug.Assert(_commandLineOptions != null);
-            TPDebug.Assert(!StringUtils.IsNullOrWhiteSpace(_runSettingsProvider.ActiveRunSettings?.SettingsXml));
-
-            var key = argument;
-            var value = string.Empty;
-
-            if (key.Contains("="))
-            {
-                value = key.Substring(key.IndexOf("=") + 1);
-                key = key.Substring(0, key.IndexOf("="));
-            }
-
-            var node = _runSettingsProvider.QueryRunSettingsNode($"RunConfiguration.EnvironmentVariables.{key}");
-            if (node != null)
-            {
-                _output.Warning(true, CommandLineResources.EnvironmentVariableXIsOverriden, key);
-            }
-
-            _runSettingsProvider.UpdateRunSettingsNode($"RunConfiguration.EnvironmentVariables.{key}", value);
-
-            if (!_commandLineOptions.InIsolation)
-            {
-                _commandLineOptions.InIsolation = true;
-                _runSettingsProvider.UpdateRunSettingsNode(InIsolationArgumentExecutor.RunSettingsPath, "true");
-            }
+            _output.Warning(true, CommandLineResources.EnvironmentVariableXIsOverriden, key);
         }
 
-        // Nothing to do here, the work was done in initialization.
-        public ArgumentProcessorResult Execute() => ArgumentProcessorResult.Success;
+        _runSettingsProvider.UpdateRunSettingsNode($"RunConfiguration.EnvironmentVariables.{key}", value);
+
+        if (!_commandLineOptions.InIsolation)
+        {
+            _commandLineOptions.InIsolation = true;
+            _runSettingsProvider.UpdateRunSettingsNode(InIsolationArgumentExecutor.RunSettingsPath, "true");
+        }
     }
+
+    // Nothing to do here, the work was done in initialization.
+    public ArgumentProcessorResult Execute() => ArgumentProcessorResult.Success;
 }

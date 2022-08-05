@@ -6,9 +6,7 @@ using System.Globalization;
 
 using Microsoft.VisualStudio.TestPlatform.Client.DesignMode;
 using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
-using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
 
@@ -19,47 +17,19 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Argument Processor for the "--Port|/Port" command line argument.
 /// </summary>
-internal class PortArgumentProcessor : IArgumentProcessor
+internal class PortArgumentProcessor : ArgumentProcessor<int>
 {
-    /// <summary>
-    /// The name of the command line argument that the PortArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/Port";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() => new PortArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public PortArgumentProcessor()
+        : base("--port", typeof(PortArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new PortArgumentExecutor(CommandLineOptions.Instance, TestRequestManager.Instance));
+        // REVIEW: This was not a command (action) before, but I guess we are just checking for /Port somewhere and create the processor by name.
+        IsCommand = true;
+        IsHiddenInHelp = true;
 
-        set => _executor = value;
+        Priority = ArgumentProcessorPriority.DesignMode;
+        HelpContentResourceName = CommandLineResources.PortArgumentHelp;
+        HelpPriority = HelpContentPriority.PortArgumentProcessorHelpPriority;
     }
-}
-
-internal class PortArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => PortArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.DesignMode;
-
-    public override string HelpContentResourceName => CommandLineResources.PortArgumentHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.PortArgumentProcessorHelpPriority;
 }
 
 /// <summary>
@@ -92,29 +62,12 @@ internal class PortArgumentExecutor : IArgumentExecutor
     /// </summary>
     private readonly IProcessHelper _processHelper;
 
-    /// <summary>
-    /// Default constructor.
-    /// </summary>
-    /// <param name="options">
-    /// The options.
-    /// </param>
-    /// <param name="testRequestManager"> Test request manager</param>
-    public PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager)
-        : this(options, testRequestManager, InitializeDesignMode, new ProcessHelper())
-    {
-    }
-
-    /// <summary>
-    /// For Unit testing only
-    /// </summary>
+    // REVIEW: this has initialize design mode callback, I guess that is to prevent startup during unit tests
     internal PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager, IProcessHelper processHelper)
         : this(options, testRequestManager, InitializeDesignMode, processHelper)
     {
     }
 
-    /// <summary>
-    /// For Unit testing only
-    /// </summary>
     internal PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager, Func<int, IProcessHelper, IDesignModeClient> designModeInitializer, IProcessHelper processHelper)
     {
         ValidateArg.NotNull(options, nameof(options));

@@ -7,62 +7,23 @@ using System.IO;
 using System.Xml;
 using System.Xml.XPath;
 
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
-using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
-/// <summary>
-/// The argument processor for enabling data collectors.
-/// </summary>
-internal class EnableCodeCoverageArgumentProcessor : IArgumentProcessor
+internal class EnableCodeCoverageArgumentProcessor : ArgumentProcessor<bool>
 {
-    /// <summary>
-    /// The name of command for enabling code coverage.
-    /// </summary>
-    public const string CommandName = "/EnableCodeCoverage";
 
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new EnableCodeCoverageArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public EnableCodeCoverageArgumentProcessor()
+        : base("/EnableCodeCoverage", typeof(EnableCodeCoverageArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new EnableCodeCoverageArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance, new FileHelper()));
-
-        set => _executor = value;
+        Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
+        IsHiddenInHelp = true;
     }
-}
-
-/// <inheritdoc />
-internal class EnableCodeCoverageArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => EnableCodeCoverageArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.AutoUpdateRunSettings;
-
-    //public override string HelpContentResourceName => CommandLineResources.EnableCodeCoverageArgumentProcessorHelp;
-
-    //public override HelpContentPriority HelpPriority => HelpContentPriority.EnableCodeCoverageArgumentProcessorHelpPriority;
 }
 
 /// <summary>

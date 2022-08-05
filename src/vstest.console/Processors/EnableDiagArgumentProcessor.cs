@@ -10,75 +10,34 @@ using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
-using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
-internal class EnableDiagArgumentProcessor : IArgumentProcessor
+// TODO: Add nullable? Because this can be empty? Or rather default value factory?
+// TODO: Add validator for directory or file (FileSystemInfo)
+internal class EnableDiagArgumentProcessor : ArgumentProcessor<FileSystemInfo>
 {
-    /// <summary>
-    /// The name of the command line argument that the ListTestsArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/Diag";
-
-    private readonly IFileHelper _fileHelper;
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EnableDiagArgumentProcessor"/> class.
-    /// </summary>
-    public EnableDiagArgumentProcessor() : this(new FileHelper())
+    public EnableDiagArgumentProcessor()
+        // TODO: maybe environment variables could be just part of the binding logic and
+        // we would just add them as aliases?
+        : base(new[]
+        {
+            "-d", "--diag" ,
+            // --diag verbosity?
+        }, typeof(EnableDiagArgumentExecutor))
     {
+        // Execute this always because we want to check environment variables.
+        AlwaysExecute = true;
+
+        Priority = ArgumentProcessorPriority.Diag;
+        HelpContentResourceName = CommandLineResources.EnableDiagUsage;
+        HelpPriority = HelpContentPriority.EnableDiagArgumentProcessorHelpPriority;
     }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EnableDiagArgumentProcessor"/> class.
-    /// </summary>
-    /// <param name="fileHelper">A file helper instance.</param>
-    protected EnableDiagArgumentProcessor(IFileHelper fileHelper)
-    {
-        _fileHelper = fileHelper;
-    }
-
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new EnableDiagArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
-    {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() => new EnableDiagArgumentExecutor(_fileHelper, new ProcessHelper()));
-
-        set => _executor = value;
-    }
-}
-
-/// <summary>
-/// The argument capabilities.
-/// </summary>
-internal class EnableDiagArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => EnableDiagArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.Diag;
-
-    public override string HelpContentResourceName => CommandLineResources.EnableDiagUsage;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.EnableDiagArgumentProcessorHelpPriority;
 }
 
 /// <summary>
@@ -103,8 +62,6 @@ internal class EnableDiagArgumentExecutor : IArgumentExecutor
         _fileHelper = fileHelper;
         _processHelper = processHelper;
     }
-
-    #region IArgumentExecutor
 
     /// <summary>
     /// Initializes with the argument that was provided with the command.
@@ -237,6 +194,4 @@ internal class EnableDiagArgumentExecutor : IArgumentExecutor
             _fileHelper.CreateDirectory(directory);
         }
     }
-
-    #endregion
 }

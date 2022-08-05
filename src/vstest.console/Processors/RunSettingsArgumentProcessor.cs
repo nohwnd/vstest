@@ -8,75 +8,43 @@ using System.IO;
 using System.Text;
 using System.Xml;
 
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
-using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
-internal class RunSettingsArgumentProcessor : IArgumentProcessor
+internal class RunSettingsArgumentProcessor : ArgumentProcessor<FileInfo>
 {
-    /// <summary>
-    /// The name of the command line argument that the PortArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/Settings";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new RunSettingsArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    // TODO: add existing file validator
+    public RunSettingsArgumentProcessor()
+        : base(new string[] { "-s", "--settings" }, typeof(RunSettingsArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new RunSettingsArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance));
-
-        set => _executor = value;
+        Priority = ArgumentProcessorPriority.RunSettings;
+        HelpContentResourceName = CommandLineResources.RunSettingsArgumentHelp;
+        HelpPriority = HelpContentPriority.RunSettingsArgumentProcessorHelpPriority;
     }
-}
-
-internal class RunSettingsArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => RunSettingsArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.RunSettings;
-
-    public override string HelpContentResourceName => CommandLineResources.RunSettingsArgumentHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.RunSettingsArgumentProcessorHelpPriority;
 }
 
 internal class RunSettingsArgumentExecutor : IArgumentExecutor
 {
     private readonly CommandLineOptions _commandLineOptions;
     private readonly IRunSettingsProvider _runSettingsManager;
+    private readonly IRunSettingsHelper _runsettingsHelper;
 
-    internal IFileHelper FileHelper { get; set; }
+    private readonly IFileHelper _fileHelper;
 
-    internal RunSettingsArgumentExecutor(CommandLineOptions commandLineOptions, IRunSettingsProvider runSettingsManager)
+    internal RunSettingsArgumentExecutor(CommandLineOptions commandLineOptions, IRunSettingsProvider runSettingsManager, IRunSettingsHelper runSettingsHelper, IFileHelper fileHelper)
     {
         _commandLineOptions = commandLineOptions;
         _runSettingsManager = runSettingsManager;
-        FileHelper = new FileHelper();
+        _runsettingsHelper = runSettingsHelper;
+        _fileHelper = fileHelper;
     }
 
     public void Initialize(string? argument)
@@ -86,7 +54,7 @@ internal class RunSettingsArgumentExecutor : IArgumentExecutor
             throw new CommandLineException(CommandLineResources.RunSettingsRequired);
         }
 
-        if (!FileHelper.Exists(argument))
+        if (!_fileHelper.Exists(argument))
         {
             throw new CommandLineException(
                 string.Format(
@@ -144,7 +112,7 @@ internal class RunSettingsArgumentExecutor : IArgumentExecutor
         var platformStr = _runSettingsManager.QueryRunSettingsNode(PlatformArgumentExecutor.RunSettingsPath);
         if (Enum.TryParse<Architecture>(platformStr, true, out var architecture))
         {
-            RunSettingsHelper.Instance.IsDefaultTargetArchitecture = false;
+            _runsettingsHelper.IsDefaultTargetArchitecture = false;
             _commandLineOptions.TargetArchitecture = architecture;
         }
     }

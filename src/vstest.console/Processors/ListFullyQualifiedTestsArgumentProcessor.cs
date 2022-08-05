@@ -8,8 +8,6 @@ using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
-using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Filtering;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -23,52 +21,16 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Argument Executor for the "--ListFullyQualifiedTests|/ListFullyQualifiedTests" command line argument.
 /// </summary>
-internal class ListFullyQualifiedTestsArgumentProcessor : IArgumentProcessor
+internal class ListFullyQualifiedTestsArgumentProcessor : ArgumentProcessor<bool>
 {
-    /// <summary>
-    /// The name of the command line argument that the ListFullyQualifiedTestsArgumentProcessor handles.
-    /// </summary>
-    public const string CommandName = "/ListFullyQualifiedTests";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new ListFullyQualifiedTestsArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public ListFullyQualifiedTestsArgumentProcessor()
+        : base("/ListFullyQualifiedTests", typeof(ListFullyQualifiedTestsArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new ListFullyQualifiedTestsArgumentExecutor(
-                CommandLineOptions.Instance,
-                RunSettingsManager.Instance,
-                TestRequestManager.Instance));
-
-        set => _executor = value;
+        IsCommand = true;
+        IsHiddenInHelp = true;
     }
 }
 
-internal class ListFullyQualifiedTestsArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => ListFullyQualifiedTestsArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => true;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.Normal;
-}
-
-/// <summary>
-/// Argument Executor for the "/ListTests" command line argument.
-/// </summary>
 internal class ListFullyQualifiedTestsArgumentExecutor : IArgumentExecutor
 {
     /// <summary>
@@ -101,27 +63,7 @@ internal class ListFullyQualifiedTestsArgumentExecutor : IArgumentExecutor
     /// </summary>
     private readonly List<string> _discoveredTests = new();
 
-    /// <summary>
-    /// Default constructor.
-    /// </summary>
-    /// <param name="options">
-    /// The options.
-    /// </param>
     public ListFullyQualifiedTestsArgumentExecutor(
-        CommandLineOptions options,
-        IRunSettingsProvider runSettingsProvider,
-        ITestRequestManager testRequestManager) :
-        this(options, runSettingsProvider, testRequestManager, ConsoleOutput.Instance)
-    {
-    }
-
-    /// <summary>
-    /// Default constructor.
-    /// </summary>
-    /// <param name="options">
-    /// The options.
-    /// </param>
-    internal ListFullyQualifiedTestsArgumentExecutor(
         CommandLineOptions options,
         IRunSettingsProvider runSettingsProvider,
         ITestRequestManager testRequestManager,
@@ -136,8 +78,6 @@ internal class ListFullyQualifiedTestsArgumentExecutor : IArgumentExecutor
         _runSettingsManager = runSettingsProvider;
         _discoveryEventsRegistrar = new DiscoveryEventsRegistrar(_discoveredTests, _commandLineOptions);
     }
-
-    #region IArgumentExecutor
 
     /// <summary>
     /// Initializes with the argument that was provided with the command.
@@ -185,8 +125,6 @@ internal class ListFullyQualifiedTestsArgumentExecutor : IArgumentExecutor
         File.WriteAllLines(_commandLineOptions.ListTestsTargetPath, _discoveredTests);
         return ArgumentProcessorResult.Success;
     }
-
-    #endregion
 
     private class DiscoveryEventsRegistrar : ITestDiscoveryEventsRegistrar
     {

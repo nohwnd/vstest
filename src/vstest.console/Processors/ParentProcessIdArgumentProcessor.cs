@@ -12,48 +12,19 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Argument Processor for the "--ParentProcessId|/ParentProcessId" command line argument.
 /// </summary>
-internal class ParentProcessIdArgumentProcessor : IArgumentProcessor
+internal class ParentProcessIdArgumentProcessor : ArgumentProcessor<int>
 {
-    /// <summary>
-    /// The name of the command line argument that the ParentProcessIdArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/ParentProcessId";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new ParentProcessIdArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public ParentProcessIdArgumentProcessor()
+        : base("/ParentProcessId", typeof(ParentProcessIdArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new ParentProcessIdArgumentExecutor(CommandLineOptions.Instance));
+        // Hide this because we use it just for design mode, and there VSTestConsoleWrapper
+        // is supposed to know the details of what to provide.
+        IsHiddenInHelp = true;
 
-        set => _executor = value;
+        Priority = ArgumentProcessorPriority.DesignMode;
+        HelpContentResourceName = CommandLineResources.ParentProcessIdArgumentHelp;
+        HelpPriority = HelpContentPriority.ParentProcessIdArgumentProcessorHelpPriority;
     }
-}
-
-internal class ParentProcessIdArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => ParentProcessIdArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.DesignMode;
-
-    public override string HelpContentResourceName => CommandLineResources.ParentProcessIdArgumentHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.ParentProcessIdArgumentProcessorHelpPriority;
 }
 
 /// <summary>
@@ -66,12 +37,6 @@ internal class ParentProcessIdArgumentExecutor : IArgumentExecutor
     /// </summary>
     private readonly CommandLineOptions _commandLineOptions;
 
-    /// <summary>
-    /// Default constructor.
-    /// </summary>
-    /// <param name="options">
-    /// The options.
-    /// </param>
     public ParentProcessIdArgumentExecutor(CommandLineOptions options)
     {
         ValidateArg.NotNull(options, nameof(options));

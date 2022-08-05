@@ -1,16 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
-using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
-using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.ArtifactProcessing;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine;
@@ -20,48 +16,25 @@ using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Res
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
-internal class RunTestsArgumentProcessor : IArgumentProcessor
+internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>
 {
-    public const string CommandName = "/RunTests";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new RunTestsArgumentProcessorCapabilities());
-
-    public Lazy<IArgumentExecutor>? Executor
+    public RunTestsArgumentProcessor()
+        : base("/RunTests", typeof(RunTestsArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new RunTestsArgumentExecutor(
-                CommandLineOptions.Instance,
-                RunSettingsManager.Instance,
-                TestRequestManager.Instance,
-                new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId),
-                ConsoleOutput.Instance));
 
-        set => _executor = value;
+        IsCommand = true;
+        IsHidden = true;
+
+        HelpContentResourceName = CommandLineResources.RunTestsArgumentHelp;
+        HelpPriority = HelpContentPriority.RunTestsArgumentProcessorHelpPriority;
+
+        // new RunTestsArgumentExecutor(
+        //CommandLineOptions.Instance,
+        //        RunSettingsManager.Instance,
+        //        TestRequestManager.Instance,
+        //        new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId),
+        //        ConsoleOutput.Instance));
     }
-}
-
-internal class RunTestsArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => RunTestsArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => true;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.Normal;
-
-    public override string HelpContentResourceName => CommandLineResources.RunTestsArgumentHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.RunTestsArgumentProcessorHelpPriority;
-
-    public override bool IsSpecialCommand => true;
-
-    public override bool AlwaysExecute => false;
 }
 
 internal class RunTestsArgumentExecutor : IArgumentExecutor
@@ -112,7 +85,7 @@ internal class RunTestsArgumentExecutor : IArgumentExecutor
         _runSettingsManager = runSettingsProvider;
         _testRequestManager = testRequestManager;
         Output = output;
-        _testRunEventsRegistrar = new TestRunRequestEventsRegistrar(Output, _commandLineOptions, artifactProcessingManager);
+        _testRunEventsRegistrar = new TestRunRequestEventsRegistrar(Output, _commandLineOptions, artifactProcessingManager, runSettingsProvider);
     }
 
     public void Initialize(string? argument)
@@ -180,12 +153,14 @@ internal class RunTestsArgumentExecutor : IArgumentExecutor
         private readonly IOutput _output;
         private readonly CommandLineOptions _commandLineOptions;
         private readonly IArtifactProcessingManager _artifactProcessingManager;
+        private readonly IRunSettingsProvider _runsettingsProvider;
 
-        public TestRunRequestEventsRegistrar(IOutput output, CommandLineOptions commandLineOptions, IArtifactProcessingManager artifactProcessingManager)
+        public TestRunRequestEventsRegistrar(IOutput output, CommandLineOptions commandLineOptions, IArtifactProcessingManager artifactProcessingManager, IRunSettingsProvider runsettingsProvider)
         {
             _output = output;
             _commandLineOptions = commandLineOptions;
             _artifactProcessingManager = artifactProcessingManager;
+            _runsettingsProvider = runsettingsProvider;
         }
 
         public void LogWarning(string message)
@@ -218,7 +193,7 @@ internal class RunTestsArgumentExecutor : IArgumentExecutor
                 s_numberOfExecutedTests = e.TestRunStatistics!.ExecutedTests;
 
                 // Indicate the user to use test adapter path command if there are no tests found
-                if (!testsFoundInAnySource && !CommandLineOptions.Instance.TestAdapterPathsSet && _commandLineOptions.TestCaseFilterValue == null)
+                if (!testsFoundInAnySource && !_commandLineOptions.TestAdapterPathsSet && _commandLineOptions.TestCaseFilterValue == null)
                 {
                     _output.Warning(false, CommandLineResources.SuggestTestAdapterPathIfNoTestsIsFound);
                 }
@@ -227,8 +202,9 @@ internal class RunTestsArgumentExecutor : IArgumentExecutor
             // Collect tests session artifacts for post processing
             if (_commandLineOptions.ArtifactProcessingMode == ArtifactProcessingMode.Collect)
             {
-                TPDebug.Assert(RunSettingsManager.Instance.ActiveRunSettings.SettingsXml is not null, "RunSettingsManager.Instance.ActiveRunSettings.SettingsXml is null");
-                _artifactProcessingManager.CollectArtifacts(e, RunSettingsManager.Instance.ActiveRunSettings.SettingsXml);
+                TPDebug.Assert(_runsettingsProvider.ActiveRunSettings is not null, "_runsettingsProvider.ActiveRunSettings is null");
+                TPDebug.Assert(_runsettingsProvider.ActiveRunSettings.SettingsXml is not null, "_runsettingsProvider.ActiveRunSettings.SettingsXml is null");
+                _artifactProcessingManager.CollectArtifacts(e, _runsettingsProvider.ActiveRunSettings.SettingsXml);
             }
         }
     }

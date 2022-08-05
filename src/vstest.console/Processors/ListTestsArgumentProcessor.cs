@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Globalization;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
-using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
@@ -18,66 +15,17 @@ using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Res
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
-/// <summary>
-/// Argument Executor for the "-lt|--ListTests|/lt|/ListTests" command line argument.
-/// </summary>
-internal class ListTestsArgumentProcessor : IArgumentProcessor
+internal class ListTestsArgumentProcessor : ArgumentProcessor<bool>
 {
-    /// <summary>
-    /// The short name of the command line argument that the ListTestsArgumentExecutor handles.
-    /// </summary>
-    public const string ShortCommandName = "/lt";
-
-    /// <summary>
-    /// The name of the command line argument that the ListTestsArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/ListTests";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new ListTestsArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public ListTestsArgumentProcessor()
+        : base(new string[] {"-t", "-lt", "--listtests", "--list-tests" }, typeof(ListTestsArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new ListTestsArgumentExecutor(
-                CommandLineOptions.Instance,
-                RunSettingsManager.Instance,
-                TestRequestManager.Instance));
-
-        set => _executor = value;
+        IsCommand = true;
+        HelpContentResourceName = CommandLineResources.ListTestsHelp;
+        HelpPriority = HelpContentPriority.ListTestsArgumentProcessorHelpPriority;
     }
 }
 
-internal class ListTestsArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => ListTestsArgumentProcessor.CommandName;
-
-    public override string ShortCommandName => ListTestsArgumentProcessor.ShortCommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => true;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.Normal;
-
-    public override string HelpContentResourceName => CommandLineResources.ListTestsHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.ListTestsArgumentProcessorHelpPriority;
-}
-
-/// <summary>
-/// Argument Executor for the "/ListTests" command line argument.
-/// </summary>
 internal class ListTestsArgumentExecutor : IArgumentExecutor
 {
     /// <summary>
@@ -105,27 +53,7 @@ internal class ListTestsArgumentExecutor : IArgumentExecutor
     /// </summary>
     private readonly ITestDiscoveryEventsRegistrar _discoveryEventsRegistrar;
 
-    /// <summary>
-    /// Default constructor.
-    /// </summary>
-    /// <param name="options">
-    /// The options.
-    /// </param>
     public ListTestsArgumentExecutor(
-        CommandLineOptions options,
-        IRunSettingsProvider runSettingsProvider,
-        ITestRequestManager testRequestManager) :
-        this(options, runSettingsProvider, testRequestManager, ConsoleOutput.Instance)
-    {
-    }
-
-    /// <summary>
-    /// Default constructor.
-    /// </summary>
-    /// <param name="options">
-    /// The options.
-    /// </param>
-    internal ListTestsArgumentExecutor(
         CommandLineOptions options,
         IRunSettingsProvider runSettingsProvider,
         ITestRequestManager testRequestManager,
@@ -141,12 +69,6 @@ internal class ListTestsArgumentExecutor : IArgumentExecutor
         _discoveryEventsRegistrar = new DiscoveryEventsRegistrar(output);
     }
 
-    #region IArgumentExecutor
-
-    /// <summary>
-    /// Initializes with the argument that was provided with the command.
-    /// </summary>
-    /// <param name="argument">Argument that was provided with the command.</param>
     public void Initialize(string? argument)
     {
         if (!argument.IsNullOrWhiteSpace())
@@ -183,8 +105,6 @@ internal class ListTestsArgumentExecutor : IArgumentExecutor
 
         return ArgumentProcessorResult.Success;
     }
-
-    #endregion
 
     private class DiscoveryEventsRegistrar : ITestDiscoveryEventsRegistrar
     {

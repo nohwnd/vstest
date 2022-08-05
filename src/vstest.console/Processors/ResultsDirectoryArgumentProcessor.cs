@@ -18,56 +18,17 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Allows the user to specify a path to save test results.
 /// </summary>
-internal class ResultsDirectoryArgumentProcessor : IArgumentProcessor
+internal class ResultsDirectoryArgumentProcessor : ArgumentProcessor<DirectoryInfo>
 {
-    /// <summary>
-    /// The name of the command line argument that the ListTestsArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/ResultsDirectory";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new ResultsDirectoryArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public ResultsDirectoryArgumentProcessor()
+        : base(new[] { "/ResultsDirectory", "--results-directory" }, typeof(ResultsDirectoryArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new ResultsDirectoryArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance));
-
-        set => _executor = value;
+        Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
+        HelpContentResourceName = CommandLineResources.ResultsDirectoryArgumentHelp;
+        HelpPriority = HelpContentPriority.ResultsDirectoryArgumentProcessorHelpPriority;
     }
 }
 
-/// <summary>
-/// The argument capabilities.
-/// </summary>
-internal class ResultsDirectoryArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => ResultsDirectoryArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.AutoUpdateRunSettings;
-
-    public override string HelpContentResourceName => CommandLineResources.ResultsDirectoryArgumentHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.ResultsDirectoryArgumentProcessorHelpPriority;
-}
-
-/// <summary>
-/// The argument executor.
-/// </summary>
 internal class ResultsDirectoryArgumentExecutor : IArgumentExecutor
 {
     /// <summary>
@@ -92,9 +53,6 @@ internal class ResultsDirectoryArgumentExecutor : IArgumentExecutor
         _commandLineOptions = options;
         _runSettingsManager = runSettingsManager;
     }
-
-
-    #region IArgumentExecutor
 
     /// <summary>
     /// Initializes with the argument that was provided with the command.
@@ -134,6 +92,5 @@ internal class ResultsDirectoryArgumentExecutor : IArgumentExecutor
         // Nothing to do since we updated the parameter during initialize parameter
         return ArgumentProcessorResult.Success;
     }
-
-    #endregion
 }
+

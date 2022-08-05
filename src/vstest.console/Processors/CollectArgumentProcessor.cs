@@ -10,13 +10,11 @@ using System.Linq;
 using System.Xml;
 
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities;
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
-using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
@@ -26,48 +24,18 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// The argument processor for enabling data collectors.
 /// </summary>
-internal class CollectArgumentProcessor : IArgumentProcessor
+//TODO: string[] maybe?
+internal class CollectArgumentProcessor : ArgumentProcessor<string>
 {
-    /// <summary>
-    /// The name of command for enabling code coverage.
-    /// </summary>
-    public const string CommandName = "/Collect";
 
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new CollectArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public CollectArgumentProcessor() :
+        base("/Collect", typeof(CollectArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new CollectArgumentExecutor(RunSettingsManager.Instance, new FileHelper()));
-
-        set => _executor = value;
+        AllowMultiple = true;
+        Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
+        HelpContentResourceName = CommandLineResources.CollectArgumentHelp;
+        HelpPriority = HelpContentPriority.CollectArgumentProcessorHelpPriority;
     }
-}
-
-internal class CollectArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => CollectArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => true;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.AutoUpdateRunSettings;
-
-    public override string HelpContentResourceName => CommandLineResources.CollectArgumentHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.CollectArgumentProcessorHelpPriority;
 }
 
 /// <inheritdoc />
@@ -76,6 +44,7 @@ internal class CollectArgumentExecutor : IArgumentExecutor
     private readonly IRunSettingsProvider _runSettingsManager;
     private readonly IFileHelper _fileHelper;
     internal static List<string> EnabledDataCollectors = new();
+
     internal CollectArgumentExecutor(IRunSettingsProvider runSettingsManager, IFileHelper fileHelper)
     {
         _runSettingsManager = runSettingsManager;
@@ -109,6 +78,7 @@ internal class CollectArgumentExecutor : IArgumentExecutor
         {
             throw new SettingsException(string.Format(CultureInfo.CurrentCulture, CommandLineResources.CollectWithTestSettingErrorMessage, argument));
         }
+
         AddDataCollectorToRunSettings(collectArgumentList, _runSettingsManager, _fileHelper, exceptionMessage);
     }
 

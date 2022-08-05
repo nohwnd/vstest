@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.Common;
@@ -20,57 +21,21 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Allows the user to specify a path to load custom adapters from.
 /// </summary>
-internal class TestAdapterPathArgumentProcessor : IArgumentProcessor
+internal class TestAdapterPathArgumentProcessor : ArgumentProcessor<DirectoryInfo>
 {
-    /// <summary>
-    /// The name of the command line argument that the ListTestsArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/TestAdapterPath";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new TestAdapterPathArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    // TODO: make it DirectoryInfo[] or filesystemInfo[] beacuse of allow multiple
+    // TODO: Add existing validator.
+    // TODO: make it take file or dictionary. Or maybe even list of dictionaries or files.?
+    public TestAdapterPathArgumentProcessor()
+        : base(new string[] { "/TestAdapterPath", "--test-adapter-path" }, typeof(TestAdapterPathArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new TestAdapterPathArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance,
-                ConsoleOutput.Instance, new FileHelper()));
-
-        set => _executor = value;
+        AllowMultiple = true;
+        Priority = ArgumentProcessorPriority.TestAdapterPath;
+        HelpContentResourceName = CommandLineResources.TestAdapterPathHelp;
+        HelpPriority = HelpContentPriority.TestAdapterPathArgumentProcessorHelpPriority;
     }
 }
 
-/// <summary>
-/// The argument capabilities.
-/// </summary>
-internal class TestAdapterPathArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => TestAdapterPathArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => true;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.TestAdapterPath;
-
-    public override string HelpContentResourceName => CommandLineResources.TestAdapterPathHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.TestAdapterPathArgumentProcessorHelpPriority;
-}
-
-/// <summary>
-/// The argument executor.
-/// </summary>
 internal class TestAdapterPathArgumentExecutor : IArgumentExecutor
 {
     /// <summary>
@@ -112,8 +77,6 @@ internal class TestAdapterPathArgumentExecutor : IArgumentExecutor
         _output = output ?? throw new ArgumentNullException(nameof(output));
         _fileHelper = fileHelper ?? throw new ArgumentNullException(nameof(fileHelper));
     }
-
-    #region IArgumentExecutor
 
     /// <summary>
     /// Initializes with the argument that was provided with the command.
@@ -160,7 +123,6 @@ internal class TestAdapterPathArgumentExecutor : IArgumentExecutor
         // Nothing to do since we updated the parameter during initialize parameter
         return ArgumentProcessorResult.Success;
     }
-    #endregion
 
     /// <summary>
     /// Splits provided paths into array.

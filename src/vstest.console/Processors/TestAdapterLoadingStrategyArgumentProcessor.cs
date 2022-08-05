@@ -5,12 +5,10 @@ using System;
 using System.Globalization;
 using System.Linq;
 
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
-using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
@@ -20,58 +18,18 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Allows the user to specify a order of loading custom adapters from.
 /// </summary>
-internal class TestAdapterLoadingStrategyArgumentProcessor : IArgumentProcessor
+internal class TestAdapterLoadingStrategyArgumentProcessor : ArgumentProcessor<TestAdapterLoadingStrategy>
 {
-    /// <summary>
-    /// The name of the command line argument that the TestAdapterLoadingStrategyArgumentProcessor handles.
-    /// </summary>
-    public const string CommandName = "/TestAdapterLoadingStrategy";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new TestAdapterLoadingStrategyArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public TestAdapterLoadingStrategyArgumentProcessor()
+        : base("/TestAdapterLoadingStrategy", typeof(TestAdapterLoadingStrategyArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new TestAdapterLoadingStrategyArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance, ConsoleOutput.Instance, new FileHelper()));
-
-        set => _executor = value;
+        AlwaysExecute = true;
+        Priority = ArgumentProcessorPriority.TestAdapterLoadingStrategy;
+        HelpContentResourceName = CommandLineResources.TestAdapterLoadingStrategyHelp;
+        HelpPriority = HelpContentPriority.TestAdapterLoadingStrategyArgumentProcessorHelpPriority;
     }
 }
 
-/// <summary>
-/// The argument capabilities.
-/// </summary>
-internal class TestAdapterLoadingStrategyArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => TestAdapterLoadingStrategyArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override bool AlwaysExecute => true;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.TestAdapterLoadingStrategy;
-
-    public override string HelpContentResourceName => CommandLineResources.TestAdapterLoadingStrategyHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.TestAdapterLoadingStrategyArgumentProcessorHelpPriority;
-}
-
-/// <summary>
-/// The argument executor.
-/// </summary>
 internal class TestAdapterLoadingStrategyArgumentExecutor : IArgumentExecutor
 {
     /// <summary>
@@ -109,7 +67,6 @@ internal class TestAdapterLoadingStrategyArgumentExecutor : IArgumentExecutor
         _fileHelper = fileHelper ?? throw new ArgumentNullException(nameof(fileHelper));
     }
 
-    #region IArgumentExecutor
     /// <summary>
     /// Initializes with the argument that was provided with the command.
     /// </summary>
@@ -141,7 +98,6 @@ internal class TestAdapterLoadingStrategyArgumentExecutor : IArgumentExecutor
         // Nothing to do since we updated the parameter during initialize parameter
         return ArgumentProcessorResult.Success;
     }
-    #endregion
 
     private void ExtractStrategy(string? value, out TestAdapterLoadingStrategy strategy)
     {

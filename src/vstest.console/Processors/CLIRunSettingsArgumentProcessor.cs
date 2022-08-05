@@ -20,48 +20,16 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// The argument processor for runsettings passed as argument through cli
 /// </summary>
-internal class CliRunSettingsArgumentProcessor : IArgumentProcessor
+internal class CliRunSettingsArgumentProcessor : ArgumentProcessor<string>
 {
-    /// <summary>
-    /// The name of the command line argument that the PortArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "--";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new CliRunSettingsArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public CliRunSettingsArgumentProcessor()
+        : base("--", typeof(CliRunSettingsArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new CliRunSettingsArgumentExecutor(RunSettingsManager.Instance, CommandLineOptions.Instance));
+        Priority = ArgumentProcessorPriority.CliRunSettings;
+        HelpContentResourceName = CommandLineResources.CLIRunSettingsArgumentHelp;
+        HelpPriority = HelpContentPriority.CliRunSettingsArgumentProcessorHelpPriority;
 
-        set => _executor = value;
     }
-}
-
-internal class CliRunSettingsArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => CliRunSettingsArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.CliRunSettings;
-
-    public override string HelpContentResourceName => CommandLineResources.CLIRunSettingsArgumentHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.CliRunSettingsArgumentProcessorHelpPriority;
 }
 
 internal class CliRunSettingsArgumentExecutor : IArgumentsExecutor

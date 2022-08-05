@@ -30,8 +30,8 @@ internal class ArgumentProcessorFactory
     /// <summary>
     /// Available argument processors.
     /// </summary>
-    private Dictionary<string, IArgumentProcessor>? _commandToProcessorMap;
-    private Dictionary<string, IArgumentProcessor>? _specialCommandToProcessorMap;
+    private Dictionary<string, ArgumentProcessor>? _commandToProcessorMap;
+    private Dictionary<string, ArgumentProcessor>? _specialCommandToProcessorMap;
 
     /// Initializes the argument processor factory.
     /// </summary>
@@ -44,7 +44,7 @@ internal class ArgumentProcessorFactory
     /// <remarks>
     /// This is not public because the static Create method should be used to access the instance.
     /// </remarks>
-    protected ArgumentProcessorFactory(IEnumerable<IArgumentProcessor> argumentProcessors)
+    protected ArgumentProcessorFactory(IEnumerable<ArgumentProcessor> argumentProcessors)
     {
         ValidateArg.NotNull(argumentProcessors, nameof(argumentProcessors));
         AllArgumentProcessors = argumentProcessors;
@@ -75,12 +75,12 @@ internal class ArgumentProcessorFactory
     /// <summary>
     /// Returns all of the available argument processors.
     /// </summary>
-    public IEnumerable<IArgumentProcessor> AllArgumentProcessors { get; }
+    public IEnumerable<ArgumentProcessor> AllArgumentProcessors { get; }
 
     /// <summary>
     /// Gets a mapping between command and Argument Executor.
     /// </summary>
-    internal Dictionary<string, IArgumentProcessor> CommandToProcessorMap
+    internal Dictionary<string, ArgumentProcessor> CommandToProcessorMap
     {
         get
         {
@@ -97,7 +97,7 @@ internal class ArgumentProcessorFactory
     /// <summary>
     /// Gets a mapping between special commands and their Argument Processors.
     /// </summary>
-    internal Dictionary<string, IArgumentProcessor> SpecialCommandToProcessorMap
+    internal Dictionary<string, ArgumentProcessor> SpecialCommandToProcessorMap
     {
         get
         {
@@ -117,7 +117,7 @@ internal class ArgumentProcessorFactory
     /// </summary>
     /// <param name="argument">Command line argument to create the argument processor for.</param>
     /// <returns>The argument processor or null if one was not found.</returns>
-    public IArgumentProcessor? CreateArgumentProcessor(string argument)
+    public ArgumentProcessor? CreateArgumentProcessor(string argument)
     {
         ValidateArg.NotNullOrWhiteSpace(argument, nameof(argument));
 
@@ -125,7 +125,7 @@ internal class ArgumentProcessorFactory
         var pair = new CommandArgumentPair(argument);
 
         // Find the associated argument processor.
-        CommandToProcessorMap.TryGetValue(pair.Command, out IArgumentProcessor? argumentProcessor);
+        CommandToProcessorMap.TryGetValue(pair.Command, out ArgumentProcessor? argumentProcessor);
 
         // If an argument processor was not found for the command, then consider it as a test source argument.
         if (argumentProcessor == null)
@@ -152,7 +152,7 @@ internal class ArgumentProcessorFactory
     /// <param name="command">Command name of the argument processor.</param>
     /// <param name="arguments">Command line arguments to create the argument processor for.</param>
     /// <returns>The argument processor or null if one was not found.</returns>
-    public IArgumentProcessor? CreateArgumentProcessor(string command, string[] arguments)
+    public ArgumentProcessor? CreateArgumentProcessor(string command, string[] arguments)
     {
         if (arguments == null || arguments.Length == 0)
         {
@@ -161,7 +161,7 @@ internal class ArgumentProcessorFactory
         Contract.EndContractBlock();
 
         // Find the associated argument processor.
-        CommandToProcessorMap.TryGetValue(command, out IArgumentProcessor? argumentProcessor);
+        CommandToProcessorMap.TryGetValue(command, out ArgumentProcessor? argumentProcessor);
 
         if (argumentProcessor != null)
         {
@@ -176,7 +176,7 @@ internal class ArgumentProcessorFactory
     /// The Lazy that is returned will initialize the underlying argument processor when it is first accessed.
     /// </summary>
     /// <returns>The default action argument processor.</returns>
-    public IArgumentProcessor CreateDefaultActionArgumentProcessor()
+    public ArgumentProcessor CreateDefaultActionArgumentProcessor()
     {
         var argumentProcessor = SpecialCommandToProcessorMap[RunTestsArgumentProcessor.CommandName];
         return WrapLazyProcessorToInitializeOnInstantiation(argumentProcessor);
@@ -187,13 +187,13 @@ internal class ArgumentProcessorFactory
     /// The Lazy's that are returned will initialize the underlying argument processor when first accessed.
     /// </summary>
     /// <returns>The argument processors that are tagged as special and to be always executed.</returns>
-    public IEnumerable<IArgumentProcessor> GetArgumentProcessorsToAlwaysExecute()
+    public IEnumerable<ArgumentProcessor> GetArgumentProcessorsToAlwaysExecute()
     {
         return SpecialCommandToProcessorMap.Values
             .Where(lazyProcessor => lazyProcessor.Metadata.Value.IsSpecialCommand && lazyProcessor.Metadata.Value.AlwaysExecute);
     }
 
-    private static IList<IArgumentProcessor> DefaultArgumentProcessors => new List<IArgumentProcessor> {
+    public static IReadOnlyList<ArgumentProcessor> DefaultArgumentProcessors => new List<ArgumentProcessor> {
         new HelpArgumentProcessor(),
         new TestSourceArgumentProcessor(),
         new ListTestsArgumentProcessor(),
@@ -234,10 +234,10 @@ internal class ArgumentProcessorFactory
     [MemberNotNull(nameof(_commandToProcessorMap), nameof(_specialCommandToProcessorMap))]
     private void BuildCommandMaps()
     {
-        _commandToProcessorMap = new Dictionary<string, IArgumentProcessor>(StringComparer.OrdinalIgnoreCase);
-        _specialCommandToProcessorMap = new Dictionary<string, IArgumentProcessor>(StringComparer.OrdinalIgnoreCase);
+        _commandToProcessorMap = new Dictionary<string, ArgumentProcessor>(StringComparer.OrdinalIgnoreCase);
+        _specialCommandToProcessorMap = new Dictionary<string, ArgumentProcessor>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (IArgumentProcessor argumentProcessor in AllArgumentProcessors)
+        foreach (ArgumentProcessor argumentProcessor in AllArgumentProcessors)
         {
             // Add the command to the appropriate dictionary.
             var processorsMap = argumentProcessor.Metadata.Value.IsSpecialCommand
@@ -269,7 +269,7 @@ internal class ArgumentProcessorFactory
     /// <param name="processor">The lazy processor.</param>
     /// <param name="initArg">The argument with which the real processor should be initialized.</param>
     /// <returns>The decorated lazy processor.</returns>
-    public static IArgumentProcessor WrapLazyProcessorToInitializeOnInstantiation(IArgumentProcessor processor, string? initArg = null)
+    public static ArgumentProcessor WrapLazyProcessorToInitializeOnInstantiation(ArgumentProcessor processor, string? initArg = null)
     {
         var processorExecutor = processor.Executor;
         var lazyArgumentProcessor = new Lazy<IArgumentExecutor>(() =>
@@ -308,8 +308,8 @@ internal class ArgumentProcessorFactory
     /// <param name="processor">The lazy processor.</param>
     /// <param name="initArg">The argument with which the real processor should be initialized.</param>
     /// <returns>The decorated lazy processor.</returns>
-    private static IArgumentProcessor WrapLazyProcessorToInitializeOnInstantiation(
-        IArgumentProcessor processor,
+    private static ArgumentProcessor WrapLazyProcessorToInitializeOnInstantiation(
+        ArgumentProcessor processor,
         string[] initArgs)
     {
         var processorExecutor = processor.Executor;

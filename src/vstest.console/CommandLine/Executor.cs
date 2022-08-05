@@ -8,10 +8,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
+using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
@@ -111,7 +113,21 @@ internal class Executor
     {
         _testPlatformEventSource.VsTestConsoleStart();
 
-        var isDiag = args != null && args.Any(arg => arg.StartsWith("--diag", StringComparison.OrdinalIgnoreCase));
+        IReadOnlyList<ArgumentProcessor> argumentProcessors = ArgumentProcessorFactory.DefaultArgumentProcessors;
+
+        var parser = new Parser().Parse(args, argumentProcessors);
+
+        // todo: exit quickly for parse error.
+        //// Quick exit for syntax error
+        //if (exitCode == 1 && !argumentProcessors.Any(processor => processor is HelpArgumentProcessor))
+        //{
+        //    _testPlatformEventSource.VsTestConsoleStop();
+        //    return exitCode;
+        //}
+
+
+        // TODO: leave this to the parser, we don't enable logging before parsing version anyway, so doing this manually is unnecessary.
+        var isDiag = args != null && args.Any(arg => arg.RemoveArgumentPrefix().StartsWith("diag", StringComparison.OrdinalIgnoreCase));
 
         // If User specifies --nologo via dotnet, do not print splat screen
         if (args != null && args.Length != 0 && args.Contains("--nologo"))
@@ -159,19 +175,25 @@ internal class Executor
             }
         }
 
-        // Flatten arguments and process response files.
-        exitCode |= FlattenArguments(args, out var flattenedArguments);
 
-        // Get the argument processors for the arguments.
-        exitCode |= GetArgumentProcessors(flattenedArguments, out List<IArgumentProcessor> argumentProcessors);
 
-        // Verify that the arguments are valid.
-        exitCode |= IdentifyDuplicateArguments(argumentProcessors);
+
+        //// Flatten arguments and process response files.
+        // exitCode |= FlattenArguments(args, out var flattenedArguments);
+        string[] flattenedArguments = new string[0];
+
+        // Get the argument processors for the arguments, and initialize them.
+        exitCode |= GetArgumentProcessors(flattenedArguments, out List<ArgumentProcessor> argumentProcessors2);
+
+        // TODO: some of the argument processors are adding parameters for the lattter argument processors to pick them up,
+        // this sucks, and we should not do that, or we should guard against it by adding those parameters to a special group
+        // and verifying it is empty. This is probably why there is a initialize and execute phase.
+        //
+        //// Verify that the arguments are valid.
+        //exitCode |= IdentifyDuplicateArguments(argumentProcessors);
 
         // Quick exit for syntax error
-        if (exitCode == 1
-            && argumentProcessors.All(
-                processor => processor.Metadata.Value.CommandName != HelpArgumentProcessor.CommandName))
+        if (exitCode == 1 && !argumentProcessors.Any(processor => processor is HelpArgumentProcessor))
         {
             _testPlatformEventSource.VsTestConsoleStop();
             return exitCode;
@@ -208,22 +230,23 @@ internal class Executor
     /// <param name="args">Arguments provided to perform execution with.</param>
     /// <param name="processors">List of argument processors for the arguments.</param>
     /// <returns>0 if all of the processors were created successfully and 1 otherwise.</returns>
-    private int GetArgumentProcessors(string[] args, out List<IArgumentProcessor> processors)
+    private int GetArgumentProcessors(string[] args, out List<ArgumentProcessor> processors)
     {
-        processors = new List<IArgumentProcessor>();
+        processors = new List<ArgumentProcessor>();
         int result = 0;
         var processorFactory = ArgumentProcessorFactory.Create();
         for (var index = 0; index < args.Length; index++)
         {
-            var arg = args[index];
-            // If argument is '--', following arguments are key=value pairs for run settings.
-            if (arg.Equals("--"))
-            {
-                var cliRunSettingsProcessor = processorFactory.CreateArgumentProcessor(arg, args.Skip(index + 1).ToArray());
-                processors.Add(cliRunSettingsProcessor!);
-                break;
-            }
+            //var arg = args[index];
+            //// If argument is '--', following arguments are key=value pairs for run settings.
+            //if (arg.Equals("--"))
+            //{
+            //    var cliRunSettingsProcessor = processorFactory.CreateArgumentProcessor(arg, args.Skip(index + 1).ToArray());
+            //    processors.Add(cliRunSettingsProcessor!);
+            //    break;
+            //}
 
+            string arg = null;
             var processor = processorFactory.CreateArgumentProcessor(arg);
 
             if (processor != null)
@@ -250,10 +273,12 @@ internal class Executor
         var processorsToAlwaysExecute = processorFactory.GetArgumentProcessorsToAlwaysExecute();
         foreach (var processor in processorsToAlwaysExecute)
         {
-            if (processors.Any(i => i.Metadata.Value.CommandName == processor.Metadata.Value.CommandName))
-            {
-                continue;
-            }
+            // TODO: this just makes sure we don't add duplicates. But we won't need it later when we simply go over every
+            // processort and try to bind parameter to it, or run it with all parameters
+            //if (processors.Any(i => i.Metadata.Value.CommandName == processor.Metadata.Value.CommandName))
+            //{
+            //    continue;
+            //}
 
             // We need to initialize the argument executor if it's set to always execute. This ensures it will be initialized with other executors.
             processors.Add(ArgumentProcessorFactory.WrapLazyProcessorToInitializeOnInstantiation(processor));
@@ -266,7 +291,7 @@ internal class Executor
         EnsureActionArgumentIsPresent(processors, processorFactory);
 
         // Instantiate and initialize the processors in priority order.
-        processors.Sort((p1, p2) => Comparer<ArgumentProcessorPriority>.Default.Compare(p1.Metadata.Value.Priority, p2.Metadata.Value.Priority));
+        processors.Sort((p1, p2) => Comparer<ArgumentProcessorPriority>.Default.Compare(p1.Priority, p2.Priority));
         foreach (var processor in processors)
         {
             IArgumentExecutor? executorInstance;
@@ -274,7 +299,8 @@ internal class Executor
             {
                 // Ensure the instance is created.  Note that the Lazy not only instantiates
                 // the argument processor, but also initializes it.
-                executorInstance = processor.Executor?.Value;
+                // TODO: this is where we need to initialize the executor and do stuff.
+                executorInstance = null;
             }
             catch (Exception ex)
             {
@@ -300,51 +326,12 @@ internal class Executor
             }
         }
 
+        // TODO: nope, we will just do this by ParseError command that will be the first.
         // If some argument was invalid, add help argument processor in beginning(i.e. at highest priority)
-        if (result == 1 && _showHelp && processors.First().Metadata.Value.CommandName != HelpArgumentProcessor.CommandName)
-        {
-            processors.Insert(0, processorFactory.CreateArgumentProcessor(HelpArgumentProcessor.CommandName)!);
-        }
-        return result;
-    }
-
-    /// <summary>
-    /// Verify that the arguments are valid.
-    /// </summary>
-    /// <param name="argumentProcessors">Processors to verify against.</param>
-    /// <returns>0 if successful and 1 otherwise.</returns>
-    private int IdentifyDuplicateArguments(IEnumerable<IArgumentProcessor> argumentProcessors)
-    {
-        int result = 0;
-
-        // Used to keep track of commands that are only allowed to show up once.  The first time it is seen
-        // an entry for the command will be added to the dictionary and the value will be set to 1.  If we
-        // see the command again and the value is 1 (meaning this is the second time we have seen the command),
-        // we will output an error and increment the count.  This ensures that the error message will only be
-        // displayed once even if the user does something like /ListDiscoverers /ListDiscoverers /ListDiscoverers.
-        var commandSeenCount = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-
-        // Check each processor.
-        foreach (var processor in argumentProcessors)
-        {
-            if (processor.Metadata.Value.AllowMultiple)
-            {
-                continue;
-            }
-
-            if (!commandSeenCount.TryGetValue(processor.Metadata.Value.CommandName, out int count))
-            {
-                commandSeenCount.Add(processor.Metadata.Value.CommandName, 1);
-            }
-            else if (count == 1)
-            {
-                result = 1;
-
-                // Update the count so we do not print the error out for this argument multiple times.
-                commandSeenCount[processor.Metadata.Value.CommandName] = ++count;
-                Output.Error(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.DuplicateArgumentError, processor.Metadata.Value.CommandName));
-            }
-        }
+        //if (result == 1 && _showHelp && processors.First() != HelpArgumentProcessor.CommandName)
+        //{
+        //    processors.Insert(0, processorFactory.CreateArgumentProcessor(HelpArgumentProcessor.CommandName)!);
+        //}
         return result;
     }
 
@@ -353,13 +340,13 @@ internal class Executor
     /// </summary>
     /// <param name="argumentProcessors">The arguments that are being processed.</param>
     /// <param name="processorFactory">A factory for creating argument processors.</param>
-    private static void EnsureActionArgumentIsPresent(List<IArgumentProcessor> argumentProcessors, ArgumentProcessorFactory processorFactory)
+    private static void EnsureActionArgumentIsPresent(List<ArgumentProcessor> argumentProcessors, ArgumentProcessorFactory processorFactory)
     {
         ValidateArg.NotNull(argumentProcessors, nameof(argumentProcessors));
         ValidateArg.NotNull(processorFactory, nameof(processorFactory));
 
         // Determine if any of the argument processors are actions.
-        var isActionIncluded = argumentProcessors.Any((processor) => processor.Metadata.Value.IsAction);
+        var isActionIncluded = argumentProcessors.Any((processor) => processor.IsCommand);
 
         // If no action arguments have been provided, then add the default action argument.
         if (!isActionIncluded)
@@ -374,7 +361,7 @@ internal class Executor
     /// <param name="processor">Argument processor to execute.</param>
     /// <param name="exitCode">Exit status of Argument processor</param>
     /// <returns> true if continue execution, false otherwise.</returns>
-    private bool ExecuteArgumentProcessor(IArgumentProcessor processor, ref int exitCode)
+    private bool ExecuteArgumentProcessor(ArgumentProcessor processor, ref int exitCode)
     {
         var continueExecution = true;
         ArgumentProcessorResult result;
@@ -382,7 +369,9 @@ internal class Executor
         {
             // TODO: Only executor that could return null is ResponseFileArgumentProcessor, maybe it could be updated
             // to follow a pattern similar to other processors and avoid returning null.
-            result = processor.Executor!.Value.Execute();
+            // TODO: invoke the actual executor.
+            IArgumentExecutor executor = null;
+            result = executor.Execute();
         }
         catch (Exception ex)
         {
@@ -461,76 +450,4 @@ internal class Executor
             Output.Warning(false, CommandLineResources.WarningEmulatedOnArm64, currentProcessArchitecture.ToString().ToLowerInvariant());
         }
     }
-
-    /// <summary>
-    /// Flattens command line arguments by processing response files.
-    /// </summary>
-    /// <param name="arguments">Arguments provided to perform execution with.</param>
-    /// <param name="flattenedArguments">Array of flattened arguments.</param>
-    /// <returns>0 if successful and 1 otherwise.</returns>
-    private int FlattenArguments(IEnumerable<string> arguments, out string[] flattenedArguments)
-    {
-        List<string> outputArguments = new();
-        int result = 0;
-
-        foreach (var arg in arguments)
-        {
-            if (arg.StartsWith("@", StringComparison.Ordinal))
-            {
-                // response file:
-                string path = arg.Substring(1).TrimEnd(null);
-                var hadError = ReadArgumentsAndSanitize(path, out var responseFileArgs, out var nestedArgs);
-
-                if (hadError)
-                {
-                    result |= 1;
-                }
-                else
-                {
-                    Output.WriteLine($"vstest.console.exe {responseFileArgs}", OutputLevel.Information);
-                    outputArguments.AddRange(nestedArgs!);
-                }
-            }
-            else
-            {
-                outputArguments.Add(arg);
-            }
-        }
-
-        flattenedArguments = outputArguments.ToArray();
-        return result;
-    }
-
-    /// <summary>
-    /// Read and sanitize the arguments.
-    /// </summary>
-    /// <param name="fileName">File provided by user.</param>
-    /// <param name="args">argument in the file as string.</param>
-    /// <param name="arguments">Modified argument after sanitizing the contents of the file.</param>
-    /// <returns>0 if successful and 1 otherwise.</returns>
-    public bool ReadArgumentsAndSanitize(string fileName, out string? args, out string[]? arguments)
-    {
-        arguments = null;
-        return GetContentUsingFile(fileName, out args)
-            || (!args.IsNullOrEmpty() && Utilities.CommandLineUtilities.SplitCommandLineIntoArguments(args, out arguments));
-    }
-
-    private bool GetContentUsingFile(string fileName, out string? contents)
-    {
-        contents = null;
-        try
-        {
-            contents = File.ReadAllText(fileName);
-        }
-        catch (Exception e)
-        {
-            EqtTrace.Verbose("Executor.Execute: Exiting with exit code of {0}", 1);
-            EqtTrace.Error(string.Format(CultureInfo.InvariantCulture, "Error: Can't open command line argument file '{0}' : '{1}'", fileName, e.Message));
-            Output.Error(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.OpenResponseFileError, fileName));
-            return true;
-        }
-
-        return false;
-    }
-
 }

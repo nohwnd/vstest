@@ -3,86 +3,38 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
-// <summary>
-//     Argument Executor for the "-?|--Help|/?|/Help" Help command line argument.
-// </summary>
-internal class HelpArgumentProcessor : IArgumentProcessor
+
+internal class HelpArgumentProcessor : ArgumentProcessor<bool>
 {
-    /// <summary>
-    /// The name of the command line argument that the HelpArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/Help";
 
-    /// <summary>
-    /// The short name of the command line argument that the HelpArgumentExecutor handles.
-    /// </summary>
-    public const string ShortCommandName = "/?";
-
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() => new HelpArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public HelpArgumentProcessor()
+        : base(new string[] { "-?", "-h", "--help" }, typeof(HelpArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() => new HelpArgumentExecutor());
+        Priority = ArgumentProcessorPriority.Help;
 
-        set => _executor = value;
+        HelpContentResourceName = CommandLineResources.HelpArgumentHelp;
+
+        HelpPriority = HelpContentPriority.HelpArgumentProcessorHelpPriority;
     }
 }
 
-/// <summary>
-/// The help argument processor capabilities.
-/// </summary>
-internal class HelpArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => HelpArgumentProcessor.CommandName;
-
-    public override string ShortCommandName => HelpArgumentProcessor.ShortCommandName;
-
-    public override string HelpContentResourceName => CommandLineResources.HelpArgumentHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.HelpArgumentProcessorHelpPriority;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.Help;
-}
-
-/// <summary>
-/// Argument Executor for the "/?" Help command line argument.
-/// </summary>
 internal class HelpArgumentExecutor : IArgumentExecutor
 {
-    /// <summary>
-    /// Constructs the HelpArgumentExecutor
-    /// </summary>
-    public HelpArgumentExecutor()
+    private readonly IOutput _output;
+    private readonly List<ArgumentProcessor> _argumentProcessors;
+
+    internal HelpArgumentExecutor(IOutput output, List<ArgumentProcessor> argumentProcessors)
     {
-        Output = ConsoleOutput.Instance;
+        _output = output;
+        _argumentProcessors = argumentProcessors;
     }
-
-    /// <summary>
-    /// Gets the output object
-    /// </summary>
-    internal IOutput Output { get; set; }
-
-
-    #region IArgumentExecutor Members
 
     public void Initialize(string? argument)
     {
@@ -95,13 +47,11 @@ internal class HelpArgumentExecutor : IArgumentExecutor
         OutputSection(CommandLineResources.HelpDescriptionText);
         OutputSection(CommandLineResources.HelpArgumentsText);
 
-        var argumentProcessorFactory = ArgumentProcessorFactory.Create();
-        List<IArgumentProcessor> processors = new();
-        processors.AddRange(argumentProcessorFactory.AllArgumentProcessors);
-        processors.Sort((p1, p2) => Comparer<HelpContentPriority>.Default.Compare(p1.Metadata.Value.HelpPriority, p2.Metadata.Value.HelpPriority));
+        var processors = _argumentProcessors.ToList();
+        processors.Sort((p1, p2) => Comparer<HelpContentPriority>.Default.Compare(p1.HelpPriority, p2.HelpPriority));
 
         // Output the help description for RunTestsArgumentProcessor
-        IArgumentProcessor? runTestsArgumentProcessor = processors.Find(p1 => p1.GetType() == typeof(RunTestsArgumentProcessor));
+        ArgumentProcessor? runTestsArgumentProcessor = processors.Find(p1 => p1.GetType() == typeof(RunTestsArgumentProcessor));
         TPDebug.Assert(runTestsArgumentProcessor is not null, "runTestsArgumentProcessor is null");
         processors.Remove(runTestsArgumentProcessor);
         var helpDescription = LookupHelpDescription(runTestsArgumentProcessor);
@@ -126,26 +76,25 @@ internal class HelpArgumentExecutor : IArgumentExecutor
         return ArgumentProcessorResult.Abort;
     }
 
-    #endregion
     /// <summary>
     /// Lookup the help description for the argument processor.
     /// </summary>
     /// <param name="argumentProcessor">The argument processor for which to discover any help content</param>
     /// <returns>The formatted string containing the help description if found null otherwise</returns>
-    private string? LookupHelpDescription(IArgumentProcessor argumentProcessor)
+    private string? LookupHelpDescription(ArgumentProcessor argumentProcessor)
     {
         string? result = null;
 
-        if (argumentProcessor.Metadata.Value.HelpContentResourceName != null)
+        if (argumentProcessor.HelpContentResourceName != null)
         {
             try
             {
-                result = argumentProcessor.Metadata.Value.HelpContentResourceName;
+                result = argumentProcessor.HelpContentResourceName;
                 //ResourceHelper.GetString(argumentProcessor.Metadata.HelpContentResourceName, assembly, CultureInfo.CurrentUICulture);
             }
             catch (Exception e)
             {
-                Output.Warning(false, e.Message);
+                _output.Warning(false, e.Message);
             }
         }
 
@@ -158,8 +107,7 @@ internal class HelpArgumentExecutor : IArgumentExecutor
     /// <param name="message">Message to output.</param>
     private void OutputSection(string message)
     {
-        Output.WriteLine(message, OutputLevel.Information);
-        Output.WriteLine(string.Empty, OutputLevel.Information);
+        _output.WriteLine(message, OutputLevel.Information);
+        _output.WriteLine(string.Empty, OutputLevel.Information);
     }
-
 }

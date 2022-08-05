@@ -10,11 +10,9 @@ using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
-using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
 using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
-using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.ArtifactProcessing;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine;
@@ -24,44 +22,27 @@ using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Res
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
-internal class RunSpecificTestsArgumentProcessor : IArgumentProcessor
+internal class RunSpecificTestsArgumentProcessor : ArgumentProcessor<string>
 {
-    public const string CommandName = "/Tests";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new RunSpecificTestsArgumentProcessorCapabilities());
-
-    public Lazy<IArgumentExecutor>? Executor
+    // TODO: add non-empty validator
+    // TODO: string[] ?
+    public RunSpecificTestsArgumentProcessor()
+        : base("--tests", typeof(RunSpecificTestsArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new RunSpecificTestsArgumentExecutor(
-                CommandLineOptions.Instance,
-                RunSettingsManager.Instance,
-                TestRequestManager.Instance,
-                new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId),
-                ConsoleOutput.Instance));
 
-        set => _executor = value;
+        // instantiated like this:
+        //    new RunSpecificTestsArgumentExecutor(
+        //CommandLineOptions.Instance,
+        //RunSettingsManager.Instance,
+        //TestRequestManager.Instance,
+        //new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId),
+        //ConsoleOutput.Instance));
+
+        IsCommand = true;
+        AllowMultiple = true;
+        HelpContentResourceName = CommandLineResources.RunSpecificTestsHelp;
+        HelpPriority = HelpContentPriority.RunSpecificTestsArgumentProcessorHelpPriority;
     }
-}
-
-internal class RunSpecificTestsArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => RunSpecificTestsArgumentProcessor.CommandName;
-
-    public override bool IsAction => true;
-
-    public override bool AllowMultiple => false;
-
-    public override string HelpContentResourceName => CommandLineResources.RunSpecificTestsHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.RunSpecificTestsArgumentProcessorHelpPriority;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.Normal;
 }
 
 internal class RunSpecificTestsArgumentExecutor : IArgumentExecutor
@@ -124,9 +105,6 @@ internal class RunSpecificTestsArgumentExecutor : IArgumentExecutor
     /// </summary>
     private readonly ITestRunEventsRegistrar _testRunEventsRegistrar;
 
-    /// <summary>
-    /// Default constructor.
-    /// </summary>
     public RunSpecificTestsArgumentExecutor(
         CommandLineOptions options,
         IRunSettingsProvider runSettingsProvider,
@@ -145,8 +123,6 @@ internal class RunSpecificTestsArgumentExecutor : IArgumentExecutor
         _discoveryEventsRegistrar = new DiscoveryEventsRegistrar(DiscoveryRequest_OnDiscoveredTests);
         _testRunEventsRegistrar = new TestRunRequestEventsRegistrar(Output, _commandLineOptions, artifactProcessingManager);
     }
-
-    #region IArgumentProcessor
 
     /// <summary>
     /// Splits given the search strings and adds to selectTestNamesCollection.
@@ -200,8 +176,6 @@ internal class RunSpecificTestsArgumentExecutor : IArgumentExecutor
 
         return treatNoTestsAsError && _selectedTestCases.Count == 0 ? ArgumentProcessorResult.Fail : ArgumentProcessorResult.Success;
     }
-
-    #endregion
 
     /// <summary>
     /// Discovers tests from the given sources and selects only specified tests.

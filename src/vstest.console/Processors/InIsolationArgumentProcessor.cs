@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Globalization;
 
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -17,45 +15,15 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 ///  An argument processor that allows the user to specify whether the execution
 ///  should happen in the current vstest.console.exe process or a new different process.
 /// </summary>
-internal class InIsolationArgumentProcessor : IArgumentProcessor
+internal class InIsolationArgumentProcessor : ArgumentProcessor<bool>
 {
-    public const string CommandName = "/InIsolation";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new InIsolationArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public InIsolationArgumentProcessor()
+        : base("/InIsolation", typeof(InIsolationArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new InIsolationArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance));
-
-        set => _executor = value;
+        Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
+        HelpContentResourceName = CommandLineResources.InIsolationHelp;
+        HelpPriority = HelpContentPriority.InIsolationArgumentProcessorHelpPriority;
     }
-}
-
-internal class InIsolationArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => InIsolationArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.AutoUpdateRunSettings;
-
-    public override string HelpContentResourceName => CommandLineResources.InIsolationHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.InIsolationArgumentProcessorHelpPriority;
 }
 
 internal class InIsolationArgumentExecutor : IArgumentExecutor
@@ -76,8 +44,6 @@ internal class InIsolationArgumentExecutor : IArgumentExecutor
         _commandLineOptions = options;
         _runSettingsManager = runSettingsManager;
     }
-
-    #region IArgumentProcessor
 
     /// <summary>
     /// Initializes with the argument that was provided with the command.
@@ -104,6 +70,4 @@ internal class InIsolationArgumentExecutor : IArgumentExecutor
         // Nothing to do since we updated the parameter during initialize parameter
         return ArgumentProcessorResult.Success;
     }
-
-    #endregion
 }

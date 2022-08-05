@@ -186,7 +186,7 @@ public class EnvironmentArgumentProcessorTests
 
     private IArgumentExecutor GetExecutor()
     {
-        return new EnvironmentArgumentProcessor.ArgumentExecutor(
+        return new EnvironmentArgumentProcessor.EnvironmentArgumentExecutor(
             _commandLineOptions,
             _settingsProvider,
             _mockOutput.Object

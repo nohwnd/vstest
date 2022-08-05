@@ -18,53 +18,18 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 ///  An argument processor that allows the user to specify the target platform architecture
 ///  for test run.
 /// </summary>
-internal class FrameworkArgumentProcessor : IArgumentProcessor
+// TODO: Add validator for Framework input.
+internal class FrameworkArgumentProcessor : ArgumentProcessor<string>
 {
-    /// <summary>
-    /// The name of the command line argument that the OutputArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/Framework";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new FrameworkArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public FrameworkArgumentProcessor()
+        : base(new string[] { "-f", "--framework" }, typeof(FrameworkArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new FrameworkArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance));
-
-        set => _executor = value;
+        Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
+        HelpContentResourceName = CommandLineResources.FrameworkArgumentHelp;
+        HelpPriority = HelpContentPriority.FrameworkArgumentProcessorHelpPriority;
     }
 }
 
-internal class FrameworkArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => FrameworkArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.AutoUpdateRunSettings;
-
-    public override string HelpContentResourceName => CommandLineResources.FrameworkArgumentHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.FrameworkArgumentProcessorHelpPriority;
-}
-
-/// <summary>
-/// Argument Executor for the "/Platform" command line argument.
-/// </summary>
 internal class FrameworkArgumentExecutor : IArgumentExecutor
 {
     /// <summary>
@@ -76,11 +41,6 @@ internal class FrameworkArgumentExecutor : IArgumentExecutor
 
     public const string RunSettingsPath = "RunConfiguration.TargetFrameworkVersion";
 
-    /// <summary>
-    /// Default constructor.
-    /// </summary>
-    /// <param name="options"> The options. </param>
-    /// <param name="runSettingsManager"> The runsettings manager. </param>
     public FrameworkArgumentExecutor(CommandLineOptions options, IRunSettingsProvider runSettingsManager)
     {
         ValidateArg.NotNull(options, nameof(options));
@@ -89,13 +49,6 @@ internal class FrameworkArgumentExecutor : IArgumentExecutor
         _runSettingsManager = runSettingsManager;
     }
 
-
-    #region IArgumentExecutor
-
-    /// <summary>
-    /// Initializes with the argument that was provided with the command.
-    /// </summary>
-    /// <param name="argument">Argument that was provided with the command.</param>
     public void Initialize(string? argument)
     {
         if (argument.IsNullOrWhiteSpace())
@@ -136,6 +89,4 @@ internal class FrameworkArgumentExecutor : IArgumentExecutor
     {
         return ArgumentProcessorResult.Success;
     }
-
-    #endregion
 }

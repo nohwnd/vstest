@@ -5,11 +5,11 @@ using System;
 using System.Globalization;
 using System.Linq;
 
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
+using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
@@ -19,47 +19,15 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 ///  An argument processor that allows the user to specify the target platform architecture
 ///  for test run.
 /// </summary>
-internal class PlatformArgumentProcessor : IArgumentProcessor
+internal class PlatformArgumentProcessor : ArgumentProcessor<PlatformArchitecture>
 {
-    /// <summary>
-    /// The name of the command line argument that the OutputArgumentExecutor handles.
-    /// </summary>
-    public const string CommandName = "/Platform";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new PlatformArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public PlatformArgumentProcessor()
+        : base(new string[] { "-a", "--arch", "--platform" }, typeof(PlatformArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new PlatformArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance));
-
-        set => _executor = value;
+        Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
+        HelpContentResourceName = CommandLineResources.PlatformArgumentHelp;
+        HelpPriority = HelpContentPriority.PlatformArgumentProcessorHelpPriority;
     }
-}
-
-internal class PlatformArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => PlatformArgumentProcessor.CommandName;
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.AutoUpdateRunSettings;
-
-    public override string HelpContentResourceName => CommandLineResources.PlatformArgumentHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.PlatformArgumentProcessorHelpPriority;
 }
 
 /// <summary>
@@ -73,7 +41,7 @@ internal class PlatformArgumentExecutor : IArgumentExecutor
     private readonly CommandLineOptions _commandLineOptions;
 
     private readonly IRunSettingsProvider _runSettingsManager;
-
+    private readonly IRunSettingsHelper _runsettingsHelper;
     public const string RunSettingsPath = "RunConfiguration.TargetPlatform";
 
     /// <summary>
@@ -90,7 +58,6 @@ internal class PlatformArgumentExecutor : IArgumentExecutor
     }
 
 
-    #region IArgumentExecutor
 
     /// <summary>
     /// Initializes with the argument that was provided with the command.
@@ -119,7 +86,7 @@ internal class PlatformArgumentExecutor : IArgumentExecutor
 
         if (validPlatform)
         {
-            RunSettingsHelper.Instance.IsDefaultTargetArchitecture = false;
+            _runsettingsHelper.IsDefaultTargetArchitecture = false;
             _commandLineOptions.TargetArchitecture = platform;
             _runSettingsManager.UpdateRunSettingsNode(RunSettingsPath, platform.ToString());
         }
@@ -140,6 +107,4 @@ internal class PlatformArgumentExecutor : IArgumentExecutor
     {
         return ArgumentProcessorResult.Success;
     }
-
-    #endregion
 }

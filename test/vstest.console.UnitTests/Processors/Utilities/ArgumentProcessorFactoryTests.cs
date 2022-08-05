@@ -24,7 +24,7 @@ public class ArgumentProcessorFactoryTests
 
         ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
 
-        IArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
+        ArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
 
         Assert.AreEqual(typeof(TestSourceArgumentProcessor), result.GetType());
     }
@@ -36,7 +36,7 @@ public class ArgumentProcessorFactoryTests
 
         ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
 
-        IArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
+        ArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
 
         Assert.AreEqual(typeof(TestSourceArgumentProcessor), result.GetType());
     }
@@ -48,7 +48,7 @@ public class ArgumentProcessorFactoryTests
 
         ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
 
-        IArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
+        ArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
 
         Assert.AreEqual(typeof(PlatformArgumentProcessor), result.GetType());
     }
@@ -60,7 +60,7 @@ public class ArgumentProcessorFactoryTests
 
         ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
 
-        IArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
+        ArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
 
         Assert.AreEqual(typeof(PlatformArgumentProcessor), result.GetType());
     }
@@ -85,7 +85,7 @@ public class ArgumentProcessorFactoryTests
 
         ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
 
-        IArgumentProcessor result = factory.CreateArgumentProcessor(command, new string[] { "" })!;
+        ArgumentProcessor result = factory.CreateArgumentProcessor(command, new string[] { "" })!;
 
         Assert.IsNull(result);
     }
@@ -97,7 +97,7 @@ public class ArgumentProcessorFactoryTests
 
         ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
 
-        IArgumentProcessor result = factory.CreateArgumentProcessor(command, new string[] { "" })!;
+        ArgumentProcessor result = factory.CreateArgumentProcessor(command, new string[] { "" })!;
 
         Assert.AreEqual(typeof(CliRunSettingsArgumentProcessor), result.GetType());
     }
@@ -160,15 +160,15 @@ public class ArgumentProcessorFactoryTests
             factory.CommandToProcessorMap.Keys.ToList());
     }
 
-    private static IEnumerable<IArgumentProcessor> GetArgumentProcessors(bool specialCommandFilter)
+    private static IEnumerable<ArgumentProcessor> GetArgumentProcessors(bool specialCommandFilter)
     {
         var allProcessors = typeof(ArgumentProcessorFactory).GetTypeInfo()
             .Assembly.GetTypes()
-            .Where(t => !t.GetTypeInfo().IsAbstract && !t.Name.Equals("IArgumentProcessor") && typeof(IArgumentProcessor).IsAssignableFrom(t));
+            .Where(t => !t.GetTypeInfo().IsAbstract && !t.Name.Equals("IArgumentProcessor") && typeof(ArgumentProcessor).IsAssignableFrom(t));
 
         foreach (var processor in allProcessors)
         {
-            var instance = Activator.CreateInstance(processor) as IArgumentProcessor;
+            var instance = Activator.CreateInstance(processor) as ArgumentProcessor;
             Assert.IsNotNull(instance, "Unable to instantiate processor: {0}", processor);
 
             var specialProcessor = instance.Metadata.Value.IsSpecialCommand;

@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Globalization;
 
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -16,50 +14,17 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Parallel Option Argument processor that allows the user to specify if tests are to be run in parallel.
 /// </summary>
-internal class ParallelArgumentProcessor : IArgumentProcessor
+internal class ParallelArgumentProcessor : ArgumentProcessor<bool>
 {
-    public const string CommandName = "/Parallel";
-
-    private Lazy<IArgumentProcessorCapabilities>? _metadata;
-    private Lazy<IArgumentExecutor>? _executor;
-
-    /// <summary>
-    /// Gets the metadata.
-    /// </summary>
-    public Lazy<IArgumentProcessorCapabilities> Metadata
-        => _metadata ??= new Lazy<IArgumentProcessorCapabilities>(() =>
-            new ParallelArgumentProcessorCapabilities());
-
-    /// <summary>
-    /// Gets or sets the executor.
-    /// </summary>
-    public Lazy<IArgumentExecutor>? Executor
+    public ParallelArgumentProcessor()
+        : base("--parallel", typeof(ParallelArgumentExecutor))
     {
-        get => _executor ??= new Lazy<IArgumentExecutor>(() =>
-            new ParallelArgumentExecutor(CommandLineOptions.Instance, RunSettingsManager.Instance));
-
-        set => _executor = value;
+        Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
+        HelpContentResourceName = CommandLineResources.ParallelArgumentProcessorHelp;
+        HelpPriority = HelpContentPriority.ParallelArgumentProcessorHelpPriority;
     }
 }
 
-internal class ParallelArgumentProcessorCapabilities : BaseArgumentProcessorCapabilities
-{
-    public override string CommandName => ParallelArgumentProcessor.CommandName;
-
-    public override bool AllowMultiple => false;
-
-    public override bool IsAction => false;
-
-    public override ArgumentProcessorPriority Priority => ArgumentProcessorPriority.AutoUpdateRunSettings;
-
-    public override string HelpContentResourceName => CommandLineResources.ParallelArgumentProcessorHelp;
-
-    public override HelpContentPriority HelpPriority => HelpContentPriority.ParallelArgumentProcessorHelpPriority;
-}
-
-/// <summary>
-/// Argument Executor for the "/Parallel" command line argument.
-/// </summary>
 internal class ParallelArgumentExecutor : IArgumentExecutor
 {
     /// <summary>
@@ -83,8 +48,6 @@ internal class ParallelArgumentExecutor : IArgumentExecutor
         _commandLineOptions = options;
         _runSettingsManager = runSettingsManager;
     }
-
-    #region IArgumentExecutor
 
     /// <summary>
     /// Initializes with the argument that was provided with the command.
@@ -111,6 +74,4 @@ internal class ParallelArgumentExecutor : IArgumentExecutor
     {
         return ArgumentProcessorResult.Success;
     }
-
-    #endregion
 }
