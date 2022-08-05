@@ -54,16 +54,17 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine;
 internal class Executor
 {
     private const string NonARM64RunnerName = "vstest.console.exe";
+    private readonly IOutput _output;
     private readonly ITestPlatformEventSource _testPlatformEventSource;
     private readonly IProcessHelper _processHelper;
     private readonly IEnvironment _environment;
     private bool _showHelp;
 
-    /// <summary>
-    /// Default constructor.
-    /// </summary>
-    public Executor(IOutput output) : this(output, TestPlatformEventSource.Instance, new ProcessHelper(), new PlatformEnvironment())
+    internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper, IEnvironment environment)
     {
+        DebuggerBreakpoint.AttachVisualStudioDebugger("VSTEST_RUNNER_DEBUG_ATTACHVS");
+        DebuggerBreakpoint.WaitForDebugger("VSTEST_RUNNER_DEBUG");
+
         // TODO: Get rid of this by making vstest.console code properly async.
         // The current implementation of vstest.console is blocking many threads that just wait
         // for completion in non-async way. Because threadpool is setting the limit based on processor count,
@@ -81,24 +82,14 @@ internal class Executor
         var additionalThreadsCount = Environment.ProcessorCount * 4;
         ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
         ThreadPool.SetMinThreads(workerThreads + additionalThreadsCount, completionPortThreads + additionalThreadsCount);
-    }
 
-    internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper, IEnvironment environment)
-    {
-        DebuggerBreakpoint.AttachVisualStudioDebugger("VSTEST_RUNNER_DEBUG_ATTACHVS");
-        DebuggerBreakpoint.WaitForDebugger("VSTEST_RUNNER_DEBUG");
-
-        Output = output;
+        _output = output;
         _testPlatformEventSource = testPlatformEventSource;
-        _showHelp = true;
         _processHelper = processHelper;
         _environment = environment;
-    }
 
-    /// <summary>
-    /// Instance to use for sending output.
-    /// </summary>
-    private IOutput Output { get; set; }
+        _showHelp = true;
+    }
 
     /// <summary>
     /// Performs the execution based on the arguments provided.
@@ -149,7 +140,7 @@ internal class Executor
         // If we have no arguments, set exit code to 1, add a message, and include the help processor in the args.
         if (args == null || args.Length == 0 || args.Any(StringUtils.IsNullOrWhiteSpace))
         {
-            Output.Error(true, CommandLineResources.NoArgumentsProvided);
+            _output.Error(true, CommandLineResources.NoArgumentsProvided);
             args = new string[] { HelpArgumentProcessor.CommandName };
             exitCode = 1;
         }
@@ -256,7 +247,7 @@ internal class Executor
             else
             {
                 // No known processor was found, report an error and continue
-                Output.Error(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.NoArgumentProcessorFound, arg));
+                _output.Error(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.NoArgumentProcessorFound, arg));
 
                 // Add the help processor
                 if (result == 0)
@@ -306,13 +297,13 @@ internal class Executor
             {
                 if (ex is CommandLineException or TestPlatformException or SettingsException)
                 {
-                    Output.Error(false, ex.Message);
+                    _output.Error(false, ex.Message);
                     result = 1;
                     _showHelp = false;
                 }
                 else if (ex is TestSourceException)
                 {
-                    Output.Error(false, ex.Message);
+                    _output.Error(false, ex.Message);
                     result = 1;
                     _showHelp = false;
                     break;
@@ -378,7 +369,7 @@ internal class Executor
             if (ex is CommandLineException or TestPlatformException or SettingsException or InvalidOperationException)
             {
                 EqtTrace.Error("ExecuteArgumentProcessor: failed to execute argument process: {0}", ex);
-                Output.Error(false, ex.Message);
+                _output.Error(false, ex.Message);
                 result = ArgumentProcessorResult.Fail;
 
                 // Send inner exception only when its message is different to avoid duplicate.
@@ -386,7 +377,7 @@ internal class Executor
                     ex.InnerException != null &&
                     !string.Equals(ex.InnerException.Message, ex.Message, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    Output.Error(false, ex.InnerException.Message);
+                    _output.Error(false, ex.InnerException.Message);
                 }
             }
             else
@@ -431,10 +422,10 @@ internal class Executor
 
         string assemblyVersionAndArchitecture = $"{assemblyVersion} ({_processHelper.GetCurrentProcessArchitecture().ToString().ToLowerInvariant()})";
         string commandLineBanner = string.Format(CultureInfo.CurrentCulture, CommandLineResources.MicrosoftCommandLineTitle, assemblyVersionAndArchitecture);
-        Output.WriteLine(commandLineBanner, OutputLevel.Information);
-        Output.WriteLine(CommandLineResources.CopyrightCommandLineTitle, OutputLevel.Information);
+        _output.WriteLine(commandLineBanner, OutputLevel.Information);
+        _output.WriteLine(CommandLineResources.CopyrightCommandLineTitle, OutputLevel.Information);
         PrintWarningIfRunningEmulatedOnArm64();
-        Output.WriteLine(string.Empty, OutputLevel.Information);
+        _output.WriteLine(string.Empty, OutputLevel.Information);
     }
 
     /// <summary>
@@ -447,7 +438,7 @@ internal class Executor
             _environment.Architecture == PlatformArchitecture.ARM64 &&
             currentProcessArchitecture != PlatformArchitecture.ARM64)
         {
-            Output.Warning(false, CommandLineResources.WarningEmulatedOnArm64, currentProcessArchitecture.ToString().ToLowerInvariant());
+            _output.Warning(false, CommandLineResources.WarningEmulatedOnArm64, currentProcessArchitecture.ToString().ToLowerInvariant());
         }
     }
 }

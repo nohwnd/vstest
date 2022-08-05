@@ -22,6 +22,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client.Payloads;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.VsTestConsole.TranslationLayer.Interfaces;
@@ -52,7 +53,7 @@ internal class InProcessVsTestConsoleWrapper : IVsTestConsoleWrapper
               environmentVariableHelper: new EnvironmentVariableHelper(),
               requestSender: new VsTestConsoleRequestSender(),
               testRequestManager: null,
-              executor: new Executor(ConsoleOutput.Instance),
+              executor: new Executor(new ConsoleOutput(), TestPlatformEventSource.Instance, new ProcessHelper(), new PlatformEnvironment()),
               testPlatformEventSource: TestPlatformEventSource.Instance)
     { }
 

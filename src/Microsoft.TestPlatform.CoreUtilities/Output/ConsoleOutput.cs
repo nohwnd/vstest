@@ -22,7 +22,7 @@ public class ConsoleOutput : IOutput
     /// <summary>
     /// Initializes a new instance of the <see cref="ConsoleOutput"/> class.
     /// </summary>
-    internal ConsoleOutput()
+    public ConsoleOutput()
     {
         _standardOutput = Console.Out;
         _standardError = Console.Error;
@@ -31,6 +31,7 @@ public class ConsoleOutput : IOutput
     /// <summary>
     /// Gets the instance of <see cref="ConsoleOutput"/>.
     /// </summary>
+    [Obsolete()]
     public static ConsoleOutput Instance
     {
         get
