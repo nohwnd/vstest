@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -69,6 +70,29 @@ internal class EnableDiagArgumentExecutor : IArgumentExecutor
     /// <param name="argument">Argument that was provided with the command.</param>
     public void Initialize(string? argument)
     {
+        // tODO: initialization of the diag, but maybe this should go into runsettings rather? 
+        //if (!isDiag)
+        //{
+        //    // This takes a path to log directory and log.txt file. Same as the --diag parameter, e.g. VSTEST_DIAG="logs\log.txt"
+        //    var diag = Environment.GetEnvironmentVariable("VSTEST_DIAG");
+        //    // This takes Verbose, Info (not Information), Warning, and Error.
+        //    var diagVerbosity = Environment.GetEnvironmentVariable("VSTEST_DIAG_VERBOSITY");
+        //    if (!StringUtils.IsNullOrWhiteSpace(diag))
+        //    {
+        //        var verbosity = TraceLevel.Verbose;
+        //        if (diagVerbosity != null)
+        //        {
+        //            if (Enum.TryParse<TraceLevel>(diagVerbosity, ignoreCase: true, out var parsedVerbosity))
+        //            {
+        //                verbosity = parsedVerbosity;
+        //            }
+        //        }
+
+        //        args = args.Concat(new[] { $"--diag:{diag};TraceLevel={verbosity}" }).ToArray();
+        //    }
+        //}I
+
+
         string exceptionMessage = string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidDiagArgument, argument);
 
         // Throw error if argument is null or empty.

@@ -19,7 +19,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class EnableLoggerArgumentProcessor : ArgumentProcessor<string>
 {
     public EnableLoggerArgumentProcessor()
-        : base("-l", "--logger", typeof(EnableLoggerArgumentExecutor))
+        : base(new string[] { "-l", "--logger" }, typeof(EnableLoggerArgumentExecutor))
     {
         AllowMultiple = true;
         // REVEW: There was a comment somewhere saying that this should always run to setup loggers even when user provides none.

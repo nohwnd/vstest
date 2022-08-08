@@ -53,14 +53,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine;
 /// </summary>
 internal class Executor
 {
-    private const string NonARM64RunnerName = "vstest.console.exe";
     private readonly IOutput _output;
     private readonly ITestPlatformEventSource _testPlatformEventSource;
     private readonly IProcessHelper _processHelper;
     private readonly IEnvironment _environment;
-    private bool _showHelp;
+    private readonly IFeatureFlag? _featureFlag;
 
-    internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper, IEnvironment environment)
+    internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper, IEnvironment environment, IFeatureFlag featureFlag)
     {
         DebuggerBreakpoint.AttachVisualStudioDebugger("VSTEST_RUNNER_DEBUG_ATTACHVS");
         DebuggerBreakpoint.WaitForDebugger("VSTEST_RUNNER_DEBUG");
@@ -87,8 +86,6 @@ internal class Executor
         _testPlatformEventSource = testPlatformEventSource;
         _processHelper = processHelper;
         _environment = environment;
-
-        _showHelp = true;
     }
 
     /// <summary>
@@ -106,75 +103,35 @@ internal class Executor
 
         IReadOnlyList<ArgumentProcessor> argumentProcessors = ArgumentProcessorFactory.DefaultArgumentProcessors;
 
-        var parser = new Parser().Parse(args, argumentProcessors);
+        ParseResult parseResult = new Parser().Parse(args, argumentProcessors);
 
-        // todo: exit quickly for parse error.
-        //// Quick exit for syntax error
-        //if (exitCode == 1 && !argumentProcessors.Any(processor => processor is HelpArgumentProcessor))
-        //{
-        //    _testPlatformEventSource.VsTestConsoleStop();
-        //    return exitCode;
-        //}
-
-
-        // TODO: leave this to the parser, we don't enable logging before parsing version anyway, so doing this manually is unnecessary.
-        var isDiag = args != null && args.Any(arg => arg.RemoveArgumentPrefix().StartsWith("diag", StringComparison.OrdinalIgnoreCase));
-
-        // If User specifies --nologo via dotnet, do not print splat screen
-        if (args != null && args.Length != 0 && args.Contains("--nologo"))
+        // On syntax error print the error, and help.
+        if (!parseResult.ParseError.IsNullOrWhiteSpace())
         {
-            // Sanitizing this list, as I don't think we should write Argument processor for this.
-            args = args.Where(val => val != "--nologo").ToArray();
-        }
-        else
-        {
-            // If we're postprocessing we don't need to show the splash
-            if (!ArtifactProcessingPostProcessModeProcessor.ContainsPostProcessCommand(args))
-            {
-                PrintSplashScreen(isDiag);
-            }
+            _output.Error(appendPrefix: false, parseResult.ParseError);
+            var executor = new HelpArgumentExecutor(_output, argumentProcessors.ToList());
+            executor.Initialize("--help");
+            executor.Execute();
+
+            _testPlatformEventSource.VsTestConsoleStop();
+            return 1;
         }
 
-        int exitCode = 0;
-
-        // If we have no arguments, set exit code to 1, add a message, and include the help processor in the args.
-        if (args == null || args.Length == 0 || args.Any(StringUtils.IsNullOrWhiteSpace))
-        {
-            _output.Error(true, CommandLineResources.NoArgumentsProvided);
-            args = new string[] { HelpArgumentProcessor.CommandName };
-            exitCode = 1;
-        }
-
-        if (!isDiag)
-        {
-            // This takes a path to log directory and log.txt file. Same as the --diag parameter, e.g. VSTEST_DIAG="logs\log.txt"
-            var diag = Environment.GetEnvironmentVariable("VSTEST_DIAG");
-            // This takes Verbose, Info (not Information), Warning, and Error.
-            var diagVerbosity = Environment.GetEnvironmentVariable("VSTEST_DIAG_VERBOSITY");
-            if (!StringUtils.IsNullOrWhiteSpace(diag))
-            {
-                var verbosity = TraceLevel.Verbose;
-                if (diagVerbosity != null)
-                {
-                    if (Enum.TryParse<TraceLevel>(diagVerbosity, ignoreCase: true, out var parsedVerbosity))
-                    {
-                        verbosity = parsedVerbosity;
-                    }
-                }
-
-                args = args.Concat(new[] { $"--diag:{diag};TraceLevel={verbosity}" }).ToArray();
-            }
-        }
-
-
-
-
-        //// Flatten arguments and process response files.
-        // exitCode |= FlattenArguments(args, out var flattenedArguments);
-        string[] flattenedArguments = new string[0];
-
+        var serviceProvider = new ServiceProvider();
+        var initializeInvocationContext = new InvocationContext(serviceProvider, parseResult);
         // Get the argument processors for the arguments, and initialize them.
-        exitCode |= GetArgumentProcessors(flattenedArguments, out List<ArgumentProcessor> argumentProcessors2);
+        var initializeExitCode = RunIntialize(initializeInvocationContext, out List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors);
+        if (initializeExitCode != 0)
+        {
+            _output.Error(appendPrefix: false, parseResult.ParseError ?? "Parsing failed but no parse error was reported.");
+            var executor = new HelpArgumentExecutor(_output, argumentProcessors.ToList());
+            executor.Initialize("--help");
+            executor.Execute();
+
+            EqtTrace.Verbose("Executor.Execute: Exiting with exit code of {0}", initializeExitCode);
+            _testPlatformEventSource.VsTestConsoleStop();
+            return initializeExitCode;
+        }
 
         // TODO: some of the argument processors are adding parameters for the lattter argument processors to pick them up,
         // this sucks, and we should not do that, or we should guard against it by adding those parameters to a special group
@@ -183,26 +140,12 @@ internal class Executor
         //// Verify that the arguments are valid.
         //exitCode |= IdentifyDuplicateArguments(argumentProcessors);
 
-        // Quick exit for syntax error
-        if (exitCode == 1 && !argumentProcessors.Any(processor => processor is HelpArgumentProcessor))
-        {
-            _testPlatformEventSource.VsTestConsoleStop();
-            return exitCode;
-        }
 
-        // Execute all argument processors
-        foreach (var processor in argumentProcessors)
-        {
-            if (!ExecuteArgumentProcessor(processor, ref exitCode))
-            {
-                break;
-            }
-        }
+        InvocationContext executeInvocationContext = new InvocationContext(serviceProvider, parseResult);
+        var executeExitCode = RunExecute(executeInvocationContext, processorsAndExecutors);
 
-        // Use the test run result aggregator to update the exit code.
-        exitCode |= (TestRunResultAggregator.Instance.Outcome == TestOutcome.Passed) ? 0 : 1;
-
-        EqtTrace.Verbose("Executor.Execute: Exiting with exit code of {0}", exitCode);
+        // REVIEW:  Use the test run result aggregator to update the exit code. <- yeah sure, but why here, why is the command not simply outputting this?
+        // exitCode |= (TestRunResultAggregator.Instance.Outcome == TestOutcome.Passed) ? 0 : 1;
 
         _testPlatformEventSource.VsTestConsoleStop();
 
@@ -212,7 +155,9 @@ internal class Executor
         TestRequestManager.Instance.Dispose();
 
         _testPlatformEventSource.MetricsDisposeStop();
-        return exitCode;
+
+        EqtTrace.Verbose("Executor.Execute: Exiting with exit code of {0}", executeExitCode);
+        return executeExitCode;
     }
 
     /// <summary>
@@ -221,101 +166,142 @@ internal class Executor
     /// <param name="args">Arguments provided to perform execution with.</param>
     /// <param name="processors">List of argument processors for the arguments.</param>
     /// <returns>0 if all of the processors were created successfully and 1 otherwise.</returns>
-    private int GetArgumentProcessors(string[] args, out List<ArgumentProcessor> processors)
+    private int RunIntialize(InvocationContext invocationContext, out List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors)
     {
-        processors = new List<ArgumentProcessor>();
-        int result = 0;
-        var processorFactory = ArgumentProcessorFactory.Create();
-        for (var index = 0; index < args.Length; index++)
-        {
-            //var arg = args[index];
-            //// If argument is '--', following arguments are key=value pairs for run settings.
-            //if (arg.Equals("--"))
-            //{
-            //    var cliRunSettingsProcessor = processorFactory.CreateArgumentProcessor(arg, args.Skip(index + 1).ToArray());
-            //    processors.Add(cliRunSettingsProcessor!);
-            //    break;
-            //}
-
-            string arg = null;
-            var processor = processorFactory.CreateArgumentProcessor(arg);
-
-            if (processor != null)
-            {
-                processors.Add(processor);
-            }
-            else
-            {
-                // No known processor was found, report an error and continue
-                _output.Error(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.NoArgumentProcessorFound, arg));
-
-                // Add the help processor
-                if (result == 0)
-                {
-                    result = 1;
-                    processors.Add(processorFactory.CreateArgumentProcessor(HelpArgumentProcessor.CommandName)!);
-                }
-            }
-        }
-
-        // Add the internal argument processors that should always be executed.
-        // Examples: processors to enable loggers that are statically configured, and to start logging,
-        // should always be executed.
-        var processorsToAlwaysExecute = processorFactory.GetArgumentProcessorsToAlwaysExecute();
-        foreach (var processor in processorsToAlwaysExecute)
-        {
-            // TODO: this just makes sure we don't add duplicates. But we won't need it later when we simply go over every
-            // processort and try to bind parameter to it, or run it with all parameters
-            //if (processors.Any(i => i.Metadata.Value.CommandName == processor.Metadata.Value.CommandName))
-            //{
-            //    continue;
-            //}
-
-            // We need to initialize the argument executor if it's set to always execute. This ensures it will be initialized with other executors.
-            processors.Add(ArgumentProcessorFactory.WrapLazyProcessorToInitializeOnInstantiation(processor));
-        }
-
+        // TODO: nope, remove.
         // Initialize Runsettings with defaults
         RunSettingsManager.Instance.AddDefaultRunSettings();
 
-        // Ensure we have an action argument.
-        EnsureActionArgumentIsPresent(processors, processorFactory);
+        processorsAndExecutors = new List<(ArgumentProcessor, IArgumentExecutor)>();
+        var argumentProcessors = ArgumentProcessorFactory.GetProcessorList(_featureFlag);
+        argumentProcessors.Sort((p1, p2) => Comparer<ArgumentProcessorPriority>.Default.Compare(p1.Priority, p2.Priority));
 
-        // Instantiate and initialize the processors in priority order.
-        processors.Sort((p1, p2) => Comparer<ArgumentProcessorPriority>.Default.Compare(p1.Priority, p2.Priority));
-        foreach (var processor in processors)
+        // Ensure we have an action argument.
+        EnsureActionArgumentIsPresent(argumentProcessors);
+
+        foreach (var processor in argumentProcessors)
         {
-            IArgumentExecutor? executorInstance;
-            try
+            object? value = null;
+            if (processor.AlwaysExecute || invocationContext.ParseResult.TryGetValueFor(processor.Aliases, out value))
             {
-                // Ensure the instance is created.  Note that the Lazy not only instantiates
-                // the argument processor, but also initializes it.
-                // TODO: this is where we need to initialize the executor and do stuff.
-                executorInstance = null;
-            }
-            catch (Exception ex)
-            {
-                if (ex is CommandLineException or TestPlatformException or SettingsException)
+                IArgumentExecutor executor = ArgumentProcessorFactory.CreateExecutor(invocationContext.ServiceProvider, processor.ExecutorType);
+                // TODO: remove toString.
+                try
                 {
-                    _output.Error(false, ex.Message);
-                    result = 1;
-                    _showHelp = false;
+                    executor.Initialize(value?.ToString());
                 }
-                else if (ex is TestSourceException)
+                catch (Exception ex)
                 {
-                    _output.Error(false, ex.Message);
-                    result = 1;
-                    _showHelp = false;
-                    break;
-                }
-                else
-                {
-                    // Let it throw - User must see crash and report it with stack trace!
-                    // No need for recoverability as user will start a new vstest.console anyway
-                    throw;
+                    if (ex is CommandLineException or TestPlatformException or SettingsException or InvalidOperationException)
+                    {
+                        EqtTrace.Error("ExecuteArgumentProcessor: failed to execute argument process: {0}", ex);
+                        _output.Error(false, ex.Message);
+
+                        // Send inner exception only when its message is different to avoid duplicate.
+                        if (ex is TestPlatformException &&
+                            ex.InnerException != null &&
+                            !string.Equals(ex.InnerException.Message, ex.Message, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            _output.Error(false, ex.InnerException.Message);
+                        }
+                    }
+                    else
+                    {
+                        // Let it throw - User must see crash and report it with stack trace!
+                        // No need for recoverability as user will start a new vstest.console anyway
+                        throw;
+                    }
+
+                    return 1;
                 }
             }
         }
+
+        //for (var index = 0; index < args.Length; index++)
+        //{
+        //    //var arg = args[index];
+        //    //// If argument is '--', following arguments are key=value pairs for run settings.
+        //    //if (arg.Equals("--"))
+        //    //{
+        //    //    var cliRunSettingsProcessor = processorFactory.CreateArgumentProcessor(arg, args.Skip(index + 1).ToArray());
+        //    //    processors.Add(cliRunSettingsProcessor!);
+        //    //    break;
+        //    //}
+
+        //    string arg = null;
+        //    var processor = processorFactory.CreateArgumentProcessor(arg);
+
+        //    if (processor != null)
+        //    {
+        //        processors.Add(processor);
+        //    }
+        //    else
+        //    {
+        //        // No known processor was found, report an error and continue
+        //        _output.Error(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.NoArgumentProcessorFound, arg));
+
+        //        // Add the help processor
+        //        if (result == 0)
+        //        {
+        //            result = 1;
+        //            processors.Add(processorFactory.CreateArgumentProcessor(HelpArgumentProcessor.CommandName)!);
+        //        }
+        //    }
+        //}
+
+        //// Add the internal argument processors that should always be executed.
+        //// Examples: processors to enable loggers that are statically configured, and to start logging,
+        //// should always be executed.
+        //var processorsToAlwaysExecute = processorFactory.GetArgumentProcessorsToAlwaysExecute();
+        //foreach (var processor in processorsToAlwaysExecute)
+        //{
+        //    // TODO: this just makes sure we don't add duplicates. But we won't need it later when we simply go over every
+        //    // processort and try to bind parameter to it, or run it with all parameters
+        //    //if (processors.Any(i => i.Metadata.Value.CommandName == processor.Metadata.Value.CommandName))
+        //    //{
+        //    //    continue;
+        //    //}
+
+        //    // We need to initialize the argument executor if it's set to always execute. This ensures it will be initialized with other executors.
+        //    processors.Add(ArgumentProcessorFactory.WrapLazyProcessorToInitializeOnInstantiation(processor));
+        //}
+
+
+        //// Instantiate and initialize the processors in priority order.
+        //processors.Sort((p1, p2) => Comparer<ArgumentProcessorPriority>.Default.Compare(p1.Priority, p2.Priority));
+        //foreach (var processor in processors)
+        //{
+        //    IArgumentExecutor? executorInstance;
+        //    try
+        //    {
+        //        // Ensure the instance is created.  Note that the Lazy not only instantiates
+        //        // the argument processor, but also initializes it.
+        //        // TODO: this is where we need to initialize the executor and do stuff.
+        //        executorInstance = null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        if (ex is CommandLineException or TestPlatformException or SettingsException)
+        //        {
+        //            _output.Error(false, ex.Message);
+        //            result = 1;
+        //            _showHelp = false;
+        //        }
+        //        else if (ex is TestSourceException)
+        //        {
+        //            _output.Error(false, ex.Message);
+        //            result = 1;
+        //            _showHelp = false;
+        //            break;
+        //        }
+        //        else
+        //        {
+        //            // Let it throw - User must see crash and report it with stack trace!
+        //            // No need for recoverability as user will start a new vstest.console anyway
+        //            throw;
+        //        }
+        //    }
+        //}
 
         // TODO: nope, we will just do this by ParseError command that will be the first.
         // If some argument was invalid, add help argument processor in beginning(i.e. at highest priority)
@@ -323,7 +309,24 @@ internal class Executor
         //{
         //    processors.Insert(0, processorFactory.CreateArgumentProcessor(HelpArgumentProcessor.CommandName)!);
         //}
-        return result;
+        return 0;
+    }
+
+    private int RunExecute(InvocationContext invocationContext, List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors)
+    {
+        foreach (var (processor, executor) in processorsAndExecutors)
+        {
+            var result = ExecuteArgumentProcessor(executor);
+            // Return when any invocation failed, or when we processed a command, and hence should not continue executing the next
+            // executors in the list.
+            if (result == ArgumentProcessorResult.Fail || result == ArgumentProcessorResult.Abort || processor.IsCommand)
+            {
+                return result is ArgumentProcessorResult.Fail or ArgumentProcessorResult.Abort ? 1 : 0;
+            }
+        }
+
+        throw new InvalidOperationException("Every invocation should encounter at least one command, and so this code should never be reached.\n"
+            + $"Invoked:\n\t'{string.Join("'\t\n'", processorsAndExecutors.Select(pe => pe.Item1.GetType().Name))}'");
     }
 
     /// <summary>
@@ -331,38 +334,32 @@ internal class Executor
     /// </summary>
     /// <param name="argumentProcessors">The arguments that are being processed.</param>
     /// <param name="processorFactory">A factory for creating argument processors.</param>
-    private static void EnsureActionArgumentIsPresent(List<ArgumentProcessor> argumentProcessors, ArgumentProcessorFactory processorFactory)
+    // TODO: this method is kinda pointless, since we don't configure this dynamically, and we don't re-check all the additional conditions here, like
+    // making sure there is a command that has execute always, so adding any command will satisfy this method. And if we don't check we will see it in any interactive
+    // test that we fail.
+    private static void EnsureActionArgumentIsPresent(List<ArgumentProcessor> argumentProcessors)
     {
         ValidateArg.NotNull(argumentProcessors, nameof(argumentProcessors));
-        ValidateArg.NotNull(processorFactory, nameof(processorFactory));
 
-        // Determine if any of the argument processors are actions.
-        var isActionIncluded = argumentProcessors.Any((processor) => processor.IsCommand);
-
-        // If no action arguments have been provided, then add the default action argument.
-        if (!isActionIncluded)
+        if (!argumentProcessors.Any((processor) => processor.IsCommand))
         {
-            argumentProcessors.Add(processorFactory.CreateDefaultActionArgumentProcessor());
+            throw new InvalidOperationException("There has to be at least one command processor.");
         }
     }
 
     /// <summary>
     /// Executes the argument processor
     /// </summary>
-    /// <param name="processor">Argument processor to execute.</param>
+    /// <param name="executor">Argument processor to execute.</param>
     /// <param name="exitCode">Exit status of Argument processor</param>
     /// <returns> true if continue execution, false otherwise.</returns>
-    private bool ExecuteArgumentProcessor(ArgumentProcessor processor, ref int exitCode)
+    private ArgumentProcessorResult ExecuteArgumentProcessor(IArgumentExecutor executor)
     {
-        var continueExecution = true;
-        ArgumentProcessorResult result;
         try
         {
             // TODO: Only executor that could return null is ResponseFileArgumentProcessor, maybe it could be updated
             // to follow a pattern similar to other processors and avoid returning null.
-            // TODO: invoke the actual executor.
-            IArgumentExecutor executor = null;
-            result = executor.Execute();
+            return executor.Execute();
         }
         catch (Exception ex)
         {
@@ -370,7 +367,6 @@ internal class Executor
             {
                 EqtTrace.Error("ExecuteArgumentProcessor: failed to execute argument process: {0}", ex);
                 _output.Error(false, ex.Message);
-                result = ArgumentProcessorResult.Fail;
 
                 // Send inner exception only when its message is different to avoid duplicate.
                 if (ex is TestPlatformException &&
@@ -386,59 +382,8 @@ internal class Executor
                 // No need for recoverability as user will start a new vstest.console anyway
                 throw;
             }
-        }
 
-        TPDebug.Assert(
-            result is >= ArgumentProcessorResult.Success and <= ArgumentProcessorResult.Abort,
-            "Invalid argument processor result.");
-
-        if (result == ArgumentProcessorResult.Fail)
-        {
-            exitCode = 1;
-        }
-
-        if (result == ArgumentProcessorResult.Abort)
-        {
-            continueExecution = false;
-        }
-        return continueExecution;
-    }
-
-    /// <summary>
-    /// Displays the Company and Copyright splash title info immediately after launch
-    /// </summary>
-    private void PrintSplashScreen(bool isDiag)
-    {
-        string? assemblyVersion = Product.Version;
-        if (!isDiag)
-        {
-            var end = Product.Version?.IndexOf("-release");
-
-            if (end >= 0)
-            {
-                assemblyVersion = Product.Version?.Substring(0, end.Value);
-            }
-        }
-
-        string assemblyVersionAndArchitecture = $"{assemblyVersion} ({_processHelper.GetCurrentProcessArchitecture().ToString().ToLowerInvariant()})";
-        string commandLineBanner = string.Format(CultureInfo.CurrentCulture, CommandLineResources.MicrosoftCommandLineTitle, assemblyVersionAndArchitecture);
-        _output.WriteLine(commandLineBanner, OutputLevel.Information);
-        _output.WriteLine(CommandLineResources.CopyrightCommandLineTitle, OutputLevel.Information);
-        PrintWarningIfRunningEmulatedOnArm64();
-        _output.WriteLine(string.Empty, OutputLevel.Information);
-    }
-
-    /// <summary>
-    /// Display a warning if we're running the runner on ARM64 but with a different current process architecture.
-    /// </summary>
-    private void PrintWarningIfRunningEmulatedOnArm64()
-    {
-        var currentProcessArchitecture = _processHelper.GetCurrentProcessArchitecture();
-        if (Path.GetFileName(_processHelper.GetCurrentProcessFileName()) == NonARM64RunnerName &&
-            _environment.Architecture == PlatformArchitecture.ARM64 &&
-            currentProcessArchitecture != PlatformArchitecture.ARM64)
-        {
-            _output.Warning(false, CommandLineResources.WarningEmulatedOnArm64, currentProcessArchitecture.ToString().ToLowerInvariant());
+            return ArgumentProcessorResult.Fail;
         }
     }
 }

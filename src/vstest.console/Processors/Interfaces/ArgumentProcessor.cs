@@ -38,7 +38,7 @@ internal class ArgumentProcessor<TValue> : ArgumentProcessor
     }
 }
 
-internal class ArgumentProcessor
+internal abstract class ArgumentProcessor
 {
     private readonly HashSet<string> _aliases = new(StringComparer.OrdinalIgnoreCase);
 
@@ -120,6 +120,8 @@ internal class ArgumentProcessor
     public Type ExecutorType { get; }
 
     public Type ValueType { get; }
+
+    public IReadOnlyList<Func<object, string>> Validators { get; internal set; }
 
     private string GetLongestAlias()
     {

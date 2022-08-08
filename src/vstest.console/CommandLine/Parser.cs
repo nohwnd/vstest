@@ -4,9 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Reflection;
+using System.IO;
+using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
+
+using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine;
 
@@ -18,82 +21,179 @@ internal class Parser
 
     internal ParseResult Parse(string[]? args, IReadOnlyList<ArgumentProcessor> argumentProcessors)
     {
-        var exitCode = FlattenArguments(args, out string[] flattenedArguments);
+        List<string> parseErrors = new();
 
-        return null;
+        // Ensure there are some arguments
+        if (args == null || args.Length == 0)
+        {
+            parseErrors.Add(CommandLineResources.NoArgumentsProvided);
+            return new ParseResult
+            {
+                Errors = parseErrors,
+            };
+        }
 
+        List<string> argList = args?.ToList() ?? new();
+
+        // Split to arguments and literal text that is after --
+        var (remainingArgs, doubleDashOptions) = GetDoubleDashOptions(argList);
+
+        // Expand all arguments we get from @ files
+        var expandedArgs = ExpandResponseFileArguments(remainingArgs, ref parseErrors);
+        if (parseErrors.Any())
+        {
+            return new ParseResult
+            {
+                Args = remainingArgs,
+                Options = doubleDashOptions,
+                Errors = parseErrors,
+            };
+        }
+
+        // Find all parameters we can link to an argument processor, and parse out the desired value
+        var (bound, unbound) = Bind(expandedArgs, argumentProcessors, ref parseErrors);
+        if (parseErrors.Any())
+        {
+            return new ParseResult
+            {
+                Args = expandedArgs,
+                Options = doubleDashOptions,
+                Errors = parseErrors,
+            };
+        }
+
+        // Validate all parameters
+        var validate = Validate(bound, unbound, argumentProcessors, ref parseErrors);
+
+        if (!validate || parseErrors.Any())
+        {
+            return new ParseResult
+            {
+                Args = expandedArgs,
+                Bound = bound,
+                Unbound = unbound,
+                Options = doubleDashOptions,
+                Errors = parseErrors,
+            };
+        }
+
+        return new ParseResult
+        {
+            Args = expandedArgs,
+            Bound = bound,
+            Unbound = unbound,
+            Options = doubleDashOptions,
+            Errors = parseErrors,
+            Parser = this,
+        };
     }
 
-    private object FlattenArguments(string[]? args, out string[] flattenedArguments)
+    private (List<Parameter> bound, List<Parameter> unbound) Bind(List<string> args, IReadOnlyList<ArgumentProcessor> argumentProcessors, ref List<string> parseErrors)
     {
         throw new NotImplementedException();
     }
 
-    //private int ParseOutRunsettings()
-    //{
-    //    var arg = args[index];
-    //    // If argument is '--', following arguments are key=value pairs for run settings.
-    //    if (arg.Equals("--"))
-    //    {
-    //        var cliRunSettingsProcessor = processorFactory.CreateArgumentProcessor(arg, args.Skip(index + 1).ToArray());
-    //        processors.Add(cliRunSettingsProcessor!);
-    //        break;
-    //    }
-    //}
+    private bool Validate(List<Parameter> bound, List<Parameter> unbound, IReadOnlyList<ArgumentProcessor> argumentProcessors, ref List<string> parseErrors)
+    {
+        if (unbound.Count > 0)
+        {
+            foreach (var arg in unbound)
+            {
+                parseErrors.Add(string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidArgument, arg.Name));
+            }
 
-    ///// <summary>
-    ///// Flattens command line arguments by processing response files.
-    ///// </summary>
-    ///// <param name="arguments">Arguments provided to perform execution with.</param>
-    ///// <param name="flattenedArguments">Array of flattened arguments.</param>
-    ///// <returns>0 if successful and 1 otherwise.</returns>
-    //private int FlattenArguments(IEnumerable<string> arguments, out string[] flattenedArguments)
-    //{
-    //    List<string> outputArguments = new();
-    //    int result = 0;
+            return false;
+        }
 
-    //    foreach (var arg in arguments)
-    //    {
-    //        if (arg.StartsWith("@", StringComparison.Ordinal))
-    //        {
-    //            // response file:
-    //            string path = arg.Substring(1).TrimEnd(null);
-    //            var hadError = ReadArgumentsAndSanitize(path, out var responseFileArgs, out var nestedArgs);
+        foreach (var arg in bound)
+        {
+            foreach (var validator in arg.Processor.Validators)
+            {
+                var error = validator(arg.Value);
+                if (!StringUtils.IsNullOrWhiteSpace(error))
+                {
+                    parseErrors.Add(error);
+                }
+            }
+        }
 
-    //            if (hadError)
-    //            {
-    //                result |= 1;
-    //            }
-    //            else
-    //            {
-    //                Output.WriteLine($"vstest.console.exe {responseFileArgs}", OutputLevel.Information);
-    //                outputArguments.AddRange(nestedArgs!);
-    //            }
-    //        }
-    //        else
-    //        {
-    //            outputArguments.Add(arg);
-    //        }
-    //    }
 
-    //    flattenedArguments = outputArguments.ToArray();
-    //    return result;
-    //}
+        return true;
+    }
 
-    ///// <summary>
-    ///// Read and sanitize the arguments.
-    ///// </summary>
-    ///// <param name="fileName">File provided by user.</param>
-    ///// <param name="args">argument in the file as string.</param>
-    ///// <param name="arguments">Modified argument after sanitizing the contents of the file.</param>
-    ///// <returns>0 if successful and 1 otherwise.</returns>
-    //public bool ReadArgumentsAndSanitize(string fileName, out string? args, out string[]? arguments)
-    //{
-    //    arguments = null;
-    //    return GetContentUsingFile(fileName, out args)
-    //        || (!args.IsNullOrEmpty() && Utilities.CommandLineUtilities.SplitCommandLineIntoArguments(args, out arguments));
-    //}
+    private static List<string> ExpandResponseFileArguments(List<string> args, ref List<string> parseErrors)
+    {
+        var outputArguments = new List<string>(args.Count);
+        foreach (var arg in args)
+        {
+            if (!arg.StartsWith("@", StringComparison.Ordinal))
+            {
+                outputArguments.Add(arg);
+                continue;
+            }
 
+            string path = arg.Substring(1).TrimEnd();
+            string? content = null;
+            try
+            {
+                // TODO: do we have a special class for this? FileHelper?
+                content = File.ReadAllText(path);
+                // REVIEW: this is possibly very long, let's not print that to the screen again? 
+                // _output.WriteLine($"vstest.console.exe {content}", OutputLevel.Information);
+            }
+            catch (Exception)
+            {
+                parseErrors.Add(string.Format(CultureInfo.CurrentCulture, CommandLineResources.OpenResponseFileError, path));
+            }
+
+            if (content != null)
+            {
+                if (!Utilities.CommandLineUtilities.SplitCommandLineIntoArguments(content, out var expandedArguments))
+                {
+                    // TODO: localize
+                    parseErrors.Add($"Error splitting arguments from response file: '{path}'.");
+                }
+                else
+                {
+                    outputArguments.AddRange(expandedArguments);
+                }
+            }
+        }
+
+        return outputArguments;
+    }
+
+    private static (List<string> args, List<string> options) GetDoubleDashOptions(List<string> args)
+    {
+        var doubleDashIndex = args.ToList().IndexOf("--");
+
+        if (doubleDashIndex == -1)
+        {
+            // Double dash "--" in not found, we have just args.
+            return (args, new List<string>());
+        }
+
+        // Double dash is found, return the parts before and after it.
+        var options = new List<string>(args.Count);
+        var argsRemainder = new List<string>(args.Count);
+        for (int i = 0; i < args.Count; i++)
+        {
+            if (i < doubleDashIndex)
+            {
+                argsRemainder.Add(args[i]);
+            }
+            else if (i == doubleDashIndex)
+            {
+                // skip --
+            }
+            else
+            {
+                options.Add(args[i]);
+            }
+        }
+
+        return (argsRemainder, options);
+    }
 
     ///// <summary>
     ///// Verify that the arguments are valid.
@@ -134,23 +234,11 @@ internal class Parser
     //    }
     //    return result;
     //}
+}
 
+internal class Parameter
+{
+    public object Value { get; }
 
-    //private bool GetContentUsingFile(string fileName, out string? contents)
-    //{
-    //    contents = null;
-    //    try
-    //    {
-    //        contents = File.ReadAllText(fileName);
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        EqtTrace.Verbose("Executor.Execute: Exiting with exit code of {0}", 1);
-    //        EqtTrace.Error(string.Format(CultureInfo.InvariantCulture, "Error: Can't open command line argument file '{0}' : '{1}'", fileName, e.Message));
-    //        Output.Error(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.OpenResponseFileError, fileName));
-    //        return true;
-    //    }
-
-    //    return false;
-    //}
+    public ArgumentProcessor Processor { get; }
 }

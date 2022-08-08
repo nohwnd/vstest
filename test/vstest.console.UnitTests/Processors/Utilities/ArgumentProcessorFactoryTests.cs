@@ -22,7 +22,7 @@ public class ArgumentProcessorFactoryTests
     {
         string argument = "--NonArgumet:Dummy";
 
-        ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
+        ArgumentProcessorFactory factory = ArgumentProcessorFactory.GetProcessorList();
 
         ArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
 
@@ -34,7 +34,7 @@ public class ArgumentProcessorFactoryTests
     {
         string argument = "/foo/foo.dll";
 
-        ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
+        ArgumentProcessorFactory factory = ArgumentProcessorFactory.GetProcessorList();
 
         ArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
 
@@ -46,7 +46,7 @@ public class ArgumentProcessorFactoryTests
     {
         string argument = "/Platform:x64";
 
-        ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
+        ArgumentProcessorFactory factory = ArgumentProcessorFactory.GetProcessorList();
 
         ArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
 
@@ -58,7 +58,7 @@ public class ArgumentProcessorFactoryTests
     {
         string argument = "--Platform:x64";
 
-        ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
+        ArgumentProcessorFactory factory = ArgumentProcessorFactory.GetProcessorList();
 
         ArgumentProcessor result = factory.CreateArgumentProcessor(argument)!;
 
@@ -70,7 +70,7 @@ public class ArgumentProcessorFactoryTests
     {
         var command = "--";
 
-        ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
+        ArgumentProcessorFactory factory = ArgumentProcessorFactory.GetProcessorList();
         Action action = () => factory.CreateArgumentProcessor(command, null!);
 
         ExceptionUtilities.ThrowsException<ArgumentException>(
@@ -83,7 +83,7 @@ public class ArgumentProcessorFactoryTests
     {
         var command = "/-";
 
-        ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
+        ArgumentProcessorFactory factory = ArgumentProcessorFactory.GetProcessorList();
 
         ArgumentProcessor result = factory.CreateArgumentProcessor(command, new string[] { "" })!;
 
@@ -95,7 +95,7 @@ public class ArgumentProcessorFactoryTests
     {
         var command = "--";
 
-        ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create();
+        ArgumentProcessorFactory factory = ArgumentProcessorFactory.GetProcessorList();
 
         ArgumentProcessor result = factory.CreateArgumentProcessor(command, new string[] { "" })!;
 
@@ -119,7 +119,7 @@ public class ArgumentProcessorFactoryTests
                 xplatspecialCommandNames.Add(string.Concat("--", specialCommand.Metadata.Value.CommandName.Remove(0, 1)));
             }
         }
-        var factory = ArgumentProcessorFactory.Create();
+        var factory = ArgumentProcessorFactory.GetProcessorList();
 
         CollectionAssert.AreEquivalent(
             specialCommandNames.Concat(xplatspecialCommandNames).ToList(),
@@ -152,7 +152,7 @@ public class ArgumentProcessorFactoryTests
 
         Mock<IFeatureFlag> featureFlag = new();
         featureFlag.Setup(x => x.IsSet(It.IsAny<string>())).Returns(false);
-        ArgumentProcessorFactory factory = ArgumentProcessorFactory.Create(featureFlag.Object);
+        ArgumentProcessorFactory factory = ArgumentProcessorFactory.GetProcessorList(featureFlag.Object);
 
         // Expect command processors to contain both long and short commands.
         CollectionAssert.AreEquivalent(

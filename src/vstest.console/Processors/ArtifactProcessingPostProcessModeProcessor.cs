@@ -24,12 +24,9 @@ internal class ArtifactProcessingPostProcessModeProcessor : ArgumentProcessor<bo
         IsHiddenInHelp = true;
     }
 
-
-    // TODO: what? why?
-    public static bool ContainsPostProcessCommand(string[]? args, IFeatureFlag? featureFlag = null)
+    public static bool ContainsPostProcessCommand(ParseResult parseResult, IFeatureFlag? featureFlag = null)
         => !(featureFlag ?? FeatureFlag.Instance).IsSet(FeatureFlag.DISABLE_ARTIFACTS_POSTPROCESSING) &&
-            (args?.Contains("--artifactsProcessingMode-postprocess", StringComparer.OrdinalIgnoreCase) == true ||
-            args?.Contains("/ArtifactsProcessingMode-PostProcess", StringComparer.OrdinalIgnoreCase) == true);
+            parseResult.GetValueFor(new ArtifactProcessingPostProcessModeProcessor());
 }
 
 internal class ArtifactProcessingPostProcessModeProcessorExecutor : IArgumentExecutor
