@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
@@ -10,7 +11,8 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine;
 
 internal class ParseResult
 {
-    public string? ParseError { get; internal set; }
+    private readonly Dictionary<string, string> Strings = new(StringComparer.OrdinalIgnoreCase);
+
     public int ExitCode { get; internal set; }
     public List<string> Errors { get; internal set; }
     public List<string> Args { get; internal set; }
@@ -24,14 +26,27 @@ internal class ParseResult
         throw new NotImplementedException();
     }
 
+    internal bool TryGetValueFor(ArgumentProcessor argumentProcessor, out object? value)
+    {
+        if (!Strings.TryGetValue(argumentProcessor.Name, out string? unparsedValue))
+        {
+            value = default;
+            return false;
+        }
+
+        value = argumentProcessor.ValueFactory(unparsedValue);
+        return true;
+    }
 
     internal bool TryGetValueFor<T>(ArgumentProcessor<T> argumentProcessor, out T? value)
     {
+        if (!Strings.TryGetValue(argumentProcessor.Name, out string? unparsedValue))
+        {
+            value = default;
+            return false;
+        }
 
-    }
-
-    internal bool TryGetValueFor(IReadOnlyCollection<string> aliases, out object value)
-    {
-
+        value = (T?)argumentProcessor.ValueFactory(unparsedValue);
+        return true;
     }
 }

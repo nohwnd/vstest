@@ -106,9 +106,9 @@ internal class Executor
         ParseResult parseResult = new Parser().Parse(args, argumentProcessors);
 
         // On syntax error print the error, and help.
-        if (!parseResult.ParseError.IsNullOrWhiteSpace())
+        if (parseResult.Errors.Any())
         {
-            _output.Error(appendPrefix: false, parseResult.ParseError);
+            _output.Error(appendPrefix: false, string.Join(Environment.NewLine, parseResult.Errors));
             var executor = new HelpArgumentExecutor(_output, argumentProcessors.ToList());
             executor.Initialize("--help");
             executor.Execute();
@@ -123,7 +123,11 @@ internal class Executor
         var initializeExitCode = RunIntialize(initializeInvocationContext, out List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors);
         if (initializeExitCode != 0)
         {
-            _output.Error(appendPrefix: false, parseResult.ParseError ?? "Parsing failed but no parse error was reported.");
+            if (!parseResult.Errors.Any())
+            {
+                _output.Error(appendPrefix: false, "Parsing failed but no parse error was reported.");
+            }
+            _output.Error(appendPrefix: false, string.Join("\n", parseResult.Errors));
             var executor = new HelpArgumentExecutor(_output, argumentProcessors.ToList());
             executor.Initialize("--help");
             executor.Execute();
@@ -182,7 +186,7 @@ internal class Executor
         foreach (var processor in argumentProcessors)
         {
             object? value = null;
-            if (processor.AlwaysExecute || invocationContext.ParseResult.TryGetValueFor(processor.Aliases, out value))
+            if (processor.AlwaysExecute || invocationContext.ParseResult.TryGetValueFor(processor, out value))
             {
                 IArgumentExecutor executor = ArgumentProcessorFactory.CreateExecutor(invocationContext.ServiceProvider, processor.ExecutorType);
                 // TODO: remove toString.

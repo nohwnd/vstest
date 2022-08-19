@@ -53,7 +53,7 @@ internal class InProcessVsTestConsoleWrapper : IVsTestConsoleWrapper
               environmentVariableHelper: new EnvironmentVariableHelper(),
               requestSender: new VsTestConsoleRequestSender(),
               testRequestManager: null,
-              executor: new Executor(new ConsoleOutput(), TestPlatformEventSource.Instance, new ProcessHelper(), new PlatformEnvironment()),
+              executor: new Executor(new ConsoleOutput(), TestPlatformEventSource.Instance, new ProcessHelper(), new PlatformEnvironment(), FeatureFlag.Instance),
               testPlatformEventSource: TestPlatformEventSource.Instance)
     { }
 

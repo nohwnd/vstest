@@ -88,9 +88,73 @@ internal class Parser
         };
     }
 
-    private (List<Parameter> bound, List<Parameter> unbound) Bind(List<string> args, IReadOnlyList<ArgumentProcessor> argumentProcessors, ref List<string> parseErrors)
+    private (List<Parameter> bound, List<string> unbound) Bind(List<string> args, IReadOnlyList<ArgumentProcessor> argumentProcessors, ref List<string> parseErrors)
     {
-        throw new NotImplementedException();
+        var unbound = new List<string>();
+
+        var aliasesToProcessorMap = new Dictionary<string, ArgumentProcessor>(StringComparer.OrdinalIgnoreCase);
+
+        // default argument consumer (we have only one, /RunTests). TODO: make this more generic to assign to a single argument, (or multiple if we want to have zeroOrOneArity).
+        var defaultArgument = aliasesToProcessorMap["/RunTests"].Name;
+
+        foreach (var argumentProcessor in argumentProcessors)
+        {
+            foreach (var alias in argumentProcessor.Aliases)
+            {
+                aliasesToProcessorMap[alias] = argumentProcessor;
+            }
+        }
+
+        var tokenize = new Dictionary<string, List<string>?>(StringComparer.OrdinalIgnoreCase);
+        var a = args.ToList();
+
+        ArgumentProcessor? lastProcessor = null;
+        foreach (var arg in a)
+        {
+            if (arg.StartsWith("--") || arg.StartsWith("/") || arg.StartsWith("-"))
+            {
+                // This is a param, find processor for it.
+                if (!aliasesToProcessorMap.TryGetValue(arg, out var processor))
+                {
+                    // Could not find processor for this parameter.
+                    unbound.Add(arg);
+                }
+                else
+                {
+                    // We found the parameter processor, check if it is allowed to take multiple values,
+                    // and if can't, and it already has value then add an error.
+                    tokenize.TryGetValue(processor.Name, out List<string>? valueList);
+                    if (!processor.AllowMultiple && valueList != null && valueList.Count > 0)
+                    {
+                        parseErrors.Add($"Argument {arg} cannot be used multiple times.");
+                    }
+
+                    ///
+                    HERE continue!
+                    ////
+                }
+            }
+            else
+            {
+                // This is a value.
+                if (lastProcessor == null)
+                {
+                    // There is no parameter currently consuming values, the value must be an argument and should be assigned to a default
+                    // argument consumer (we have only one, /RunTests). TODO: make this more generic to assign to a single argument, (or multiple if we want to have zeroOrOneArity).
+                    if (!tokenize.TryGetValue(defaultArgument.Name, out List<string> rtValues))
+                    {
+                        var list = new List<string> { arg };
+                        tokenize[defaultArgument.Name] = list;
+                    }
+                }
+            }
+
+        }
+
+        foreach (var processor in argumentProcessors)
+        {
+            processor.
+        }
     }
 
     private bool Validate(List<Parameter> bound, List<Parameter> unbound, IReadOnlyList<ArgumentProcessor> argumentProcessors, ref List<string> parseErrors)
@@ -99,7 +163,7 @@ internal class Parser
         {
             foreach (var arg in unbound)
             {
-                parseErrors.Add(string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidArgument, arg.Name));
+                parseErrors.Add(string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidArgument, arg.Processor.Name));
             }
 
             return false;

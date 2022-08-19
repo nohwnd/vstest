@@ -23,6 +23,6 @@ public static class Program
     internal static int Run(string[]? args, UiLanguageOverride uiLanguageOverride)
     {
         uiLanguageOverride.SetCultureSpecifiedByUser();
-        return new Executor(new ConsoleOutput(), TestPlatformEventSource.Instance, new ProcessHelper(), new PlatformEnvironment()).Execute(args);
+        return new Executor(new ConsoleOutput(), TestPlatformEventSource.Instance, new ProcessHelper(), new PlatformEnvironment(), FeatureFlag.Instance).Execute(args);
     }
 }

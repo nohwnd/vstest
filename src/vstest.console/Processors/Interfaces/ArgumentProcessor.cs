@@ -4,6 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
@@ -29,12 +32,35 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// </summary>
 internal class ArgumentProcessor<TValue> : ArgumentProcessor
 {
-    public ArgumentProcessor(string name, Type executorType) : this(new[] { name }, executorType)
+    public ArgumentProcessor(string name, Type executorType, Func<string, TValue?>? parseValue = null)
+        : this(new[] { name }, executorType, parseValue)
     {
     }
 
-    public ArgumentProcessor(string[] aliases, Type executorType) : base(aliases, executorType, typeof(TValue))
+    public ArgumentProcessor(string[] aliases, Type executorType, Func<string, TValue?>? parseValue = null)
+        : base(aliases, executorType, typeof(TValue), parseValue != null ? unparsed => parseValue(unparsed) : GetDefaultValueParser())
     {
+    }
+
+    private static Func<string, object?> GetDefaultValueParser()
+    {
+        return Parse;
+
+        static object? Parse(string value)
+        {
+            if (typeof(TValue) == typeof(string))
+            {
+                return value;
+            }
+            else if (typeof(TValue) == typeof(bool))
+            {
+                return bool.Parse(value);
+            }
+            else
+            {
+                throw new NotSupportedException($"Argument type '{typeof(TValue)}' is not supported.");
+            }
+        }
     }
 }
 
@@ -42,7 +68,7 @@ internal abstract class ArgumentProcessor
 {
     private readonly HashSet<string> _aliases = new(StringComparer.OrdinalIgnoreCase);
 
-    protected ArgumentProcessor(string[] aliases, Type executorType, Type valueType)
+    protected ArgumentProcessor(string[] aliases, Type executorType, Type valueType, Func<string, object?> parseValue)
     {
         //TODO: validate not empty, not null, at least 1 and no spaces in any of the aliases
 
@@ -58,6 +84,7 @@ internal abstract class ArgumentProcessor
 
         ExecutorType = executorType;
         ValueType = valueType;
+        ValueFactory = parseValue;
 
         Name = GetLongestAlias();
     }
@@ -122,6 +149,8 @@ internal abstract class ArgumentProcessor
     public Type ValueType { get; }
 
     public IReadOnlyList<Func<object, string>> Validators { get; internal set; }
+
+    internal Func<string, object?> ValueFactory { get; }
 
     private string GetLongestAlias()
     {
