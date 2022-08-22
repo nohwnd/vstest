@@ -151,14 +151,14 @@ internal class TestExeRuntimeProvider : IInternalTestRuntimeProvider
     /// <inheritdoc/>
     public IEnumerable<string> GetTestPlatformExtensions(IEnumerable<string> sources, IEnumerable<string> extensions)
     {
-        //if (sources != null && sources.Any())
-        //{
-        //    extensions = extensions.Concat(sources.SelectMany(s => _fileHelper.EnumerateFiles(Path.GetDirectoryName(s), SearchOption.TopDirectoryOnly, TestAdapterEndsWithPattern)));
-        //}
+        // Do not include any of the external dlls, just use adapters from the
+        // source directory. We need this until the local registration in the test.exe
+        // is able to register the extensions to test extension cache directly.
+        var ext = sources.SelectMany(s => _fileHelper.EnumerateFiles(Path.GetDirectoryName(s), SearchOption.TopDirectoryOnly, "TestAdapter.dll"));
 
-        //extensions = FilterExtensionsBasedOnVersion(extensions);
+        ext = FilterExtensionsBasedOnVersion(ext);
 
-        return new string[0];
+        return ext;
     }
 
     /// <inheritdoc/>

@@ -58,7 +58,8 @@ internal class Program
             ";
 
         var sources = new[] {
-            @"S:\p\nuih\Test1\bin\Debug\net462\Test1.exe"
+            // @"S:\p\nuih\Test1\bin\Debug\net462\Test1.exe"
+            @"S:\t\Registrations\XUnit.CSharp.Tests\bin\Debug\net472\XUnit.CSharp.Tests.exe"
             //Path.Combine(playground, "MSTest1", "bin", "Debug", "net5.0", "MSTest1.dll"),
         };
 
