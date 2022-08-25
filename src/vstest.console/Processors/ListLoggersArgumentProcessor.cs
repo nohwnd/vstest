@@ -15,7 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class ListLoggersArgumentProcessor : ArgumentProcessor<bool>
 {
     public ListLoggersArgumentProcessor()
-        : base("/ListLoggers", typeof(ListLoggersArgumentExecutor))
+        : base("--ListLoggers", typeof(ListLoggersArgumentExecutor))
     {
         IsCommand = true;
         IsHiddenInHelp = true;

@@ -16,12 +16,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// An argument processor that allows the user to enable a specific logger
 /// from the command line using the --Logger|/Logger command line switch.
 /// </summary>
-internal class EnableLoggerArgumentProcessor : ArgumentProcessor<string>
+internal class EnableLoggerArgumentProcessor : ArgumentProcessor<string[]>
 {
     public EnableLoggerArgumentProcessor()
         : base(new string[] { "-l", "--logger" }, typeof(EnableLoggerArgumentExecutor))
     {
-        AllowMultiple = true;
         // REVEW: There was a comment somewhere saying that this should always run to setup loggers even when user provides none.
         AlwaysExecute = true;
         Priority = ArgumentProcessorPriority.Logging;

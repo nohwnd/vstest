@@ -19,7 +19,7 @@ internal class SplashScreenArgumentProcessor : ArgumentProcessor<bool>
     public SplashScreenArgumentProcessor()
         : base(new string[] { "--nologo", "--no-logo" }, typeof(SplashScreenArgumentExecutor))
     {
-
+        AlwaysExecute = true;
     }
 }
 
@@ -47,7 +47,7 @@ internal class SplashScreenArgumentExecutor : IArgumentExecutor
         {
             // If user specified --no-logo via dotnet, do not print splash screen.
         }
-        else if (!ArtifactProcessingPostProcessModeProcessor.ContainsPostProcessCommand(parseResult))
+        else if (parseResult.GetValueFor(new ArtifactProcessingPostProcessModeProcessor()))
         {
             // If we're postprocessing we don't need to show the splash
         }

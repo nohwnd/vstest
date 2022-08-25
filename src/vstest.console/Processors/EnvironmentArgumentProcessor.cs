@@ -12,12 +12,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Argument Executor for the "-e|--Environment|/e|/Environment" command line argument.
 /// </summary>
-internal class EnvironmentArgumentProcessor : ArgumentProcessor<string>
+internal class EnvironmentArgumentProcessor : ArgumentProcessor<string[]>
 {
     public EnvironmentArgumentProcessor()
         : base(new string[] { "-e", "--environment" }, typeof(EnvironmentArgumentExecutor))
     {
-        AllowMultiple = true;
         Priority = ArgumentProcessorPriority.Normal;
         HelpContentResourceName = CommandLineResources.EnvironmentArgumentHelp;
         HelpPriority = HelpContentPriority.EnvironmentArgumentProcessorHelpPriority;

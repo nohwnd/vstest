@@ -13,7 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class TestSourceArgumentProcessor : ArgumentProcessor<string>
 {
     public TestSourceArgumentProcessor()
-        : base("/TestSource", typeof(TestSourceArgumentExecutor))
+        : base("--TestSource", typeof(TestSourceArgumentExecutor))
     {
         IsHidden = true;
 

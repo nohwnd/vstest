@@ -74,45 +74,6 @@ internal class ArgumentProcessorFactory
     }
 
     ///// <summary>
-    ///// Returns all of the available argument processors.
-    ///// </summary>
-    //public IEnumerable<ArgumentProcessor> AllArgumentProcessors { get; }
-
-    ///// <summary>
-    ///// Gets a mapping between command and Argument Executor.
-    ///// </summary>
-    //internal Dictionary<string, ArgumentProcessor> CommandToProcessorMap
-    //{
-    //    get
-    //    {
-    //        // Build the mapping if it does not already exist.
-    //        if (_commandToProcessorMap == null)
-    //        {
-    //            BuildCommandMaps();
-    //        }
-
-    //        return _commandToProcessorMap;
-    //    }
-    //}
-
-    ///// <summary>
-    ///// Gets a mapping between special commands and their Argument Processors.
-    ///// </summary>
-    //internal Dictionary<string, ArgumentProcessor> SpecialCommandToProcessorMap
-    //{
-    //    get
-    //    {
-    //        // Build the mapping if it does not already exist.
-    //        if (_specialCommandToProcessorMap == null)
-    //        {
-    //            BuildCommandMaps();
-    //        }
-
-    //        return _specialCommandToProcessorMap;
-    //    }
-    //}
-
-    ///// <summary>
     ///// Creates the argument processor associated with the provided command line argument.
     ///// The Lazy that is returned will initialize the underlying argument processor when it is first accessed.
     ///// </summary>
@@ -146,55 +107,7 @@ internal class ArgumentProcessorFactory
     //    return argumentProcessor;
     //}
 
-    ///// <summary>
-    ///// Creates the argument processor associated with the provided command line argument.
-    ///// The Lazy that is returned will initialize the underlying argument processor when it is first accessed.
-    ///// </summary>
-    ///// <param name="command">Command name of the argument processor.</param>
-    ///// <param name="arguments">Command line arguments to create the argument processor for.</param>
-    ///// <returns>The argument processor or null if one was not found.</returns>
-    //public ArgumentProcessor? CreateArgumentProcessor(string command, string[] arguments)
-    //{
-    //    if (arguments == null || arguments.Length == 0)
-    //    {
-    //        throw new ArgumentException("Cannot be null or empty", nameof(arguments));
-    //    }
-    //    Contract.EndContractBlock();
-
-    //    // Find the associated argument processor.
-    //    CommandToProcessorMap.TryGetValue(command, out ArgumentProcessor? argumentProcessor);
-
-    //    if (argumentProcessor != null)
-    //    {
-    //        argumentProcessor = WrapLazyProcessorToInitializeOnInstantiation(argumentProcessor, arguments);
-    //    }
-
-    //    return argumentProcessor;
-    //}
-
-    ///// <summary>
-    ///// Creates the default action argument processor.
-    ///// The Lazy that is returned will initialize the underlying argument processor when it is first accessed.
-    ///// </summary>
-    ///// <returns>The default action argument processor.</returns>
-    //public ArgumentProcessor CreateDefaultActionArgumentProcessor()
-    //{
-    //    var argumentProcessor = SpecialCommandToProcessorMap[RunTestsArgumentProcessor.CommandName];
-    //    return WrapLazyProcessorToInitializeOnInstantiation(argumentProcessor);
-    //}
-
-    ///// <summary>
-    ///// Gets the argument processors that are tagged as special and to be always executed.
-    ///// The Lazy's that are returned will initialize the underlying argument processor when first accessed.
-    ///// </summary>
-    ///// <returns>The argument processors that are tagged as special and to be always executed.</returns>
-    //public IEnumerable<ArgumentProcessor> GetArgumentProcessorsToAlwaysExecute()
-    //{
-    //    return SpecialCommandToProcessorMap.Values
-    //        .Where(lazyProcessor => lazyProcessor.Metadata.Value.IsSpecialCommand && lazyProcessor.Metadata.Value.AlwaysExecute);
-    //}
-
-    public static IReadOnlyList<ArgumentProcessor> DefaultArgumentProcessors => new List<ArgumentProcessor> {
+    private static IReadOnlyList<ArgumentProcessor> DefaultArgumentProcessors => new List<ArgumentProcessor> {
         new SplashScreenArgumentProcessor(), // --no-logo
         new HelpArgumentProcessor(), // --help, when the help parameter is present, we should only print the help
         new EnableDiagArgumentProcessor(), // --diag, we want this to happen as soon as possible to the start so we can initialize diag logger
@@ -229,41 +142,6 @@ internal class ArgumentProcessorFactory
         new ListTestsTargetPathArgumentProcessor(),
         new EnvironmentArgumentProcessor()
     };
-
-    ///// <summary>
-    ///// Builds the command to processor map and special command to processor map.
-    ///// </summary>
-    //[MemberNotNull(nameof(_commandToProcessorMap), nameof(_specialCommandToProcessorMap))]
-    //private void BuildCommandMaps()
-    //{
-    //    _commandToProcessorMap = new Dictionary<string, ArgumentProcessor>(StringComparer.OrdinalIgnoreCase);
-    //    _specialCommandToProcessorMap = new Dictionary<string, ArgumentProcessor>(StringComparer.OrdinalIgnoreCase);
-
-    //    foreach (ArgumentProcessor argumentProcessor in AllArgumentProcessors)
-    //    {
-    //        // Add the command to the appropriate dictionary.
-    //        var processorsMap = argumentProcessor.Metadata.Value.IsSpecialCommand
-    //            ? _specialCommandToProcessorMap
-    //            : _commandToProcessorMap;
-
-    //        string commandName = argumentProcessor.Metadata.Value.CommandName;
-    //        processorsMap.Add(commandName, argumentProcessor);
-
-    //        // Add xplat name for the command name
-    //        commandName = string.Concat("--", commandName.Remove(0, 1));
-    //        processorsMap.Add(commandName, argumentProcessor);
-
-    //        if (!argumentProcessor.Metadata.Value.ShortCommandName.IsNullOrEmpty())
-    //        {
-    //            string shortCommandName = argumentProcessor.Metadata.Value.ShortCommandName;
-    //            processorsMap.Add(shortCommandName, argumentProcessor);
-
-    //            // Add xplat short name for the command name
-    //            shortCommandName = shortCommandName.Replace('/', '-');
-    //            processorsMap.Add(shortCommandName, argumentProcessor);
-    //        }
-    //    }
-    //}
 
     ///// <summary>
     ///// Decorates a lazy argument processor so that the real processor is initialized when the lazy value is obtained.
@@ -344,6 +222,12 @@ internal class ArgumentProcessorFactory
 
     //    return processor;
     //}
+
+    internal static IArgumentExecutor CreateExecutor<TExecutor>(IServiceProvider serviceProvider)
+    {
+        return CreateExecutor(serviceProvider, typeof(TExecutor));
+    }
+
 
     internal static IArgumentExecutor CreateExecutor(IServiceProvider serviceProvider, Type executorType)
     {

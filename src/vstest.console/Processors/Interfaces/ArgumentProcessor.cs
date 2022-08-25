@@ -3,10 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Reflection;
-
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
@@ -48,18 +46,76 @@ internal class ArgumentProcessor<TValue> : ArgumentProcessor
 
         static object? Parse(string value)
         {
-            if (typeof(TValue) == typeof(string))
-            {
+            var destinationType = typeof(TValue).IsArray ? typeof(TValue).GetElementType()! : typeof(TValue);
+
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            if (destinationType == typeof(string))
                 return value;
-            }
-            else if (typeof(TValue) == typeof(bool))
+
+            if (destinationType == typeof(bool))
             {
-                return bool.Parse(value);
+                // The parameter is specified and value "false" was provided to it.
+                if (string.Equals(value, "false", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+                else if (string.Equals(value, "true", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            else
+
+            if (destinationType.IsEnum)
             {
-                throw new NotSupportedException($"Argument type '{typeof(TValue)}' is not supported.");
+                try
+                {
+                    var parsed = Enum.Parse(destinationType, value, ignoreCase: true);
+                    if (Enum.IsDefined(destinationType, parsed))
+                    {
+                        return parsed;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    return null;
+                }
             }
+
+            if (destinationType == typeof(FileInfo))
+            {
+                try
+                {
+                    return new FileInfo(value);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            if (destinationType == typeof(DirectoryInfo))
+            {
+                try
+                {
+                    return new DirectoryInfo(value);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            throw new NotSupportedException($"Argument type '{typeof(TValue)}' is not supported.");
         }
     }
 }
@@ -71,10 +127,20 @@ internal abstract class ArgumentProcessor
     protected ArgumentProcessor(string[] aliases, Type executorType, Type valueType, Func<string, object?> parseValue)
     {
         //TODO: validate not empty, not null, at least 1 and no spaces in any of the aliases
+        // TODO: validate starts with - or --, but not with ---.
+
+        // We need them to use the - or -- syntax so we can avoid matching short name that is prefixed with long name prefix.
+        // We want processor with aliases -lt and --list-tests to be able to take -lt --list-tests, /lt and /list-tests,
+        // but not --lt.
+        var incorrectAliases = aliases.Where(a => !a.StartsWith("-") && a != "@");
+        if (incorrectAliases.Any())
+        {
+            throw new ArgumentException($"Argument aliases '{string.Join("', '", incorrectAliases)}' don't start with - or --, this is not allowed.");
+        }
 
         foreach (var alias in aliases)
         {
-            _aliases.Add(alias.TrimStart('-').TrimStart('/'));
+            _aliases.Add(alias);
         }
 
         if (!typeof(IArgumentExecutor).IsAssignableFrom(executorType))
@@ -85,6 +151,7 @@ internal abstract class ArgumentProcessor
         ExecutorType = executorType;
         ValueType = valueType;
         ValueFactory = parseValue;
+        AllowMultiple = valueType.IsArray;
 
         Name = GetLongestAlias();
     }
@@ -102,9 +169,11 @@ internal abstract class ArgumentProcessor
     public string Name { get; }
 
     /// <summary>
-    /// Indicates if multiple values can be provided to this processor, this includes providing mulitiple items, as well as providing the parameter multiple times on the commandline.
+    /// Indicates if multiple values can be provided to this processor, this includes providing mulitiple items,
+    /// as well as providing the parameter multiple times on the commandline. This is determined by providing
+    /// array type as <see cref="ValueType"/>.
     /// </summary>
-    public bool AllowMultiple { get; init; }
+    public bool AllowMultiple { get; }
 
     /// <summary>
     /// Indicates that this is hidden and cannot be specified on the command line,
@@ -148,12 +217,12 @@ internal abstract class ArgumentProcessor
 
     public Type ValueType { get; }
 
-    public IReadOnlyList<Func<object, string>> Validators { get; internal set; }
+    public IReadOnlyList<Func<object, string>> Validators { get; internal set; } = new List<Func<object, string>>();
 
     internal Func<string, object?> ValueFactory { get; }
 
     private string GetLongestAlias()
     {
-        return _aliases.OrderBy(a => a.Length).First();
+        return _aliases.OrderByDescending(a => a.Length).First();
     }
 }

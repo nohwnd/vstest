@@ -15,7 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class ParentProcessIdArgumentProcessor : ArgumentProcessor<int>
 {
     public ParentProcessIdArgumentProcessor()
-        : base("/ParentProcessId", typeof(ParentProcessIdArgumentExecutor))
+        : base("--ParentProcessId", typeof(ParentProcessIdArgumentExecutor))
     {
         // Hide this because we use it just for design mode, and there VSTestConsoleWrapper
         // is supposed to know the details of what to provide.

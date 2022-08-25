@@ -17,7 +17,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class UseVsixExtensionsArgumentProcessor : ArgumentProcessor<bool>
 {
     public UseVsixExtensionsArgumentProcessor()
-        : base("/UseVsixExtensions", typeof(UseVsixExtensionsArgumentExecutor))
+        : base("--UseVsixExtensions", typeof(UseVsixExtensionsArgumentExecutor))
     {
         Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
         IsHiddenInHelp = true;

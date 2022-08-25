@@ -2,12 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
+
+using Newtonsoft.Json.Linq;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
@@ -19,84 +22,115 @@ internal class Parser
     {
     }
 
-    internal ParseResult Parse(string[]? args, IReadOnlyList<ArgumentProcessor> argumentProcessors)
+    internal ParseResult Parse(string[]? args, IReadOnlyList<ArgumentProcessor> argumentProcessors, bool ignoreExtraParameters = false)
     {
-        List<string> parseErrors = new();
+        List<string> errors = new();
 
         // Ensure there are some arguments
         if (args == null || args.Length == 0)
         {
-            parseErrors.Add(CommandLineResources.NoArgumentsProvided);
+            errors.Add(CommandLineResources.NoArgumentsProvided);
             return new ParseResult
             {
-                Errors = parseErrors,
+                Parser = this,
+                Processors = argumentProcessors,
+                Errors = errors,
             };
         }
 
-        List<string> argList = args?.ToList() ?? new();
+        List<string> argList = args.ToList();
 
-        // Split to arguments and literal text that is after --
-        var (remainingArgs, doubleDashOptions) = GetDoubleDashOptions(argList);
+        // Split to arguments and literal text that is after --.
+        var (arguments, dashDashOptions) = GetDoubleDashOptions(argList);
 
-        // Expand all arguments we get from @ files
-        var expandedArgs = ExpandResponseFileArguments(remainingArgs, ref parseErrors);
-        if (parseErrors.Any())
+        // Expand all arguments and options we get from @ files.
+        var (expandedAruments, expandedOptions) = ExpandResponseFiles(arguments, dashDashOptions, ref errors);
+
+        if (errors.Any())
         {
             return new ParseResult
             {
-                Args = remainingArgs,
-                Options = doubleDashOptions,
-                Errors = parseErrors,
+                Parser = this,
+                Processors = argumentProcessors,
+                Args = arguments,
+                Options = expandedOptions,
+                Errors = errors,
             };
         }
 
-        // Find all parameters we can link to an argument processor, and parse out the desired value
-        var (bound, unbound) = Bind(expandedArgs, argumentProcessors, ref parseErrors);
-        if (parseErrors.Any())
+        // Find all parameters we can link to an argument processor, and connect them together.
+        var (bound, unbound) = Parser.Bind(expandedAruments, argumentProcessors, ref errors);
+        if (errors.Any())
         {
             return new ParseResult
             {
-                Args = expandedArgs,
-                Options = doubleDashOptions,
-                Errors = parseErrors,
+                Parser = this,
+                Processors = argumentProcessors,
+                Args = expandedAruments,
+                Options = expandedOptions,
+                Errors = errors,
+            };
+        }
+
+        // Convert all values to their final types.
+        var typed = Parser.Convert(bound, ref errors);
+        if (errors.Any())
+        {
+            return new ParseResult
+            {
+                Parser = this,
+                Processors = argumentProcessors,
+                Args = expandedAruments,
+                Options = expandedOptions,
+                Bound = bound,
+                Unbound = unbound,
+                Errors = errors,
             };
         }
 
         // Validate all parameters
-        var validate = Validate(bound, unbound, argumentProcessors, ref parseErrors);
+        var validated = Parser.ValidateParseResult(bound, unbound, argumentProcessors, ignoreExtraParameters, ref errors);
 
-        if (!validate || parseErrors.Any())
+        if (errors.Any())
         {
             return new ParseResult
             {
-                Args = expandedArgs,
+                Parser = this,
+                Processors = argumentProcessors,
+                Args = expandedAruments,
                 Bound = bound,
                 Unbound = unbound,
-                Options = doubleDashOptions,
-                Errors = parseErrors,
+                Typed = typed,
+                Options = expandedOptions,
+                Errors = errors,
             };
         }
 
         return new ParseResult
         {
-            Args = expandedArgs,
+            Parser = this,
+            Processors = argumentProcessors,
+            Args = expandedAruments,
             Bound = bound,
             Unbound = unbound,
-            Options = doubleDashOptions,
-            Errors = parseErrors,
-            Parser = this,
+            Typed = typed,
+            Options = expandedOptions,
+            Errors = errors,
         };
     }
 
-    private (List<Parameter> bound, List<string> unbound) Bind(List<string> args, IReadOnlyList<ArgumentProcessor> argumentProcessors, ref List<string> parseErrors)
+    private static (List<BoundParameter> bound, List<string> unbound) Bind(List<string> args, IReadOnlyList<ArgumentProcessor> argumentProcessors, ref List<string> bindingErrors)
     {
         var unbound = new List<string>();
 
+        var allowMultipleBoolProcessors = argumentProcessors.Where(a => a.AllowMultiple && a.ValueType == typeof(bool[]));
+        if (allowMultipleBoolProcessors.Any())
+        {
+            // We don't allow parameters that allow multiple values to take boolean because it complicates the parsing little bit.
+            throw new ArgumentException($"Argument processor(s) '{string.Join("', '", allowMultipleBoolProcessors.Select(a => a.Name))}' take boolean and allow multiple values, this is not allowed.");
+        }
+
         var aliasesToProcessorMap = new Dictionary<string, ArgumentProcessor>(StringComparer.OrdinalIgnoreCase);
-
-        // default argument consumer (we have only one, /RunTests). TODO: make this more generic to assign to a single argument, (or multiple if we want to have zeroOrOneArity).
-        var defaultArgument = aliasesToProcessorMap["/RunTests"].Name;
-
         foreach (var argumentProcessor in argumentProcessors)
         {
             foreach (var alias in argumentProcessor.Aliases)
@@ -105,65 +139,301 @@ internal class Parser
             }
         }
 
-        var tokenize = new Dictionary<string, List<string>?>(StringComparer.OrdinalIgnoreCase);
-        var a = args.ToList();
+        // default argument consumer (we have only one, /RunTests). TODO: make this more generic to assign to a single argument, (or multiple if we want to have zeroOrOneArity).
+        var hasDefaultArgument = aliasesToProcessorMap.ContainsKey(NormalizeParameterName("--RunTests", out var _));
+        var defaultArgument = hasDefaultArgument ? aliasesToProcessorMap[NormalizeParameterName("--RunTests", out var _)] : null;
 
-        ArgumentProcessor? lastProcessor = null;
-        foreach (var arg in a)
+        var tokenized = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+        // We consume the arguments from the list starting at the left side of the command line.
+        // If we see value that starts with the argument prefix
+        // then we see that we found some --parameter and we need to find definition for it to know
+        // what is the arity (how many arguments it can take). We then try to consume as many arguments
+        // as the parameter can consume.
+        //
+        // When the parameter is not found, it will consume all the arguments that follow it until the next parameter,
+        // this is necessary to avoid putting values of unknown parameters with AllowMultiple into the default argument.
+        //
+        // We only specify arity by saying "AllowMultiple" true or false.
+        // AllowMultiple=true:
+        // Parameter can take multiple values separated by space, or can be specified multiple times.
+        // Each of those specifications can then take 1 or more values.
+        // AllowMultiple=false:
+        // Parameter has arity of 1, which requires it to provide a single value and can be specified only once.
+        // A special case is a boolean parameter, which has arity of 1 or 0 to allow providing either True / False to it
+        // or provide no value which indicates True (because the parameter is specified). To achieve this, the next
+        // value is inspected and we try to parse it to boolean, when that fails we consider the parameter to have 0 arity.
+        //
+        // All values that are not parameters and don't fit into any parameter are bound to the default argument.
+        // This default argument is usually source path, which would consume all provided values. To avoid ambiguity
+        // for parsing when unknown parameters are allowed, it is recommended to specify all the sources first to allow
+        // them all to bind to the argument rather than putting them at the end where some can be incorrectly bound to
+        // unknown parameter.
+        for (var i = 0; i < args.Count;)
         {
-            if (arg.StartsWith("--") || arg.StartsWith("/") || arg.StartsWith("-"))
+            // The real argument that user provided.
+            var arg = args[i];
+            if (IsParameter(arg))
             {
-                // This is a param, find processor for it.
-                if (!aliasesToProcessorMap.TryGetValue(arg, out var processor))
+                // Converted parameter to -- syntax, and when / is used, it also outputs
+                // -alias as we don't know if the user meant a short or long name (/? = -?, or /help = --help).
+                var name = NormalizeParameterName(arg, out string? additionalName);
+                // We found a parameter, see if there is any processor for it.
+                if (!(aliasesToProcessorMap.TryGetValue(name, out var processor)
+                    || (additionalName != null && aliasesToProcessorMap.TryGetValue(additionalName, out processor))))
                 {
-                    // Could not find processor for this parameter.
+                    // Could not find processor for this parameter or any of its aliases,
+                    // consume values while there are some, because we don't know the arity
+                    // of this parameter so we just assume it can take all the values
+                    // it was provided.
                     unbound.Add(arg);
+                    var values = TakeValuesUntilNextParameter(args, i);
+                    unbound.AddRange(values);
+                    // In args, move to the position after the values so we can process next parameter
+                    // or end.
+                    i += 1 + values.Count; // 1 (the parameter) + the number of values it took
+                    continue;
                 }
                 else
                 {
-                    // We found the parameter processor, check if it is allowed to take multiple values,
-                    // and if can't, and it already has value then add an error.
-                    tokenize.TryGetValue(processor.Name, out List<string>? valueList);
-                    if (!processor.AllowMultiple && valueList != null && valueList.Count > 0)
+                    // We found the parameter processor, consume as many values as it is allowed.
+                    if (processor.AllowMultiple)
                     {
-                        parseErrors.Add($"Argument {arg} cannot be used multiple times.");
-                    }
+                        // We are allowed to take multiple values, so we take values until the next parameter or end,
+                        // and merge the values with what already exists in tokens.
+                        List<string> values = TakeValuesUntilNextParameter(args, i);
+                        ValidateParameter(tokenized, processor, arg, values, bindingErrors);
+                        if (!tokenized.ContainsKey(processor.Name))
+                        {
+                            tokenized[processor.Name] = values;
+                        }
+                        else
+                        {
+                            tokenized[processor.Name].AddRange(values);
+                        }
 
-                    ///
-                    HERE continue!
-                    ////
+                        // In args, move to the position after the values so we can process next parameter
+                        // or end.
+                        i += 1 + values.Count; // 1 (the parameter) + the number of values it took
+                        continue;
+                    }
+                    else
+                    {
+                        // We are allowed to take single value, so try to take it.
+                        string? value = TakeSingleValueOrUntilNextParameter(args, i, isBool: processor.ValueType == typeof(bool));
+                        List<string> values = value == null ? new List<string>() : new List<string> { value };
+                        ValidateParameter(tokenized, processor, arg, values, bindingErrors);
+                        AddOrUpdateParameterEntry(tokenized, processor, values);
+
+                        // In args, move to the position after the values so we can process next parameter
+                        // or end.
+                        i += 1 + values.Count; // 1 (the parameter) + the number of values it took
+                        continue;
+                    }
                 }
             }
             else
             {
-                // This is a value.
-                if (lastProcessor == null)
+                // We found a value, take all the values until the next parameter
+                // and bind them to the default argument, or make them unbound.
+                List<string> values = new[] { arg }.Concat(TakeValuesUntilNextParameter(args, i)).ToList();
+                if (hasDefaultArgument)
                 {
-                    // There is no parameter currently consuming values, the value must be an argument and should be assigned to a default
-                    // argument consumer (we have only one, /RunTests). TODO: make this more generic to assign to a single argument, (or multiple if we want to have zeroOrOneArity).
-                    if (!tokenize.TryGetValue(defaultArgument.Name, out List<string> rtValues))
-                    {
-                        var list = new List<string> { arg };
-                        tokenize[defaultArgument.Name] = list;
-                    }
+                    ValidateParameter(tokenized, defaultArgument, arg, values, bindingErrors);
+                    AddOrUpdateParameterEntry(tokenized, defaultArgument, values);
                 }
+                else
+                {
+                    unbound.AddRange(values);
+                }
+
+                // In args, move to the position after the values so we can process next parameter
+                // or end.
+                i += values.Count;
+                continue;
             }
 
         }
 
-        foreach (var processor in argumentProcessors)
+        var bound = tokenized.Select(p => new BoundParameter(aliasesToProcessorMap[p.Key], p.Value)).ToList();
+        return (bound, unbound);
+    }
+
+    private static void AddOrUpdateParameterEntry(Dictionary<string, List<string>> tokenized, ArgumentProcessor processor, List<string> values)
+    {
+        if (!tokenized.ContainsKey(processor.Name))
         {
-            processor.
+            tokenized[processor.Name] = values;
+        }
+        else
+        {
+            tokenized[processor.Name].AddRange(values);
         }
     }
 
-    private bool Validate(List<Parameter> bound, List<Parameter> unbound, IReadOnlyList<ArgumentProcessor> argumentProcessors, ref List<string> parseErrors)
+    /// <summary>
+    /// Ensure that parameter was not added more times than it should, and that it did not get more (or less) values than it should.
+    /// </summary>
+    private static void ValidateParameter(Dictionary<string, List<string>> tokenized, ArgumentProcessor processor, string arg, List<string> values, List<string> parseErrors)
     {
-        if (unbound.Count > 0)
+        // Do not check the count of values in the collection here, we want to fail the validation
+        // even if the parameter is specified multiple times without any additional value provided, e.g. --blame --blame
+        // which is both missing the value for --blame, and is specified multiple times for parameter that does not allow it.
+        if (!processor.AllowMultiple && tokenized.ContainsKey(processor.Name))
+        {
+            parseErrors.Add($"Parameter '{arg}' {(arg != processor.Name ? $"({processor.Name})" : null)} cannot be used multiple times.");
+        }
+
+        if (values.Count == 0 && processor.ValueType != typeof(bool))
+        {
+            parseErrors.Add($"No value was provided for parameter '{arg}' {(arg != processor.Name ? $"({processor.Name})" : null)}.");
+        }
+
+        if (!processor.AllowMultiple && values.Count > 1)
+        {
+            parseErrors.Add($"Multiple values were provided for parameter '{arg}' {(arg != processor.Name ? $"({processor.Name})" : null)}, but it only takes 1 value.");
+        }
+    }
+
+    private static string NormalizeParameterName(string arg, out string? additionalName)
+    {
+        if (arg.StartsWith("/"))
+        {
+            var name = arg.Substring(1, arg.Length - 1);
+            additionalName = $"-{name}";
+            return $"--{name}";
+        }
+
+        additionalName = null;
+        return arg;
+    }
+
+    private static bool IsParameter(string arg)
+    {
+        return arg.StartsWith("--") || arg.StartsWith("/") || arg.StartsWith("-");
+    }
+
+    private static List<string> TakeValuesUntilNextParameter(List<string> args, int parameterPosition)
+    {
+        var values = new List<string>();
+        for (int i = parameterPosition + 1; i < args.Count; i++)
+        {
+            if (IsParameter(args[i]))
+                break;
+
+            values.Add(args[i]);
+        }
+
+        return values;
+    }
+
+    private static string? TakeSingleValueOrUntilNextParameter(List<string> args, int parameterPosition, bool isBool)
+    {
+        int valueCandidatePosition = parameterPosition + 1;
+        // If we did not reach the end of arguments and the next value is not a parameter, take the value.
+        if (valueCandidatePosition < args.Count && !IsParameter(args[valueCandidatePosition]))
+        {
+            if (!isBool)
+            {
+                // This is not a boolean parameter just take the value and use it.
+                return args[valueCandidatePosition];
+            }
+            else
+            {
+                // This is a boolean parameter, try parsing the value into boolean and only take it
+                // if it is true or false, otherwise don't take it. This allows --bool-parameter 1.dll
+                // to work as a switch, where we determine if the parameter should be enabled simply by
+                // its presence.
+                if (string.Equals(args[valueCandidatePosition], "true", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(args[valueCandidatePosition], "false", StringComparison.OrdinalIgnoreCase))
+                {
+                    return args[valueCandidatePosition];
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static List<TypedParameter> Convert(List<BoundParameter> boundParameters, ref List<string> conversionErrors)
+    {
+        var typed = new List<TypedParameter>();
+        foreach (var parameter in boundParameters)
+        {
+            var processor = parameter.Processor;
+            if (processor.ValueType.IsArray)
+            {
+                List<object> convertedValues = new();
+                foreach (var value in parameter.Value)
+                {
+                    var converted = processor.ValueFactory(value);
+                    if (converted == null)
+                    {
+                        conversionErrors.Add($"Value '{value}' for parameter {processor.Name} is invalid.");
+                    }
+                    else
+                    {
+                        convertedValues.Add(converted);
+                    }
+                }
+
+                if (convertedValues.Count > 0)
+                {
+                    var arr = Array.CreateInstance(processor.ValueType.GetElementType(), convertedValues.Count);
+                    for (var i = 0; i < convertedValues.Count; i++)
+                    {
+                        arr.SetValue(convertedValues[i], i);
+                    }
+                    typed.Add(new TypedParameter(processor, arr));
+                }
+            }
+            else
+            {
+                object? convertedValue = default;
+                if (parameter.Value.Count == 0 && parameter.Processor.ValueType == typeof(bool))
+                {
+                    // We got the parameter, so it was specified, which means "true" when no other
+                    // value is specfied.
+                    convertedValue = true;
+                }
+                else
+                {
+                    var value = parameter.Value.Single();
+                    var converted = processor.ValueFactory(value);
+                    if (converted == null)
+                    {
+                        conversionErrors.Add($"Value '{value}' for parameter {processor.Name} is invalid.");
+                    }
+                    else
+                    {
+                        convertedValue = converted;
+                    }
+                }
+
+                if (convertedValue != null)
+                {
+                    typed.Add(new TypedParameter(processor, convertedValue));
+                }
+            }
+        }
+
+        return typed;
+    }
+
+
+    private static bool ValidateParseResult(
+        List<BoundParameter> bound, List<string> unbound,
+        IReadOnlyList<ArgumentProcessor> argumentProcessors, bool ignoreExtraParameters, ref List<string> validationErrors)
+    {
+        if (!ignoreExtraParameters && unbound.Count > 0)
         {
             foreach (var arg in unbound)
             {
-                parseErrors.Add(string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidArgument, arg.Processor.Name));
+                validationErrors.Add(string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidArgument, arg));
             }
 
             return false;
@@ -176,34 +446,44 @@ internal class Parser
                 var error = validator(arg.Value);
                 if (!StringUtils.IsNullOrWhiteSpace(error))
                 {
-                    parseErrors.Add(error);
+                    validationErrors.Add(error);
                 }
             }
+        }
+
+        foreach (var processor in argumentProcessors)
+        {
+            // check that all processors that require a value have a value
         }
 
 
         return true;
     }
 
-    private static List<string> ExpandResponseFileArguments(List<string> args, ref List<string> parseErrors)
+    private static (List<string> arguments, List<string> options) ExpandResponseFiles(List<string> args, List<string> options, ref List<string> parseErrors)
     {
-        var outputArguments = new List<string>(args.Count);
+        var expandedArgs = new List<string>();
+        var expandedOptions = new List<string>();
+
+        // Go through each argument and if it is not a response file (does not start with @)
+        // keep it in place. Otherwise expand the arguments from the response file. Putting
+        // every argument in place where the response file argument was, and putting all options
+        // in the order in which the response files appeared, followed options that were provided
+        // on command line.
         foreach (var arg in args)
         {
             if (!arg.StartsWith("@", StringComparison.Ordinal))
             {
-                outputArguments.Add(arg);
+                expandedArgs.Add(arg);
                 continue;
             }
 
             string path = arg.Substring(1).TrimEnd();
             string? content = null;
+
             try
             {
-                // TODO: do we have a special class for this? FileHelper?
                 content = File.ReadAllText(path);
-                // REVIEW: this is possibly very long, let's not print that to the screen again? 
-                // _output.WriteLine($"vstest.console.exe {content}", OutputLevel.Information);
             }
             catch (Exception)
             {
@@ -212,19 +492,20 @@ internal class Parser
 
             if (content != null)
             {
-                if (!Utilities.CommandLineUtilities.SplitCommandLineIntoArguments(content, out var expandedArguments))
-                {
-                    // TODO: localize
-                    parseErrors.Add($"Error splitting arguments from response file: '{path}'.");
-                }
-                else
-                {
-                    outputArguments.AddRange(expandedArguments);
-                }
+                // Split the command line the same way it would be split when
+                // we get it in the incoming args[] in Main.
+                var split = Utilities.CommandLineUtilities.SplitCommandLine(content, ref parseErrors);
+                // Take options from every response file and add it to options,
+                // rather than expanding the args from all files and putting them together.
+                // If we did that instead then the first response file to have options (--) would make
+                // everything that follows it also an option.
+                var (argsFromFile, optionsFromFile) = GetDoubleDashOptions(split);
+                expandedArgs.AddRange(argsFromFile);
+                expandedOptions.AddRange(optionsFromFile);
             }
         }
 
-        return outputArguments;
+        return (expandedArgs, expandedOptions.Concat(options).ToList());
     }
 
     private static (List<string> args, List<string> options) GetDoubleDashOptions(List<string> args)
@@ -258,51 +539,7 @@ internal class Parser
 
         return (argsRemainder, options);
     }
-
-    ///// <summary>
-    ///// Verify that the arguments are valid.
-    ///// </summary>
-    ///// <param name="argumentProcessors">Processors to verify against.</param>
-    ///// <returns>0 if successful and 1 otherwise.</returns>
-    //private int IdentifyDuplicateArguments(IEnumerable<ArgumentProcessor> argumentProcessors)
-    //{
-    //    int result = 0;
-
-    //    // Used to keep track of commands that are only allowed to show up once.  The first time it is seen
-    //    // an entry for the command will be added to the dictionary and the value will be set to 1.  If we
-    //    // see the command again and the value is 1 (meaning this is the second time we have seen the command),
-    //    // we will output an error and increment the count.  This ensures that the error message will only be
-    //    // displayed once even if the user does something like /ListDiscoverers /ListDiscoverers /ListDiscoverers.
-    //    var commandSeenCount = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-
-    //    // Check each processor.
-    //    foreach (var processor in argumentProcessors)
-    //    {
-    //        if (processor.Metadata.Value.AllowMultiple)
-    //        {
-    //            continue;
-    //        }
-
-    //        if (!commandSeenCount.TryGetValue(processor.Metadata.Value.CommandName, out int count))
-    //        {
-    //            commandSeenCount.Add(processor.Metadata.Value.CommandName, 1);
-    //        }
-    //        else if (count == 1)
-    //        {
-    //            result = 1;
-
-    //            // Update the count so we do not print the error out for this argument multiple times.
-    //            commandSeenCount[processor.Metadata.Value.CommandName] = ++count;
-    //            Output.Error(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.DuplicateArgumentError, processor.Metadata.Value.CommandName));
-    //        }
-    //    }
-    //    return result;
-    //}
 }
 
-internal class Parameter
-{
-    public object Value { get; }
-
-    public ArgumentProcessor Processor { get; }
-}
+internal record BoundParameter(ArgumentProcessor Processor, List<string> Value) { }
+internal record TypedParameter(ArgumentProcessor Processor, object Value) { }

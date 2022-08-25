@@ -2,9 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Linq;
 
-using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.ArtifactProcessing;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
@@ -14,7 +12,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class ArtifactProcessingPostProcessModeProcessor : ArgumentProcessor<bool>
 {
     public ArtifactProcessingPostProcessModeProcessor()
-        : base("/ArtifactsProcessingMode-PostProcess", typeof(ArtifactProcessingPostProcessModeProcessorExecutor))
+        : base("--ArtifactsProcessingMode-PostProcess", typeof(ArtifactProcessingPostProcessModeProcessorExecutor))
     {
         // Was created like this:
         // new ArtifactProcessingPostProcessModeProcessorExecutor(CommandLineOptions.Instance,
@@ -25,8 +23,7 @@ internal class ArtifactProcessingPostProcessModeProcessor : ArgumentProcessor<bo
     }
 
     public static bool ContainsPostProcessCommand(ParseResult parseResult, IFeatureFlag? featureFlag = null)
-        => !(featureFlag ?? FeatureFlag.Instance).IsSet(FeatureFlag.DISABLE_ARTIFACTS_POSTPROCESSING) &&
-            parseResult.GetValueFor(new ArtifactProcessingPostProcessModeProcessor());
+        => parseResult.GetValueFor(new ArtifactProcessingPostProcessModeProcessor());
 }
 
 internal class ArtifactProcessingPostProcessModeProcessorExecutor : IArgumentExecutor

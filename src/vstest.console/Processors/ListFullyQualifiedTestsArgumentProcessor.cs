@@ -24,7 +24,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class ListFullyQualifiedTestsArgumentProcessor : ArgumentProcessor<bool>
 {
     public ListFullyQualifiedTestsArgumentProcessor()
-        : base("/ListFullyQualifiedTests", typeof(ListFullyQualifiedTestsArgumentExecutor))
+        : base("--ListFullyQualifiedTests", typeof(ListFullyQualifiedTestsArgumentExecutor))
     {
         IsCommand = true;
         IsHiddenInHelp = true;

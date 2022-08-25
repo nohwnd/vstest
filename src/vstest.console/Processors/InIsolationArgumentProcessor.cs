@@ -18,7 +18,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class InIsolationArgumentProcessor : ArgumentProcessor<bool>
 {
     public InIsolationArgumentProcessor()
-        : base("/InIsolation", typeof(InIsolationArgumentExecutor))
+        : base("--InIsolation", typeof(InIsolationArgumentExecutor))
     {
         Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
         HelpContentResourceName = CommandLineResources.InIsolationHelp;

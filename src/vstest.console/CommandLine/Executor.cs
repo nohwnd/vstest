@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
 using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.Common;
+using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
@@ -23,6 +24,8 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
+using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
+using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
@@ -59,7 +62,8 @@ internal class Executor
     private readonly IEnvironment _environment;
     private readonly IFeatureFlag? _featureFlag;
 
-    internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper, IEnvironment environment, IFeatureFlag featureFlag)
+    internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper,
+        IEnvironment environment, IFeatureFlag featureFlag)
     {
         DebuggerBreakpoint.AttachVisualStudioDebugger("VSTEST_RUNNER_DEBUG_ATTACHVS");
         DebuggerBreakpoint.WaitForDebugger("VSTEST_RUNNER_DEBUG");
@@ -86,6 +90,7 @@ internal class Executor
         _testPlatformEventSource = testPlatformEventSource;
         _processHelper = processHelper;
         _environment = environment;
+        _featureFlag = featureFlag;
     }
 
     /// <summary>
@@ -101,33 +106,60 @@ internal class Executor
     {
         _testPlatformEventSource.VsTestConsoleStart();
 
-        IReadOnlyList<ArgumentProcessor> argumentProcessors = ArgumentProcessorFactory.DefaultArgumentProcessors;
+        IReadOnlyList<ArgumentProcessor> argumentProcessors = ArgumentProcessorFactory.GetProcessorList();
 
         ParseResult parseResult = new Parser().Parse(args, argumentProcessors);
+
+        var serviceProvider = new ServiceProvider();
+        var initializeInvocationContext = new InvocationContext(serviceProvider, parseResult);
+
+        var argumentProcessorsCopy = argumentProcessors.ToList();
+        serviceProvider.AddService(_ => argumentProcessorsCopy);
+        serviceProvider.AddService((_) => initializeInvocationContext);
+
+        serviceProvider.AddService(_ => _output);
+        serviceProvider.AddService(_ => _processHelper);
+        serviceProvider.AddService(_ => _environment);
+        serviceProvider.AddService(_ => _featureFlag);
+        serviceProvider.AddService<IFileHelper>(_ => new FileHelper());
+        // Using instance because it is used in many other places, so we should eradicate it there first
+        // to make sure we use the same instance no matter what the usage is.
+        serviceProvider.AddService(_ => CommandLineOptions.Instance);
+        serviceProvider.AddService<IRunSettingsProvider>(_ => RunSettingsManager.Instance);
+
 
         // On syntax error print the error, and help.
         if (parseResult.Errors.Any())
         {
+            var noLogoProcessor = new SplashScreenArgumentProcessor();
+            var noLogo = parseResult.GetValueFor(noLogoProcessor);
+            if (!noLogo)
+            {
+                var logoExecutor = ArgumentProcessorFactory.CreateExecutor(serviceProvider, noLogoProcessor.ExecutorType);
+                logoExecutor.Initialize("--no-logo");
+                logoExecutor.Execute();
+            }
             _output.Error(appendPrefix: false, string.Join(Environment.NewLine, parseResult.Errors));
-            var executor = new HelpArgumentExecutor(_output, argumentProcessors.ToList());
-            executor.Initialize("--help");
-            executor.Execute();
+            var helpExecutor = ArgumentProcessorFactory.CreateExecutor(serviceProvider, new HelpArgumentProcessor().ExecutorType);
+            helpExecutor.Initialize("--help");
+            helpExecutor.Execute();
 
             _testPlatformEventSource.VsTestConsoleStop();
             return 1;
         }
 
-        var serviceProvider = new ServiceProvider();
-        var initializeInvocationContext = new InvocationContext(serviceProvider, parseResult);
         // Get the argument processors for the arguments, and initialize them.
         var initializeExitCode = RunIntialize(initializeInvocationContext, out List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors);
         if (initializeExitCode != 0)
         {
             if (!parseResult.Errors.Any())
             {
-                _output.Error(appendPrefix: false, "Parsing failed but no parse error was reported.");
+                _output.Error(appendPrefix: false, "Initialize failed but no error was reported.");
             }
-            _output.Error(appendPrefix: false, string.Join("\n", parseResult.Errors));
+            else
+            {
+                _output.Error(appendPrefix: false, string.Join("\n", parseResult.Errors));
+            }
             var executor = new HelpArgumentExecutor(_output, argumentProcessors.ToList());
             executor.Initialize("--help");
             executor.Execute();

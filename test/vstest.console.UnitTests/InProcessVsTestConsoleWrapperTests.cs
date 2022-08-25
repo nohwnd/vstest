@@ -52,7 +52,7 @@ public class InProcessVsTestConsoleWrapperTests
         _mockTestRequestManager.Setup(trm => trm.ResetOptions()).Callback(() => { });
 
         _mockOutput = new Mock<IOutput>();
-        _executor = new Executor(_mockOutput.Object, new Mock<ITestPlatformEventSource>().Object, new ProcessHelper(), new PlatformEnvironment());
+        _executor = new Executor(_mockOutput.Object, new Mock<ITestPlatformEventSource>().Object, new ProcessHelper(), new PlatformEnvironment(), FeatureFlag.Instance);
         _mockEventSource = new Mock<ITestPlatformEventSource>();
 
         _consoleWrapper = new InProcessVsTestConsoleWrapper(
@@ -75,7 +75,7 @@ public class InProcessVsTestConsoleWrapperTests
                 _mockEnvironmentVariableHelper.Object,
                 _mockRequestSender.Object,
                 _mockTestRequestManager.Object,
-                new Executor(_mockOutput.Object, new Mock<ITestPlatformEventSource>().Object, new ProcessHelper(), new PlatformEnvironment()),
+                new Executor(_mockOutput.Object, new Mock<ITestPlatformEventSource>().Object, new ProcessHelper(), new PlatformEnvironment(), FeatureFlag.Instance),
                 new Mock<ITestPlatformEventSource>().Object));
     }
 
@@ -94,7 +94,7 @@ public class InProcessVsTestConsoleWrapperTests
             _mockEnvironmentVariableHelper.Object,
             _mockRequestSender.Object,
             _mockTestRequestManager.Object,
-            new Executor(_mockOutput.Object, new Mock<ITestPlatformEventSource>().Object, new ProcessHelper(), new PlatformEnvironment()),
+            new Executor(_mockOutput.Object, new Mock<ITestPlatformEventSource>().Object, new ProcessHelper(), new PlatformEnvironment(), FeatureFlag.Instance),
             new Mock<ITestPlatformEventSource>().Object);
 
         _mockEnvironmentVariableHelper.Verify(evh => evh.SetEnvironmentVariable(environmentVariableName, "1"));
@@ -825,7 +825,7 @@ public class InProcessVsTestConsoleWrapperTests
             _mockEnvironmentVariableHelper.Object,
             _mockRequestSender.Object,
             _mockTestRequestManager.Object,
-            new Executor(_mockOutput.Object, new Mock<ITestPlatformEventSource>().Object, new ProcessHelper(), new PlatformEnvironment()),
+            new Executor(_mockOutput.Object, new Mock<ITestPlatformEventSource>().Object, new ProcessHelper(), new PlatformEnvironment(), FeatureFlag.Instance),
             new Mock<ITestPlatformEventSource>().Object);
 
         using (var testSession = consoleWrapper?.StartTestSession(_testSources, _runSettings, mockTestSessionEventsHandler.Object))

@@ -14,7 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class DisableAutoFakesArgumentProcessor : ArgumentProcessor<bool>
 {
     public DisableAutoFakesArgumentProcessor() :
-        base("/DisableAutoFakes", typeof(DisableAutoFakesArgumentExecutor))
+        base("--DisableAutoFakes", typeof(DisableAutoFakesArgumentExecutor))
     {
         HelpPriority = HelpContentPriority.DisableAutoFakesArgumentProcessorHelpPriority;
     }

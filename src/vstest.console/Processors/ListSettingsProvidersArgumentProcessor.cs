@@ -15,7 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class ListSettingsProvidersArgumentProcessor : ArgumentProcessor<bool>
 {
     public ListSettingsProvidersArgumentProcessor()
-        : base("/ListSettingsProviders", typeof(ListSettingsProvidersArgumentExecutor))
+        : base("--ListSettingsProviders", typeof(ListSettingsProvidersArgumentExecutor))
     {
         IsCommand = true;
         IsHiddenInHelp = true;

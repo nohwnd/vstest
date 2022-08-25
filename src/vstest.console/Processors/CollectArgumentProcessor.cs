@@ -25,13 +25,12 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// The argument processor for enabling data collectors.
 /// </summary>
 //TODO: string[] maybe?
-internal class CollectArgumentProcessor : ArgumentProcessor<string>
+internal class CollectArgumentProcessor : ArgumentProcessor<string[]>
 {
 
     public CollectArgumentProcessor() :
-        base("/Collect", typeof(CollectArgumentExecutor))
+        base("--Collect", typeof(CollectArgumentExecutor))
     {
-        AllowMultiple = true;
         Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
         HelpContentResourceName = CommandLineResources.CollectArgumentHelp;
         HelpPriority = HelpContentPriority.CollectArgumentProcessorHelpPriority;

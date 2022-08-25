@@ -13,7 +13,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class ListTestsTargetPathArgumentProcessor : ArgumentProcessor<FileInfo>
 {
     public ListTestsTargetPathArgumentProcessor()
-        : base("/ListTestsTargetPath", typeof(ListTestsTargetPathArgumentExecutor))
+        : base("--ListTestsTargetPath", typeof(ListTestsTargetPathArgumentExecutor))
     {
         IsHiddenInHelp = true;
     }

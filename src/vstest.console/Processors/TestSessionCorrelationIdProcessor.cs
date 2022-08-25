@@ -17,7 +17,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class TestSessionCorrelationIdProcessor : ArgumentProcessor<string>
 {
     public TestSessionCorrelationIdProcessor()
-        : base("/TestSessionCorrelationId", typeof(TestSessionCorrelationIdProcessorModeProcessorExecutor))
+        : base("--TestSessionCorrelationId", typeof(TestSessionCorrelationIdProcessorModeProcessorExecutor))
     {
         // We put priority at the same level of the argument processor for runsettings passed as argument through cli.
         // We'll be sure to run before test run or artifact post processing.

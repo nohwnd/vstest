@@ -21,7 +21,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class TestAdapterLoadingStrategyArgumentProcessor : ArgumentProcessor<TestAdapterLoadingStrategy>
 {
     public TestAdapterLoadingStrategyArgumentProcessor()
-        : base("/TestAdapterLoadingStrategy", typeof(TestAdapterLoadingStrategyArgumentExecutor))
+        : base("--TestAdapterLoadingStrategy", typeof(TestAdapterLoadingStrategyArgumentExecutor))
     {
         AlwaysExecute = true;
         Priority = ArgumentProcessorPriority.TestAdapterLoadingStrategy;

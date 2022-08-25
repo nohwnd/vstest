@@ -19,7 +19,7 @@ internal class EnableCodeCoverageArgumentProcessor : ArgumentProcessor<bool>
 {
 
     public EnableCodeCoverageArgumentProcessor()
-        : base("/EnableCodeCoverage", typeof(EnableCodeCoverageArgumentExecutor))
+        : base("--EnableCodeCoverage", typeof(EnableCodeCoverageArgumentExecutor))
     {
         Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
         IsHiddenInHelp = true;

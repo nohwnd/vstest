@@ -10,7 +10,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class ArtifactProcessingCollectModeProcessor : ArgumentProcessor<bool>
 {
     public ArtifactProcessingCollectModeProcessor()
-        : base("/ArtifactsProcessingMode-Collect", typeof(ArtifactProcessingCollectModeProcessorExecutor))
+        : base("--ArtifactsProcessingMode-Collect", typeof(ArtifactProcessingCollectModeProcessorExecutor))
     {
         // We put priority at the same level of the argument processor for runsettings passed as argument through cli.
         // We'll be sure to run before test run arg processor.

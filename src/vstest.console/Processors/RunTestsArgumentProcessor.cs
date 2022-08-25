@@ -19,7 +19,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>
 {
     public RunTestsArgumentProcessor()
-        : base("/RunTests", typeof(RunTestsArgumentExecutor))
+        : base("--RunTests", typeof(RunTestsArgumentExecutor))
     {
 
         IsCommand = true;

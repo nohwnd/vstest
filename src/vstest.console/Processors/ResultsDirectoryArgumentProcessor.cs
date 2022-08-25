@@ -21,7 +21,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class ResultsDirectoryArgumentProcessor : ArgumentProcessor<DirectoryInfo>
 {
     public ResultsDirectoryArgumentProcessor()
-        : base(new[] { "/ResultsDirectory", "--results-directory" }, typeof(ResultsDirectoryArgumentExecutor))
+        : base(new[] { "--ResultsDirectory", "--results-directory" }, typeof(ResultsDirectoryArgumentExecutor))
     {
         Priority = ArgumentProcessorPriority.AutoUpdateRunSettings;
         HelpContentResourceName = CommandLineResources.ResultsDirectoryArgumentHelp;

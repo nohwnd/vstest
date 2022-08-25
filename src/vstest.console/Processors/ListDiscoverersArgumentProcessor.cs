@@ -14,7 +14,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class ListDiscoverersArgumentProcessor : ArgumentProcessor<bool>
 {
     public ListDiscoverersArgumentProcessor()
-        : base("/ListDiscoverers", typeof(ListDiscoverersArgumentExecutor))
+        : base("--ListDiscoverers", typeof(ListDiscoverersArgumentExecutor))
     {
         IsCommand = true;
         IsHiddenInHelp = true;

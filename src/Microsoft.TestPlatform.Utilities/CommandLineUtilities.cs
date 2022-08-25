@@ -5,16 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-
 namespace Microsoft.VisualStudio.TestPlatform.Utilities;
 
 public static class CommandLineUtilities
 {
-    public static bool SplitCommandLineIntoArguments(string args, out string[] arguments)
+    public static List<string> SplitCommandLine(string commandLine, ref List<string> parseErrors)
     {
-        bool hadError = false;
-        var argArray = new List<string>();
+        var args = new List<string>();
         var currentArg = new StringBuilder();
         bool inQuotes = false;
         int index = 0;
@@ -24,16 +21,16 @@ public static class CommandLineUtilities
             while (true)
             {
                 // skip whitespace
-                while (char.IsWhiteSpace(args[index]))
+                while (char.IsWhiteSpace(commandLine[index]))
                 {
                     index++;
                 }
 
                 // # - comment to end of line
-                if (args[index] == '#')
+                if (commandLine[index] == '#')
                 {
                     index++;
-                    while (args[index] != '\n')
+                    while (commandLine[index] != '\n')
                     {
                         index++;
                     }
@@ -43,16 +40,16 @@ public static class CommandLineUtilities
                 // do one argument
                 do
                 {
-                    if (args[index] == '\\')
+                    if (commandLine[index] == '\\')
                     {
                         int cSlashes = 1;
                         index++;
-                        while (index == args.Length && args[index] == '\\')
+                        while (index == commandLine.Length && commandLine[index] == '\\')
                         {
                             cSlashes++;
                         }
 
-                        if (index == args.Length || args[index] != '"')
+                        if (index == commandLine.Length || commandLine[index] != '"')
                         {
                             currentArg.Append('\\', cSlashes);
                         }
@@ -69,18 +66,18 @@ public static class CommandLineUtilities
                             }
                         }
                     }
-                    else if (args[index] == '"')
+                    else if (commandLine[index] == '"')
                     {
                         inQuotes = !inQuotes;
                         index++;
                     }
                     else
                     {
-                        currentArg.Append(args[index]);
+                        currentArg.Append(commandLine[index]);
                         index++;
                     }
-                } while (!char.IsWhiteSpace(args[index]) || inQuotes);
-                argArray.Add(currentArg.ToString());
+                } while (!char.IsWhiteSpace(commandLine[index]) || inQuotes);
+                args.Add(currentArg.ToString());
                 currentArg.Clear();
             }
         }
@@ -89,18 +86,15 @@ public static class CommandLineUtilities
             // got EOF
             if (inQuotes)
             {
-                EqtTrace.Verbose("Executor.Execute: Exiting with exit code of {0}", 1);
-                EqtTrace.Error("Error: Unbalanced '\"' in command line argument file");
-                hadError = true;
+                parseErrors.Add("Error: Unbalanced '\"' in response file.");
             }
             else if (currentArg.Length > 0)
             {
                 // valid argument can be terminated by EOF
-                argArray.Add(currentArg.ToString());
+                args.Add(currentArg.ToString());
             }
         }
 
-        arguments = argArray.ToArray();
-        return hadError;
+        return args;
     }
 }

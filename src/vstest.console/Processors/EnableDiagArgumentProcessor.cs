@@ -10,6 +10,7 @@ using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities;
+using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
@@ -21,7 +22,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
 // TODO: Add nullable? Because this can be empty? Or rather default value factory?
 // TODO: Add validator for directory or file (FileSystemInfo)
-internal class EnableDiagArgumentProcessor : ArgumentProcessor<FileSystemInfo>
+internal class EnableDiagArgumentProcessor : ArgumentProcessor<string>
 {
     public EnableDiagArgumentProcessor()
         // TODO: maybe environment variables could be just part of the binding logic and
@@ -46,6 +47,7 @@ internal class EnableDiagArgumentProcessor : ArgumentProcessor<FileSystemInfo>
 /// </summary>
 internal class EnableDiagArgumentExecutor : IArgumentExecutor
 {
+    private readonly InvocationContext _context;
     private readonly IFileHelper _fileHelper;
     private readonly IProcessHelper _processHelper;
 
@@ -58,8 +60,9 @@ internal class EnableDiagArgumentExecutor : IArgumentExecutor
     /// Default constructor.
     /// </summary>
     /// <param name="fileHelper">The file helper.</param>
-    public EnableDiagArgumentExecutor(IFileHelper fileHelper, IProcessHelper processHelper)
+    public EnableDiagArgumentExecutor(InvocationContext invocationContext, IFileHelper fileHelper, IProcessHelper processHelper)
     {
+        _context = invocationContext;
         _fileHelper = fileHelper;
         _processHelper = processHelper;
     }
@@ -70,27 +73,34 @@ internal class EnableDiagArgumentExecutor : IArgumentExecutor
     /// <param name="argument">Argument that was provided with the command.</param>
     public void Initialize(string? argument)
     {
-        // tODO: initialization of the diag, but maybe this should go into runsettings rather? 
-        //if (!isDiag)
-        //{
-        //    // This takes a path to log directory and log.txt file. Same as the --diag parameter, e.g. VSTEST_DIAG="logs\log.txt"
-        //    var diag = Environment.GetEnvironmentVariable("VSTEST_DIAG");
-        //    // This takes Verbose, Info (not Information), Warning, and Error.
-        //    var diagVerbosity = Environment.GetEnvironmentVariable("VSTEST_DIAG_VERBOSITY");
-        //    if (!StringUtils.IsNullOrWhiteSpace(diag))
-        //    {
-        //        var verbosity = TraceLevel.Verbose;
-        //        if (diagVerbosity != null)
-        //        {
-        //            if (Enum.TryParse<TraceLevel>(diagVerbosity, ignoreCase: true, out var parsedVerbosity))
-        //            {
-        //                verbosity = parsedVerbosity;
-        //            }
-        //        }
+        var parseResult = _context.ParseResult;
+        var diagParameterProvided = parseResult.TryGetValueFor(new EnableDiagArgumentProcessor(), out argument);
 
-        //        args = args.Concat(new[] { $"--diag:{diag};TraceLevel={verbosity}" }).ToArray();
-        //    }
-        //}I
+        if (!diagParameterProvided)
+        {
+            // This takes a path to log directory and log.txt file. Same as the --diag parameter, e.g. VSTEST_DIAG="logs\log.txt"
+            var path = Environment.GetEnvironmentVariable("VSTEST_DIAG");
+            // This takes Verbose, Info (not Information), Warning, and Error.
+            var diagVerbosity = Environment.GetEnvironmentVariable("VSTEST_DIAG_VERBOSITY");
+            if (path.IsNullOrWhiteSpace())
+            {
+                // Path is not provided via env variable, diag is not enabled.
+                return;
+            }
+            else
+            {
+                var verbosity = TraceLevel.Verbose;
+                if (diagVerbosity != null)
+                {
+                    if (Enum.TryParse<TraceLevel>(diagVerbosity, ignoreCase: true, out var parsedVerbosity))
+                    {
+                        verbosity = parsedVerbosity;
+                    }
+                }
+
+                argument = $"{path};TraceLevel={verbosity}";
+            }
+        }
 
 
         string exceptionMessage = string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidDiagArgument, argument);

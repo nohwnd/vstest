@@ -16,7 +16,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class TestCaseFilterArgumentProcessor : ArgumentProcessor<string>
 {
     public TestCaseFilterArgumentProcessor()
-        : base(new string[] { "--filter", "/TestCaseFilter" }, typeof(TestCaseFilterArgumentExecutor))
+        : base(new string[] { "--filter", "--TestCaseFilter" }, typeof(TestCaseFilterArgumentExecutor))
     {
         HelpContentResourceName = CommandLineResources.TestCaseFilterArgumentHelp;
         HelpPriority = HelpContentPriority.TestCaseFilterArgumentProcessorHelpPriority;

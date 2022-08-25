@@ -21,15 +21,14 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Allows the user to specify a path to load custom adapters from.
 /// </summary>
-internal class TestAdapterPathArgumentProcessor : ArgumentProcessor<DirectoryInfo>
+internal class TestAdapterPathArgumentProcessor : ArgumentProcessor<DirectoryInfo[]>
 {
     // TODO: make it DirectoryInfo[] or filesystemInfo[] beacuse of allow multiple
     // TODO: Add existing validator.
     // TODO: make it take file or dictionary. Or maybe even list of dictionaries or files.?
     public TestAdapterPathArgumentProcessor()
-        : base(new string[] { "/TestAdapterPath", "--test-adapter-path" }, typeof(TestAdapterPathArgumentExecutor))
+        : base(new string[] { "--TestAdapterPath", "--test-adapter-path" }, typeof(TestAdapterPathArgumentExecutor))
     {
-        AllowMultiple = true;
         Priority = ArgumentProcessorPriority.TestAdapterPath;
         HelpContentResourceName = CommandLineResources.TestAdapterPathHelp;
         HelpPriority = HelpContentPriority.TestAdapterPathArgumentProcessorHelpPriority;

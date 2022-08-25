@@ -22,7 +22,7 @@ using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Res
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
-internal class RunSpecificTestsArgumentProcessor : ArgumentProcessor<string>
+internal class RunSpecificTestsArgumentProcessor : ArgumentProcessor<string[]>
 {
     // TODO: add non-empty validator
     // TODO: string[] ?
@@ -39,7 +39,6 @@ internal class RunSpecificTestsArgumentProcessor : ArgumentProcessor<string>
         //ConsoleOutput.Instance));
 
         IsCommand = true;
-        AllowMultiple = true;
         HelpContentResourceName = CommandLineResources.RunSpecificTestsHelp;
         HelpPriority = HelpContentPriority.RunSpecificTestsArgumentProcessorHelpPriority;
     }
