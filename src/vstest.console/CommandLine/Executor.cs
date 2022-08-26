@@ -135,12 +135,13 @@ internal class Executor
             var noLogo = parseResult.GetValueFor(noLogoProcessor);
             if (!noLogo)
             {
-                var logoExecutor = ArgumentProcessorFactory.CreateExecutor(serviceProvider, noLogoProcessor.ExecutorType);
+                var logoExecutor = ArgumentProcessorFactory.CreateExecutor(noLogoProcessor, initializeInvocationContext, noLogoProcessor.ExecutorType);
                 logoExecutor.Initialize(parseResult);
                 logoExecutor.Execute();
             }
             _output.Error(appendPrefix: false, string.Join(Environment.NewLine, parseResult.Errors));
-            var helpExecutor = ArgumentProcessorFactory.CreateExecutor(serviceProvider, new HelpArgumentProcessor().ExecutorType);
+            var helpArgumentProcessor = new HelpArgumentProcessor();
+            var helpExecutor = ArgumentProcessorFactory.CreateExecutor(helpArgumentProcessor, initializeInvocationContext, helpArgumentProcessor.ExecutorType);
             helpExecutor.Initialize(parseResult);
             helpExecutor.Execute();
 
@@ -220,18 +221,15 @@ internal class Executor
             object? value = null;
             if (processor.AlwaysExecute || invocationContext.ParseResult.TryGetValueFor(processor, out value))
             {
-                IArgumentExecutor executor = ArgumentProcessorFactory.CreateExecutor(invocationContext.ServiceProvider, processor.ExecutorType);
-                // TODO: remove toString.
+                IArgumentExecutor executor = ArgumentProcessorFactory.CreateExecutor(processor, invocationContext, processor.ExecutorType);
+                processorsAndExecutors.Add((processor, executor));
+
                 try
                 {
                     executor.Initialize(invocationContext.ParseResult);
-                    if (processor.IsCommand && value is bool enabled && enabled)
+                    // Only run initialization for processors that are before the matched command.
+                    if (processor.IsCommand)
                     {
-                        // Only run initialization for processors that are before the matched command.
-                        // TODO: We are checking here if the command was called with bool, because bool can specify
-                        // false, which would mean that the command would not run, and we should probably continue to the
-                        // next one. If we merge the execution and initialization to one step, this should not be necessary anymore,
-                        // because the first command to execute will stop the execution.
                         break;
                     }
                 }

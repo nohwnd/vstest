@@ -1,12 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
+using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
+using Microsoft.VisualStudio.TestPlatform.CommandLine2;
+using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
+using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.ArtifactProcessing;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine;
@@ -16,7 +21,7 @@ using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Res
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
-internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>
+internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>, IExecutorCreator
 {
     public RunTestsArgumentProcessor()
         : base("--RunTests", typeof(RunTestsArgumentExecutor))
@@ -31,13 +36,29 @@ internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>
         HelpContentResourceName = CommandLineResources.RunTestsArgumentHelp;
         HelpPriority = HelpContentPriority.RunTestsArgumentProcessorHelpPriority;
 
-        // new RunTestsArgumentExecutor(
-        //CommandLineOptions.Instance,
-        //        RunSettingsManager.Instance,
-        //        TestRequestManager.Instance,
-        //        new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId),
-        //        ConsoleOutput.Instance));
+        CreateExecutor = c =>
+        {
+            var testRequestManager = TestRequestManager.Instance;
+            var artifactProcessingManager = new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId);
+            // TODO: Replace those resolves by shipping the instances on the invocation context directly,
+            // so we don't get strayed into trying to grab unavailable services from the provider,
+            // or register more services than what is the "evironment" surrounding the run (e.g. consoleOptions
+            // or environmentHelper, or runsettings, but we should not register TestPlatform or TestRequestManager).
+            return new RunTestsArgumentExecutor(
+                c.ServiceProvider.GetService<CommandLineOptions>()!,
+                    c.ServiceProvider.GetService<RunSettingsManager>()!,
+                    testRequestManager,
+                    artifactProcessingManager,
+                    c.ServiceProvider.GetService<ConsoleOutput>()!);
+        };
     }
+
+    public Func<InvocationContext, IArgumentExecutor> CreateExecutor { get; }
+}
+
+internal interface IExecutorCreator
+{
+    Func<InvocationContext, IArgumentExecutor> CreateExecutor { get; }
 }
 
 internal class RunTestsArgumentExecutor : IArgumentExecutor

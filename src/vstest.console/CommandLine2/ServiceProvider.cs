@@ -16,6 +16,11 @@ internal class ServiceProvider : IServiceProvider
 
     public IReadOnlyCollection<Type> AvailableServiceTypes => _services.Keys;
 
+    public T? GetService<T>()
+    {
+        return (T?)GetService(typeof(T));
+    }
+
     public object? GetService(Type serviceType)
     {
         if (_services.TryGetValue(serviceType, out var factory))

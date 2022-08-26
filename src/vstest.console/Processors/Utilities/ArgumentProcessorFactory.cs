@@ -8,6 +8,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 
+using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 
@@ -223,14 +224,16 @@ internal class ArgumentProcessorFactory
     //    return processor;
     //}
 
-    internal static IArgumentExecutor CreateExecutor<TExecutor>(IServiceProvider serviceProvider)
-    {
-        return CreateExecutor(serviceProvider, typeof(TExecutor));
-    }
 
-
-    internal static IArgumentExecutor CreateExecutor(IServiceProvider serviceProvider, Type executorType)
+    internal static IArgumentExecutor CreateExecutor(ArgumentProcessor processor, InvocationContext context,  Type executorType)
     {
+        if (processor is IExecutorCreator creator)
+        {
+            return creator.CreateExecutor(context);
+        }
+
+        var serviceProvider = context.ServiceProvider;
+
         // TODO: this is temporary, each processor should be responsible for creating the type from the context, or
         // be a composition root when it is a command. In tests we then should just try to create all of them and see if any fails,
         // no need to have separate test for each item.
