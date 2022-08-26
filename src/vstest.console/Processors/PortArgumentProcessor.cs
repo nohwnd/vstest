@@ -84,12 +84,9 @@ internal class PortArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (argument.IsNullOrWhiteSpace() || !int.TryParse(argument, out int portNumber))
-        {
-            throw new CommandLineException(CommandLineResources.InvalidPortArgument);
-        }
+        var portNumber = parseResult.GetValueFor(new PortArgumentProcessor());
 
         _commandLineOptions.Port = portNumber;
         _commandLineOptions.IsDesignMode = true;

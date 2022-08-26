@@ -10,7 +10,7 @@ internal class NullExecutor : IArgumentExecutor
         return ArgumentProcessorResult.Success;
     }
 
-    public void Initialize(string? _)
+    public void Initialize(ParseResult _)
     {
     }
 }

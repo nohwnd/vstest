@@ -72,7 +72,7 @@ internal class RunSpecificTestsArgumentExecutor : IArgumentExecutor
     /// <summary>
     /// Given Collection of strings for filtering test cases
     /// </summary>
-    private Collection<string>? _selectedTestNames;
+    private List<string>? _selectedTestNames;
 
     /// <summary>
     /// Used for tracking the total no. of tests discovered from the given sources.
@@ -82,7 +82,7 @@ internal class RunSpecificTestsArgumentExecutor : IArgumentExecutor
     /// <summary>
     /// Collection of test cases that match at least one of the given search strings
     /// </summary>
-    private readonly Collection<TestCase> _selectedTestCases = new();
+    private readonly List<TestCase> _selectedTestCases = new();
 
     /// <summary>
     /// Effective run settings applicable to test run after inferring the multi-targeting settings.
@@ -128,16 +128,24 @@ internal class RunSpecificTestsArgumentExecutor : IArgumentExecutor
     /// </summary>
     /// <param name="argument"></param>
     [MemberNotNull(nameof(_selectedTestNames))]
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (!argument.IsNullOrWhiteSpace())
+        var arguments = parseResult.GetValueFor(new RunSpecificTestsArgumentProcessor());
+
+        // TODO: Re-splitting the parameters by "," this should probably be done consistenly for all array parameters.
+        List<string> selectedTests = new();
+        if (arguments != null)
         {
-            _selectedTestNames = new Collection<string>(
-                argument.Tokenize(SplitDelimiter, EscapeDelimiter)
-                    .Where(x => !StringUtils.IsNullOrWhiteSpace(x))
-                    .Select(s => s.Trim()).ToList());
+            foreach (var argument in arguments)
+            {
+                selectedTests.AddRange(
+                    argument.Tokenize(SplitDelimiter, EscapeDelimiter)
+                        .Where(x => !StringUtils.IsNullOrWhiteSpace(x))
+                        .Select(s => s.Trim()).ToList());
+            }
         }
 
+        _selectedTestNames = selectedTests;
         if (_selectedTestNames == null || _selectedTestNames.Count <= 0)
         {
             throw new CommandLineException(CommandLineResources.SpecificTestsRequired);

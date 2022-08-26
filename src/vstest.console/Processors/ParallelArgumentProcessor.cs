@@ -53,13 +53,12 @@ internal class ParallelArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        // parallel does not require any argument, throws exception if argument specified
-        if (!argument.IsNullOrWhiteSpace())
+        var parallelEnabled = parseResult.GetValueFor(new ParallelArgumentProcessor());
+        if (!parallelEnabled)
         {
-            throw new CommandLineException(
-                string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidParallelCommand, argument));
+            return;
         }
 
         _commandLineOptions.Parallel = true;

@@ -49,24 +49,26 @@ internal class TestCaseFilterArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
+        var filter = parseResult.GetValueFor(new TestCaseFilterArgumentProcessor());
+
         var defaultFilter = _commandLineOptions.TestCaseFilterValue;
         var hasDefaultFilter = !defaultFilter.IsNullOrWhiteSpace();
 
-        if (!hasDefaultFilter && argument.IsNullOrWhiteSpace())
+        if (!hasDefaultFilter && filter.IsNullOrWhiteSpace())
         {
             throw new CommandLineException(string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestCaseFilterValueRequired));
         }
 
         if (!hasDefaultFilter)
         {
-            _commandLineOptions.TestCaseFilterValue = argument;
+            _commandLineOptions.TestCaseFilterValue = filter;
         }
         else
         {
             // Merge default filter an provided filter by AND operator to have both the default filter and custom filter applied.
-            _commandLineOptions.TestCaseFilterValue = $"({defaultFilter})&({argument})";
+            _commandLineOptions.TestCaseFilterValue = $"({defaultFilter})&({filter})";
         }
     }
 

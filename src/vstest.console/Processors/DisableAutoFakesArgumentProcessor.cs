@@ -1,10 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-
-using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
-
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
 /// <summary>
@@ -29,14 +25,10 @@ internal class DisableAutoFakesArgumentExecutor : IArgumentExecutor
         _commandLineOptions = commandLineOptions;
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (argument.IsNullOrWhiteSpace() || !bool.TryParse(argument, out bool value))
-        {
-            throw new CommandLineException(CommandLineResources.DisableAutoFakesUsage);
-        }
-
-        _commandLineOptions.DisableAutoFakes = value;
+        var disableAutoFakes = parseResult.GetValueFor(new DisableAutoFakesArgumentProcessor());
+        _commandLineOptions.DisableAutoFakes = disableAutoFakes;
     }
 
     public ArgumentProcessorResult Execute()

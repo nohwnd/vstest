@@ -71,9 +71,15 @@ internal class TestAdapterLoadingStrategyArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        ExtractStrategy(argument, out var strategy);
+        // This is AlwaysExecute, so we initialize the strategy
+        // even when the parameter was not specified by using value from
+        // runsettings that is grabbed in ExtractStrategy.
+        var strategySpecified = parseResult.TryGetValueFor(new TestAdapterLoadingStrategyArgumentProcessor(), out var strategyValue);
+
+        var value = strategySpecified ? strategyValue.ToString() : null;
+        ExtractStrategy(value, out var strategy);
 
         if (strategy == TestAdapterLoadingStrategy.Recursive)
         {

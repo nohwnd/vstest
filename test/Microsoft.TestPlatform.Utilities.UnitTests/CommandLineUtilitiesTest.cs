@@ -24,7 +24,6 @@ public class CommandLineUtilitiesTest
     }
 
     [TestMethod]
-    [DataRow(new[] { "1" }, new[] { "1" })]
     public void TestCommandLineSplitter()
     {
         VerifyCommandLineSplitter("", Array.Empty<string>());

@@ -4,6 +4,7 @@
 using System.Globalization;
 
 using Microsoft.VisualStudio.TestPlatform.Client;
+using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 
@@ -25,6 +26,7 @@ internal class ListDiscoverersArgumentExecutor : IArgumentExecutor
 {
     private readonly IOutput _output;
     private readonly TestDiscoveryExtensionManager _extensionManager;
+    private bool _shouldExecute;
 
     public ListDiscoverersArgumentExecutor(IOutput output)
     {
@@ -34,12 +36,18 @@ internal class ListDiscoverersArgumentExecutor : IArgumentExecutor
         _extensionManager = TestDiscoveryExtensionManager.Create();
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
+        _shouldExecute = parseResult.GetValueFor(new ListDiscoverersArgumentProcessor());
     }
 
     public ArgumentProcessorResult Execute()
     {
+        if (!_shouldExecute)
+        {
+            return ArgumentProcessorResult.Success;
+        }
+
         _output.WriteLine(CommandLineResources.AvailableDiscoverersHeaderMessage, OutputLevel.Information);
         foreach (var extension in _extensionManager.Discoverers)
         {

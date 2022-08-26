@@ -4,14 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
-using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
@@ -21,11 +18,11 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Allows the user to specify a path to load custom adapters from.
 /// </summary>
-internal class TestAdapterPathArgumentProcessor : ArgumentProcessor<DirectoryInfo[]>
+internal class TestAdapterPathArgumentProcessor : ArgumentProcessor<string[]>
 {
-    // TODO: make it DirectoryInfo[] or filesystemInfo[] beacuse of allow multiple
-    // TODO: Add existing validator.
-    // TODO: make it take file or dictionary. Or maybe even list of dictionaries or files.?
+    // Cannot make it DirectoryInfo[] or FileSystemInfo[] because AzDO adds
+    // additional quotes into the path that would throw on object construction.
+
     public TestAdapterPathArgumentProcessor()
         : base(new string[] { "--TestAdapterPath", "--test-adapter-path" }, typeof(TestAdapterPathArgumentExecutor))
     {
@@ -81,32 +78,42 @@ internal class TestAdapterPathArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (argument.IsNullOrWhiteSpace())
+        var arguments = parseResult.GetValueFor(new TestAdapterPathArgumentProcessor());
+
+        if (arguments == null)
         {
-            throw new CommandLineException(
-                string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestAdapterPathValueRequired));
+            return;
         }
 
         string[] customAdaptersPath;
 
         var testAdapterPaths = new List<string>();
 
-        // VSTS task add double quotes around TestAdapterpath. For example if user has given TestAdapter path C:\temp,
-        // Then VSTS task will add TestAdapterPath as "/TestAdapterPath:\"C:\Temp\"".
-        // Remove leading and trailing ' " ' chars...
-        argument = argument.Trim().Trim(new char[] { '\"' });
-
-        // Get test adapter paths from RunSettings.
-        var testAdapterPathsInRunSettings = _runSettingsManager.QueryRunSettingsNode(RunSettingsPath);
-
-        if (!testAdapterPathsInRunSettings.IsNullOrWhiteSpace())
+        foreach (var argument in arguments)
         {
-            testAdapterPaths.AddRange(SplitPaths(testAdapterPathsInRunSettings));
-        }
+            if (argument == null)
+            {
+                throw new CommandLineException(
+                    string.Format(CultureInfo.CurrentCulture, CommandLineResources.TestAdapterPathValueRequired));
+            }
 
-        testAdapterPaths.AddRange(SplitPaths(argument));
+            // VSTS task add double quotes around TestAdapterpath. For example if user has given TestAdapter path C:\temp,
+            // Then VSTS task will add TestAdapterPath as "/TestAdapterPath:\"C:\Temp\"".
+            // Remove leading and trailing ' " ' chars...
+            var path = argument.Trim().Trim(new char[] { '\"' });
+
+            // Get test adapter paths from RunSettings.
+            var testAdapterPathsInRunSettings = _runSettingsManager.QueryRunSettingsNode(RunSettingsPath);
+
+            if (!testAdapterPathsInRunSettings.IsNullOrWhiteSpace())
+            {
+                testAdapterPaths.AddRange(SplitPaths(testAdapterPathsInRunSettings));
+            }
+
+            testAdapterPaths.AddRange(SplitPaths(path));
+        }
         customAdaptersPath = testAdapterPaths.Distinct().ToArray();
 
         _runSettingsManager.UpdateRunSettingsNode(RunSettingsPath, string.Join(";", customAdaptersPath));

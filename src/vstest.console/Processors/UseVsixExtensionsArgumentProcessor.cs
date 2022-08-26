@@ -40,21 +40,12 @@ internal class UseVsixExtensionsArgumentExecutor : IArgumentExecutor
     }
 
     /// <inheritdoc />
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (argument.IsNullOrWhiteSpace())
-        {
-            throw new CommandLineException(string.Format(CultureInfo.CurrentCulture, CommandLineResources.UseVsixExtensionsValueRequired));
-        }
+        var useVsix = parseResult.GetValueFor(new UseVsixExtensionsArgumentProcessor());
 
-        if (!bool.TryParse(argument, out bool value))
-        {
-            throw new CommandLineException(
-                string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidUseVsixExtensionsCommand, argument));
-        }
-
-        _output.Warning(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.UseVsixExtensionsDeprecation));
-        _commandLineOptions.UseVsixExtensions = value;
+        _output.Warning(appendPrefix: false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.UseVsixExtensionsDeprecation));
+        _commandLineOptions.UseVsixExtensions = useVsix;
 
         if (_commandLineOptions.UseVsixExtensions)
         {

@@ -19,18 +19,19 @@ using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Res
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
-internal class EnableBlameArgumentProcessor : ArgumentProcessor<bool>
+internal class EnableBlameArgumentProcessor : ArgumentProcessor<string>
 {
     public EnableBlameArgumentProcessor()
         : base(new[] {
             "--blame",
-            // TODO: move these to their own processors so they have their own help entries
-            "--blame-crash",
-            "--blame-crash-dump-type",
-            "--blame-hang",
-            "--blame-hang-timeout",
-            "--blame-hang-dump-type",
-            "--blame-crash-collect-always",
+            // TODO: move these to their own processors so they can capture parameters
+            // and then make this one execute always so it can pick up the values from them.
+            //"--blame-crash",
+            //"--blame-crash-dump-type",
+            //"--blame-hang",
+            //"--blame-hang-timeout",
+            //"--blame-hang-dump-type",
+            //"--blame-crash-collect-always",
         }, typeof(EnableBlameArgumentExecutor))
     {
         Priority = ArgumentProcessorPriority.Logging;
@@ -58,8 +59,10 @@ internal class EnableBlameArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
+        var argument = parseResult.GetValueFor(new EnableBlameArgumentProcessor());
+
         var enableDump = false;
         var enableHangDump = false;
         var exceptionMessage = string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidBlameArgument, argument);

@@ -3,11 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Globalization;
+using System.Linq;
 using System.Xml.XPath;
 
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -28,11 +27,10 @@ internal class CliRunSettingsArgumentProcessor : ArgumentProcessor<string>
         Priority = ArgumentProcessorPriority.CliRunSettings;
         HelpContentResourceName = CommandLineResources.CLIRunSettingsArgumentHelp;
         HelpPriority = HelpContentPriority.CliRunSettingsArgumentProcessorHelpPriority;
-
     }
 }
 
-internal class CliRunSettingsArgumentExecutor : IArgumentsExecutor
+internal class CliRunSettingsArgumentExecutor : IArgumentExecutor
 {
     private readonly IRunSettingsProvider _runSettingsManager;
     private readonly CommandLineOptions _commandLineOptions;
@@ -43,26 +41,19 @@ internal class CliRunSettingsArgumentExecutor : IArgumentsExecutor
         _commandLineOptions = commandLineOptions;
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        throw new NotImplementedException();
-    }
-
-    public void Initialize(string[]? arguments)
-    {
-        // if argument is null or doesn't contain any element, don't do anything.
-        if (arguments == null || arguments.Length == 0)
+        var options = parseResult.Options;
+        if (!options.Any())
         {
             return;
         }
-
-        Contract.EndContractBlock();
 
         // Load up the run settings and set it as the active run settings.
         try
         {
             // Append / Override run settings supplied in CLI
-            CreateOrOverwriteRunSettings(_runSettingsManager, arguments);
+            CreateOrOverwriteRunSettings(_runSettingsManager, options);
         }
         catch (XPathException exception)
         {
@@ -80,7 +71,7 @@ internal class CliRunSettingsArgumentExecutor : IArgumentsExecutor
         return ArgumentProcessorResult.Success;
     }
 
-    private void CreateOrOverwriteRunSettings(IRunSettingsProvider runSettingsProvider, string[] args)
+    private void CreateOrOverwriteRunSettings(IRunSettingsProvider runSettingsProvider, List<string> args)
     {
         var mergedArgs = new List<string>();
         var mergedArg = string.Empty;

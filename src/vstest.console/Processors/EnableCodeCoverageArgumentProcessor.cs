@@ -127,8 +127,13 @@ internal class EnableCodeCoverageArgumentExecutor : IArgumentExecutor
     }
 
     /// <inheritdoc />
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
+        if (!parseResult.GetValueFor(new EnableCodeCoverageArgumentProcessor()))
+        {
+            return;
+        }
+
         _commandLineOptions.EnableCodeCoverage = true;
 
         // Add this enabled data collectors list, this will ensure Code Coverage isn't disabled when other DCs are configured using /Collect.

@@ -26,6 +26,7 @@ internal class ListExecutorsArgumentExecutor : IArgumentExecutor
 {
     private readonly IOutput _output;
     private readonly TestExecutorExtensionManager _extensionManager;
+    private bool _shouldExecute;
 
     public ListExecutorsArgumentExecutor(IOutput output)
     {
@@ -35,12 +36,18 @@ internal class ListExecutorsArgumentExecutor : IArgumentExecutor
         _extensionManager = TestExecutorExtensionManager.Create();
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
+        _shouldExecute = parseResult.GetValueFor(new ListExecutorsArgumentProcessor());
     }
 
     public ArgumentProcessorResult Execute()
     {
+        if (!_shouldExecute)
+        {
+            return ArgumentProcessorResult.Success;
+        }
+
         _output.WriteLine(CommandLineResources.AvailableExecutorsHeaderMessage, OutputLevel.Information);
         _ = TestPlatformFactory.GetTestPlatform();
         foreach (var extension in _extensionManager.TestExtensions)

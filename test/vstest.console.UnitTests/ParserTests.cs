@@ -166,8 +166,7 @@ public class ParserTests
         public void ArgumentsAreBoundToDefaultProcessor(string[] args, string[] expected)
         {
             // -- Arrange
-            // TODO: Add the concept of default argument rather than matching it by name.
-            var defaultProcessor = new ArgumentProcessor<string[]>("--RunTests", typeof(NullArgumentExecutor)) { };
+            var defaultProcessor = new ArgumentProcessor<string[]>("--default", typeof(NullArgumentExecutor)) { IsDefault = true };
             var knownParameter = new ArgumentProcessor<string>("--known-parameter", typeof(NullArgumentExecutor));
             var knownParameterMultiValue = new ArgumentProcessor<string>("--known-parameter-multi-value", typeof(NullArgumentExecutor));
             var knownParameterBool = new ArgumentProcessor<bool>("--known-parameter-bool", typeof(NullArgumentExecutor));
@@ -539,7 +538,7 @@ public class ParserTests
             return ArgumentProcessorResult.Success;
         }
 
-        public void Initialize(string? argument)
+        public void Initialize(ParseResult _)
         {
         }
     }

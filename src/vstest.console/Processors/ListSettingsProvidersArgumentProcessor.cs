@@ -26,6 +26,7 @@ internal class ListSettingsProvidersArgumentExecutor : IArgumentExecutor
 {
     private readonly IOutput _output;
     private readonly SettingsProviderExtensionManager _extensionManager;
+    private bool _shouldExecute;
 
     public ListSettingsProvidersArgumentExecutor(IOutput output)
     {
@@ -34,12 +35,18 @@ internal class ListSettingsProvidersArgumentExecutor : IArgumentExecutor
         _ = TestPlatformFactory.GetTestPlatform();
         _extensionManager = SettingsProviderExtensionManager.Create();
     }
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
+        _shouldExecute = parseResult.GetValueFor(new ListSettingsProvidersArgumentProcessor());
     }
 
     public ArgumentProcessorResult Execute()
     {
+        if (!_shouldExecute)
+        {
+            return ArgumentProcessorResult.Success;
+        }
+
         _output.WriteLine(CommandLineResources.AvailableSettingsProvidersHeaderMessage, OutputLevel.Information);
         foreach (var extension in _extensionManager.SettingsProvidersMap.Values)
         {

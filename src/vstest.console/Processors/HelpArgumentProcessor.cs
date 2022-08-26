@@ -36,8 +36,12 @@ internal class HelpArgumentExecutor : IArgumentExecutor
         _argumentProcessors = argumentProcessors;
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult _)
     {
+        //  We don't check the bool here on purpose, because help is a bit of a special case
+        // and is executed when parsing fails. So not checking if we actually enabled it helps,
+        // because we don't have to change the parse result.
+        // On the other hand it makes --help:false not work, which is probably okay.
     }
 
     public ArgumentProcessorResult Execute()

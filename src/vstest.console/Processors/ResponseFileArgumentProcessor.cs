@@ -19,7 +19,7 @@ internal class ResponseFileArgumentProcessor : ArgumentProcessor<FileInfo>
     public ResponseFileArgumentProcessor()
         : base("@", typeof(NullExecutor))
     {
-        // REVEW: not sure why.
+        // This does not really fit into the whole model, as response files are handled by the parser directly.
         IsHidden = true;
         HelpContentResourceName = CommandLineResources.ResponseFileArgumentHelp;
         HelpPriority = HelpContentPriority.ResponseFileArgumentProcessorHelpPriority;

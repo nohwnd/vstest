@@ -176,6 +176,12 @@ internal abstract class ArgumentProcessor
     public bool AllowMultiple { get; }
 
     /// <summary>
+    /// Indicates that this is the default argument that consumes all remaining values that were not
+    /// assigned to any other parameter.
+    /// </summary>
+    public bool IsDefault { get; init; }
+
+    /// <summary>
     /// Indicates that this is hidden and cannot be specified on the command line,
     /// this is useful for implicit action like RunTests.
     /// </summary>

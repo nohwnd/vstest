@@ -3,6 +3,7 @@
 
 using System;
 
+using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
@@ -35,7 +36,7 @@ internal class ArtifactProcessingCollectModeProcessorExecutor : IArgumentExecuto
         _commandLineOptions = options ?? throw new ArgumentNullException(nameof(options));
     }
 
-    public void Initialize(string? _)
+    public void Initialize(ParseResult _)
     {
         _commandLineOptions.ArtifactProcessingMode = ArtifactProcessingMode.Collect;
         EqtTrace.Verbose($"ArtifactProcessingPostProcessModeProcessorExecutor.Initialize: ArtifactProcessingMode.Collect");

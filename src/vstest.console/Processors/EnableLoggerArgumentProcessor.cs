@@ -43,32 +43,42 @@ internal class EnableLoggerArgumentExecutor : IArgumentExecutor
         _runSettingsManager = runSettingsManager;
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        string exceptionMessage = string.Format(CultureInfo.CurrentCulture, CommandLineResources.LoggerUriInvalid, argument);
+        string[]? arguments = parseResult.GetValueFor(new EnableLoggerArgumentProcessor());
 
-        // Throw error in case logger argument null or empty.
-        if (argument.IsNullOrWhiteSpace())
+        if (arguments == null)
         {
-            throw new CommandLineException(exceptionMessage);
+            return;
         }
 
-        // Get logger argument list.
-        var loggerArgumentList = ArgumentProcessorUtilities.GetArgumentList(argument, ArgumentProcessorUtilities.SemiColonArgumentSeparator, exceptionMessage);
-
-        // Get logger identifier.
-        var loggerIdentifier = loggerArgumentList[0];
-        if (loggerIdentifier.Contains("="))
+        foreach (var argument in arguments)
         {
-            throw new CommandLineException(exceptionMessage);
+            string exceptionMessage = string.Format(CultureInfo.CurrentCulture, CommandLineResources.LoggerUriInvalid, argument);
+
+            // Throw error in case logger argument null or empty.
+            if (argument.IsNullOrWhiteSpace())
+            {
+                throw new CommandLineException(exceptionMessage);
+            }
+
+            // Get logger argument list.
+            var loggerArgumentList = ArgumentProcessorUtilities.GetArgumentList(argument, ArgumentProcessorUtilities.SemiColonArgumentSeparator, exceptionMessage);
+
+            // Get logger identifier.
+            var loggerIdentifier = loggerArgumentList[0];
+            if (loggerIdentifier.Contains("="))
+            {
+                throw new CommandLineException(exceptionMessage);
+            }
+
+            // Get logger parameters
+            var loggerParameterArgs = loggerArgumentList.Skip(1);
+            var loggerParameters = ArgumentProcessorUtilities.GetArgumentParameters(loggerParameterArgs, ArgumentProcessorUtilities.EqualNameValueSeparator, exceptionMessage);
+
+            // Add logger to run settings.
+            LoggerUtilities.AddLoggerToRunSettings(loggerIdentifier, loggerParameters, _runSettingsManager);
         }
-
-        // Get logger parameters
-        var loggerParameterArgs = loggerArgumentList.Skip(1);
-        var loggerParameters = ArgumentProcessorUtilities.GetArgumentParameters(loggerParameterArgs, ArgumentProcessorUtilities.EqualNameValueSeparator, exceptionMessage);
-
-        // Add logger to run settings.
-        LoggerUtilities.AddLoggerToRunSettings(loggerIdentifier, loggerParameters, _runSettingsManager);
     }
 
     public ArgumentProcessorResult Execute()

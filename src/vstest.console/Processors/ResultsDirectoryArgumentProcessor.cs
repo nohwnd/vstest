@@ -58,9 +58,11 @@ internal class ResultsDirectoryArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (argument.IsNullOrWhiteSpace())
+        var argument = parseResult.GetValueFor(new ResultsDirectoryArgumentProcessor())?.FullName;
+
+        if (argument == null)
         {
             throw new CommandLineException(CommandLineResources.ResultsDirectoryValueRequired);
         }

@@ -52,34 +52,39 @@ internal class EnvironmentArgumentExecutor : IArgumentExecutor
     /// <param name="argument">
     /// Environment variable to set.
     /// </param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        TPDebug.Assert(!StringUtils.IsNullOrWhiteSpace(argument));
+        var arguments = parseResult.GetValueFor(new EnvironmentArgumentProcessor());
+
+        TPDebug.Assert(arguments != null);
         TPDebug.Assert(_output != null);
         TPDebug.Assert(_commandLineOptions != null);
         TPDebug.Assert(!StringUtils.IsNullOrWhiteSpace(_runSettingsProvider.ActiveRunSettings?.SettingsXml));
 
-        var key = argument;
-        var value = string.Empty;
-
-        if (key.Contains("="))
+        foreach (var argument in arguments)
         {
-            value = key.Substring(key.IndexOf("=") + 1);
-            key = key.Substring(0, key.IndexOf("="));
-        }
+            var key = argument;
+            var value = string.Empty;
 
-        var node = _runSettingsProvider.QueryRunSettingsNode($"RunConfiguration.EnvironmentVariables.{key}");
-        if (node != null)
-        {
-            _output.Warning(true, CommandLineResources.EnvironmentVariableXIsOverriden, key);
-        }
+            if (key.Contains("="))
+            {
+                value = key.Substring(key.IndexOf("=") + 1);
+                key = key.Substring(0, key.IndexOf("="));
+            }
 
-        _runSettingsProvider.UpdateRunSettingsNode($"RunConfiguration.EnvironmentVariables.{key}", value);
+            var node = _runSettingsProvider.QueryRunSettingsNode($"RunConfiguration.EnvironmentVariables.{key}");
+            if (node != null)
+            {
+                _output.Warning(true, CommandLineResources.EnvironmentVariableXIsOverriden, key);
+            }
 
-        if (!_commandLineOptions.InIsolation)
-        {
-            _commandLineOptions.InIsolation = true;
-            _runSettingsProvider.UpdateRunSettingsNode(InIsolationArgumentExecutor.RunSettingsPath, "true");
+            _runSettingsProvider.UpdateRunSettingsNode($"RunConfiguration.EnvironmentVariables.{key}", value);
+
+            if (!_commandLineOptions.InIsolation)
+            {
+                _commandLineOptions.InIsolation = true;
+                _runSettingsProvider.UpdateRunSettingsNode(InIsolationArgumentExecutor.RunSettingsPath, "true");
+            }
         }
     }
 

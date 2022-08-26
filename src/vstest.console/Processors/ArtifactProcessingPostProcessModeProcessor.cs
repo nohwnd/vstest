@@ -37,7 +37,7 @@ internal class ArtifactProcessingPostProcessModeProcessorExecutor : IArgumentExe
         _artifactProcessingManage = artifactProcessingManager ?? throw new ArgumentNullException(nameof(artifactProcessingManager));
     }
 
-    public void Initialize(string? _)
+    public void Initialize(ParseResult _)
     {
         _commandLineOptions.ArtifactProcessingMode = ArtifactProcessingMode.PostProcess;
         EqtTrace.Verbose($"ArtifactProcessingPostProcessModeProcessorExecutor.Initialize: ArtifactProcessingMode.PostProcess");

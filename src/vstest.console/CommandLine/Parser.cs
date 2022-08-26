@@ -2,15 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
-
-using Newtonsoft.Json.Linq;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
@@ -130,6 +127,18 @@ internal class Parser
             throw new ArgumentException($"Argument processor(s) '{string.Join("', '", allowMultipleBoolProcessors.Select(a => a.Name))}' take boolean and allow multiple values, this is not allowed.");
         }
 
+        var defaultProcessors = argumentProcessors.Where(a => a.IsDefault);
+        if (defaultProcessors.Count() > 1)
+        {
+            throw new ArgumentException($"Argument processor(s) '{string.Join("', '", defaultProcessors.Select(a => a.Name))}' are marked as default, there can be only one argument that takes remaining values.");
+        }
+
+        var defaultProcessor = defaultProcessors.SingleOrDefault();
+        if (defaultProcessor != null && !defaultProcessor.ValueType.IsArray)
+        {
+            throw new ArgumentException($"Argument processor(s) '{defaultProcessor.Name}' is marked as default, and must have array type to allow mutiple values, so it can consume all remaining values.");
+        }
+
         var aliasesToProcessorMap = new Dictionary<string, ArgumentProcessor>(StringComparer.OrdinalIgnoreCase);
         foreach (var argumentProcessor in argumentProcessors)
         {
@@ -138,10 +147,6 @@ internal class Parser
                 aliasesToProcessorMap[alias] = argumentProcessor;
             }
         }
-
-        // default argument consumer (we have only one, /RunTests). TODO: make this more generic to assign to a single argument, (or multiple if we want to have zeroOrOneArity).
-        var hasDefaultArgument = aliasesToProcessorMap.ContainsKey(NormalizeParameterName("--RunTests", out var _));
-        var defaultArgument = hasDefaultArgument ? aliasesToProcessorMap[NormalizeParameterName("--RunTests", out var _)] : null;
 
         var tokenized = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
@@ -237,10 +242,10 @@ internal class Parser
                 // We found a value, take all the values until the next parameter
                 // and bind them to the default argument, or make them unbound.
                 List<string> values = new[] { arg }.Concat(TakeValuesUntilNextParameter(args, i)).ToList();
-                if (hasDefaultArgument)
+                if (defaultProcessor != null)
                 {
-                    ValidateParameter(tokenized, defaultArgument, arg, values, bindingErrors);
-                    AddOrUpdateParameterEntry(tokenized, defaultArgument, values);
+                    ValidateParameter(tokenized, defaultProcessor, arg, values, bindingErrors);
+                    AddOrUpdateParameterEntry(tokenized, defaultProcessor, values);
                 }
                 else
                 {

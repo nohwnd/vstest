@@ -47,6 +47,7 @@ internal class ListFullyQualifiedTestsArgumentExecutor : IArgumentExecutor
     /// Used for sending output.
     /// </summary>
     internal IOutput Output;
+    private bool _shouldExecute;
 
     /// <summary>
     /// RunSettingsManager to get currently active run settings.
@@ -83,12 +84,9 @@ internal class ListFullyQualifiedTestsArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (!argument.IsNullOrWhiteSpace())
-        {
-            _commandLineOptions.AddSource(argument);
-        }
+        _shouldExecute = parseResult.GetValueFor(new ListFullyQualifiedTestsArgumentProcessor());
     }
 
     /// <summary>
@@ -96,6 +94,11 @@ internal class ListFullyQualifiedTestsArgumentExecutor : IArgumentExecutor
     /// </summary>
     public ArgumentProcessorResult Execute()
     {
+        if (!_shouldExecute)
+        {
+            return ArgumentProcessorResult.Success;
+        }
+
         TPDebug.Assert(Output != null);
         TPDebug.Assert(_commandLineOptions != null);
         TPDebug.Assert(!StringUtils.IsNullOrWhiteSpace(_runSettingsManager?.ActiveRunSettings?.SettingsXml));

@@ -47,8 +47,9 @@ internal class RunSettingsArgumentExecutor : IArgumentExecutor
         _fileHelper = fileHelper;
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
+        var argument = parseResult.GetValueFor(new RunSettingsArgumentProcessor())?.FullName;
         if (argument.IsNullOrWhiteSpace())
         {
             throw new CommandLineException(CommandLineResources.RunSettingsRequired);

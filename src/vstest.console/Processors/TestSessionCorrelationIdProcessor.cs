@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.CodeDom;
-using System.Net;
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
@@ -17,7 +15,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class TestSessionCorrelationIdProcessor : ArgumentProcessor<string>
 {
     public TestSessionCorrelationIdProcessor()
-        : base("--TestSessionCorrelationId", typeof(TestSessionCorrelationIdProcessorModeProcessorExecutor))
+        : base("--TestSessionCorrelationId", typeof(TestSessionCorrelationIdExecutor))
     {
         // We put priority at the same level of the argument processor for runsettings passed as argument through cli.
         // We'll be sure to run before test run or artifact post processing.
@@ -29,17 +27,18 @@ internal class TestSessionCorrelationIdProcessor : ArgumentProcessor<string>
 /// <summary>
 /// Argument Executor for the "/TestSessionCorrelationId" command line argument.
 /// </summary>
-internal class TestSessionCorrelationIdProcessorModeProcessorExecutor : IArgumentExecutor
+internal class TestSessionCorrelationIdExecutor : IArgumentExecutor
 {
     private readonly CommandLineOptions _commandLineOptions;
 
-    public TestSessionCorrelationIdProcessorModeProcessorExecutor(CommandLineOptions options)
+    public TestSessionCorrelationIdExecutor(CommandLineOptions options)
     {
         _commandLineOptions = options ?? throw new ArgumentNullException(nameof(options));
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
+        var argument = parseResult.GetValueFor(new TestSessionCorrelationIdProcessor());
         if (argument.IsNullOrEmpty())
         {
             throw new CommandLineException(CommandLineResources.InvalidTestSessionCorrelationId);

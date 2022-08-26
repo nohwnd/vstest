@@ -63,38 +63,14 @@ internal class PlatformArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (argument.IsNullOrWhiteSpace())
-        {
-            throw new CommandLineException(CommandLineResources.PlatformTypeRequired);
-        }
+        var platform = parseResult.GetValueFor(new PlatformArgumentProcessor());
 
-        var validPlatforms = Enum.GetValues(typeof(Architecture)).Cast<Architecture>()
-            .Where(e => e is not Architecture.AnyCPU and not Architecture.Default)
-            .ToList();
-
-        var validPlatform = Enum.TryParse(argument, true, out Architecture platform);
-        if (validPlatform)
-        {
-            // Ensure that the case-insensitively parsed enum is in the list of valid platforms.
-            // This filters out:
-            //  - values that parse correctly but the enum does not define them (e.g. "1" parses as valid enum value 1)
-            //  - the Default or AnyCpu that are not valid target to provide via settings
-            validPlatform = validPlatforms.Contains(platform);
-        }
-
-        if (validPlatform)
-        {
-            _runsettingsHelper.IsDefaultTargetArchitecture = false;
-            _commandLineOptions.TargetArchitecture = platform;
-            _runSettingsManager.UpdateRunSettingsNode(RunSettingsPath, platform.ToString());
-        }
-        else
-        {
-            throw new CommandLineException(
-                string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidPlatformType, argument, string.Join(", ", validPlatforms)));
-        }
+        _runsettingsHelper.IsDefaultTargetArchitecture = false;
+        // TODO: Yet another place where we convert PlatformArchitecture to Architecture.
+        _commandLineOptions.TargetArchitecture = (Architecture)Enum.Parse(typeof(Architecture), platform.ToString());
+        _runSettingsManager.UpdateRunSettingsNode(RunSettingsPath, platform.ToString());
 
         EqtTrace.Info("Using platform:{0}", _commandLineOptions.TargetArchitecture);
     }

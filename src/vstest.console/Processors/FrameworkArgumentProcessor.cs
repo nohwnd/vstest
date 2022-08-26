@@ -49,8 +49,9 @@ internal class FrameworkArgumentExecutor : IArgumentExecutor
         _runSettingsManager = runSettingsManager;
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
+        var argument = parseResult.GetValueFor(new FrameworkArgumentProcessor());
         if (argument.IsNullOrWhiteSpace())
         {
             throw new CommandLineException(CommandLineResources.FrameworkVersionRequired);

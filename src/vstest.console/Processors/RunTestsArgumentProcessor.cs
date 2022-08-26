@@ -24,6 +24,9 @@ internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>
 
         IsCommand = true;
         IsHidden = true;
+        // This is the last command that everything falls into
+        // when there is no other command before it.
+        AlwaysExecute = true;
 
         HelpContentResourceName = CommandLineResources.RunTestsArgumentHelp;
         HelpPriority = HelpContentPriority.RunTestsArgumentProcessorHelpPriority;
@@ -63,6 +66,7 @@ internal class RunTestsArgumentExecutor : IArgumentExecutor
     /// Registers and Unregisters for test run events before and after test run
     /// </summary>
     private readonly ITestRunEventsRegistrar _testRunEventsRegistrar;
+    private bool _shouldExecute;
 
     /// <summary>
     /// Shows the number of tests which were executed
@@ -88,9 +92,9 @@ internal class RunTestsArgumentExecutor : IArgumentExecutor
         _testRunEventsRegistrar = new TestRunRequestEventsRegistrar(Output, _commandLineOptions, artifactProcessingManager, runSettingsProvider);
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        // Nothing to do.
+        _shouldExecute = parseResult.GetValueFor(new RunTestsArgumentProcessor());
     }
 
     /// <summary>
@@ -98,6 +102,11 @@ internal class RunTestsArgumentExecutor : IArgumentExecutor
     /// </summary>
     public ArgumentProcessorResult Execute()
     {
+        if (!_shouldExecute)
+        {
+            return ArgumentProcessorResult.Success;
+        }
+
         TPDebug.Assert(_commandLineOptions != null);
         TPDebug.Assert(!StringUtils.IsNullOrWhiteSpace(_runSettingsManager?.ActiveRunSettings?.SettingsXml));
 

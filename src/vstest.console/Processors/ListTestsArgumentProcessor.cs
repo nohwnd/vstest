@@ -18,7 +18,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 internal class ListTestsArgumentProcessor : ArgumentProcessor<bool>
 {
     public ListTestsArgumentProcessor()
-        : base(new string[] {"-t", "-lt", "--listtests", "--list-tests" }, typeof(ListTestsArgumentExecutor))
+        : base(new string[] { "-t", "-lt", "--listtests", "--list-tests" }, typeof(ListTestsArgumentExecutor))
     {
         IsCommand = true;
         HelpContentResourceName = CommandLineResources.ListTestsHelp;
@@ -42,6 +42,7 @@ internal class ListTestsArgumentExecutor : IArgumentExecutor
     /// Used for sending output.
     /// </summary>
     internal IOutput Output;
+    private bool _shouldExecute;
 
     /// <summary>
     /// RunSettingsManager to get currently active run settings.
@@ -69,12 +70,9 @@ internal class ListTestsArgumentExecutor : IArgumentExecutor
         _discoveryEventsRegistrar = new DiscoveryEventsRegistrar(output);
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (!argument.IsNullOrWhiteSpace())
-        {
-            _commandLineOptions.AddSource(argument);
-        }
+        _shouldExecute = parseResult.GetValueFor(new ListTestsArgumentProcessor());
     }
 
     /// <summary>
@@ -82,6 +80,11 @@ internal class ListTestsArgumentExecutor : IArgumentExecutor
     /// </summary>
     public ArgumentProcessorResult Execute()
     {
+        if (!_shouldExecute)
+        {
+            return ArgumentProcessorResult.Success;
+        }
+
         TPDebug.Assert(Output != null);
         TPDebug.Assert(_commandLineOptions != null);
         TPDebug.Assert(!StringUtils.IsNullOrWhiteSpace(_runSettingsManager?.ActiveRunSettings?.SettingsXml));

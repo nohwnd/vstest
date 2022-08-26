@@ -36,15 +36,17 @@ internal class ListTestsTargetPathArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (argument.IsNullOrWhiteSpace())
+        var argument = parseResult.GetValueFor(new ListTestsTargetPathArgumentProcessor());
+
+        if (argument == null)
         {
             // Not adding this string to resources because this processor is only used internally.
             throw new CommandLineException("ListTestsTargetPath is required with ListFullyQualifiedTests!");
         }
 
-        _commandLineOptions.ListTestsTargetPath = argument;
+        _commandLineOptions.ListTestsTargetPath = argument.FullName;
     }
 
     /// <summary>

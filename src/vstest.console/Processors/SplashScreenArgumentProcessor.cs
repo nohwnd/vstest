@@ -25,22 +25,19 @@ internal class SplashScreenArgumentProcessor : ArgumentProcessor<bool>
 
 internal class SplashScreenArgumentExecutor : IArgumentExecutor
 {
-    private readonly InvocationContext _context;
     private readonly IOutput _output;
     private readonly IProcessHelper _processHelper;
     private readonly IEnvironment _environment;
 
-    public SplashScreenArgumentExecutor(InvocationContext context, IOutput output, IProcessHelper processHelper, IEnvironment environment)
+    public SplashScreenArgumentExecutor(IOutput output, IProcessHelper processHelper, IEnvironment environment)
     {
-        _context = context;
         _output = output;
         _processHelper = processHelper;
         _environment = environment;
     }
 
-    public void Initialize(string? _)
+    public void Initialize(ParseResult parseResult)
     {
-        var parseResult = _context.ParseResult;
         var noLogo = parseResult.GetValueFor(new SplashScreenArgumentProcessor());
 
         if (noLogo)

@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
@@ -10,13 +8,13 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 /// <summary>
 /// Argument Executor which handles adding the source provided to the TestManager.
 /// </summary>
-internal class TestSourceArgumentProcessor : ArgumentProcessor<string>
+internal class TestSourceArgumentProcessor : ArgumentProcessor<string[]>
 {
     public TestSourceArgumentProcessor()
         : base("--TestSource", typeof(TestSourceArgumentExecutor))
     {
         IsHidden = true;
-
+        IsDefault = true;
     }
 }
 
@@ -33,11 +31,20 @@ internal class TestSourceArgumentExecutor : IArgumentExecutor
         _testSources = testSources;
     }
 
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (!argument.IsNullOrEmpty())
+        var sources = parseResult.GetValueFor(new TestSourceArgumentProcessor());
+        if (sources == null)
         {
-            _testSources.AddSource(argument);
+            return;
+        }
+
+        foreach (var source in sources)
+        {
+            if (!source.IsNullOrEmpty())
+            {
+                _testSources.AddSource(source);
+            }
         }
     }
 

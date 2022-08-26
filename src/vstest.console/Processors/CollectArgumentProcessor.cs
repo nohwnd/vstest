@@ -27,7 +27,6 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 //TODO: string[] maybe?
 internal class CollectArgumentProcessor : ArgumentProcessor<string[]>
 {
-
     public CollectArgumentProcessor() :
         base("--Collect", typeof(CollectArgumentExecutor))
     {
@@ -51,34 +50,45 @@ internal class CollectArgumentExecutor : IArgumentExecutor
     }
 
     /// <inheritdoc />
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        // 1. Disable all other data collectors. Enable only those data collectors that are explicitly specified by user.
-        // 2. Check if Code Coverage Data Collector is specified in runsettings, if not add it and also set enable to true.
+        var arguments = parseResult.GetValueFor(new CollectArgumentProcessor());
 
-        string exceptionMessage = string.Format(CultureInfo.CurrentCulture, CommandLineResources.DataCollectorFriendlyNameInvalid, argument);
-
-        // if argument is null or doesn't contain any element, don't do anything.
-        if (argument.IsNullOrWhiteSpace())
+        if (arguments == null)
         {
-            throw new CommandLineException(exceptionMessage);
+            return;
         }
 
-        // Get collect argument list.
-        var collectArgumentList = ArgumentProcessorUtilities.GetArgumentList(argument, ArgumentProcessorUtilities.SemiColonArgumentSeparator, exceptionMessage);
-
-        // First argument is collector name. Remaining are key value pairs for configurations.
-        if (collectArgumentList[0].Contains("="))
+        foreach (var argument in arguments)
         {
-            throw new CommandLineException(exceptionMessage);
-        }
 
-        if (InferRunSettingsHelper.IsTestSettingsEnabled(_runSettingsManager.ActiveRunSettings?.SettingsXml))
-        {
-            throw new SettingsException(string.Format(CultureInfo.CurrentCulture, CommandLineResources.CollectWithTestSettingErrorMessage, argument));
-        }
+            // 1. Disable all other data collectors. Enable only those data collectors that are explicitly specified by user.
+            // 2. Check if Code Coverage Data Collector is specified in runsettings, if not add it and also set enable to true.
 
-        AddDataCollectorToRunSettings(collectArgumentList, _runSettingsManager, _fileHelper, exceptionMessage);
+            string exceptionMessage = string.Format(CultureInfo.CurrentCulture, CommandLineResources.DataCollectorFriendlyNameInvalid, argument);
+
+            // if argument is null or doesn't contain any element, don't do anything.
+            if (argument.IsNullOrWhiteSpace())
+            {
+                throw new CommandLineException(exceptionMessage);
+            }
+
+            // Get collect argument list.
+            var collectArgumentList = ArgumentProcessorUtilities.GetArgumentList(argument, ArgumentProcessorUtilities.SemiColonArgumentSeparator, exceptionMessage);
+
+            // First argument is collector name. Remaining are key value pairs for configurations.
+            if (collectArgumentList[0].Contains("="))
+            {
+                throw new CommandLineException(exceptionMessage);
+            }
+
+            if (InferRunSettingsHelper.IsTestSettingsEnabled(_runSettingsManager.ActiveRunSettings?.SettingsXml))
+            {
+                throw new SettingsException(string.Format(CultureInfo.CurrentCulture, CommandLineResources.CollectWithTestSettingErrorMessage, argument));
+            }
+
+            AddDataCollectorToRunSettings(collectArgumentList, _runSettingsManager, _fileHelper, exceptionMessage);
+        }
     }
 
     /// <summary>

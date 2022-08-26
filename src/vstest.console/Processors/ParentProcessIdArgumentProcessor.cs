@@ -47,12 +47,9 @@ internal class ParentProcessIdArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        if (argument.IsNullOrWhiteSpace() || !int.TryParse(argument, out int parentProcessId))
-        {
-            throw new CommandLineException(CommandLineResources.InvalidParentProcessIdArgument);
-        }
+        var parentProcessId = parseResult.GetValueFor(new ParentProcessIdArgumentProcessor());
 
         _commandLineOptions.ParentProcessId = parentProcessId;
     }

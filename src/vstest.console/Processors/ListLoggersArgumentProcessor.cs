@@ -26,6 +26,7 @@ internal class ListLoggersArgumentExecutor : IArgumentExecutor
 {
     private readonly IOutput _output;
     private readonly TestLoggerExtensionManager _extensionManager;
+    private bool _shouldExecute;
 
     public ListLoggersArgumentExecutor(IOutput output)
     {
@@ -34,12 +35,18 @@ internal class ListLoggersArgumentExecutor : IArgumentExecutor
         _ = TestPlatformFactory.GetTestPlatform();
         _extensionManager = TestLoggerExtensionManager.Create(new NullMessageLogger());
     }
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
+        _shouldExecute = parseResult.GetValueFor(new ListLoggersArgumentProcessor());
     }
 
     public ArgumentProcessorResult Execute()
     {
+        if (!_shouldExecute)
+        {
+            return ArgumentProcessorResult.Success;
+        }
+
         _output.WriteLine(CommandLineResources.AvailableLoggersHeaderMessage, OutputLevel.Information);
         foreach (var extension in _extensionManager.TestExtensions)
         {

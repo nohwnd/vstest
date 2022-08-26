@@ -71,10 +71,9 @@ internal class EnableDiagArgumentExecutor : IArgumentExecutor
     /// Initializes with the argument that was provided with the command.
     /// </summary>
     /// <param name="argument">Argument that was provided with the command.</param>
-    public void Initialize(string? argument)
+    public void Initialize(ParseResult parseResult)
     {
-        var parseResult = _context.ParseResult;
-        var diagParameterProvided = parseResult.TryGetValueFor(new EnableDiagArgumentProcessor(), out argument);
+        var diagParameterProvided = parseResult.TryGetValueFor(new EnableDiagArgumentProcessor(), out var argument);
 
         if (!diagParameterProvided)
         {
