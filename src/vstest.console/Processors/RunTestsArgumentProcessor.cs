@@ -45,11 +45,11 @@ internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>, IExecutorCre
             // or register more services than what is the "evironment" surrounding the run (e.g. consoleOptions
             // or environmentHelper, or runsettings, but we should not register TestPlatform or TestRequestManager).
             return new RunTestsArgumentExecutor(
-                c.ServiceProvider.GetService<CommandLineOptions>()!,
-                    c.ServiceProvider.GetService<RunSettingsManager>()!,
+                c.ServiceProvider.GetService<CommandLineOptions>(),
+                    c.ServiceProvider.GetService<IRunSettingsProvider>()!,
                     testRequestManager,
                     artifactProcessingManager,
-                    c.ServiceProvider.GetService<ConsoleOutput>()!);
+                    c.ServiceProvider.GetService<IOutput>()!);
         };
     }
 
@@ -115,7 +115,17 @@ internal class RunTestsArgumentExecutor : IArgumentExecutor
 
     public void Initialize(ParseResult parseResult)
     {
-        _shouldExecute = parseResult.GetValueFor(new RunTestsArgumentProcessor());
+        if (parseResult.TryGetValueFor(new RunTestsArgumentProcessor(), out var runTests) && runTests == false)
+        {
+            // User explicitly specified false, we should not run.
+            _shouldExecute = false;
+        }
+        else
+        {
+            // User specified nothing or specified true, we should run.
+            _shouldExecute = true;
+        }
+
     }
 
     /// <summary>

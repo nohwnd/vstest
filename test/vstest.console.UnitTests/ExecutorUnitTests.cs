@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+
+using FluentAssertions;
 
 using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
@@ -69,6 +72,7 @@ public class ExecutorUnitTests
         Assert.AreEqual(1, exitCode, "Exit code must be One for bad arguments");
 
         // Verify that messages exist
+        mockOutput.Messages.Select(m => m.Message).Should().HaveCount(1, "Executor should not print no valid arguments provided");
         Assert.IsTrue(mockOutput.Messages.Count == 1, "Executor should not print no valid arguments provided");
 
         // Just check first 20 characters - don't need to check whole thing as assembly version is variable
@@ -86,7 +90,7 @@ public class ExecutorUnitTests
 
         Assert.AreEqual(1, exitCode, "Exit code must be One when no arguments are provided.");
 
-        Assert.IsTrue(mockOutput.Messages.Any(message => message.Message!.Contains(CommandLineResources.NoArgumentsProvided)));
+        Assert.IsTrue(mockOutput.Messages.Any(message => message.Message!.Contains(CommandLineResources.MissingTestSourceFile)));
     }
 
     /// <summary>
@@ -220,7 +224,8 @@ public class ExecutorUnitTests
         finally
         {
             File.Delete(runSettingsFile);
-            RunSettingsManager.Instance.SetActiveRunSettings(activeRunSetting);
+            // DON'T DO this, it makes ExecutorShouldNotPrintsSplashScreenIfNoLogoPassed stuck on awaiting the test result for some reaon.
+            // RunSettingsManager.Instance.SetActiveRunSettings(activeRunSetting);
         }
     }
 
@@ -262,7 +267,7 @@ public class ExecutorUnitTests
     }
 
     [TestMethod]
-    public void ExecutorShouldShowRightErrorMessage()
+    public void ExecutorShouldShowErrorMessageWhenValueForTargetPlatformIsNotAValidPlatform()
     {
         var activeRunSetting = RunSettingsManager.Instance.ActiveRunSettings;
         var runSettingsFile = Path.Combine(Path.GetTempPath(), "ExecutorShouldShowRightErrorMessage.runsettings");
@@ -274,9 +279,12 @@ public class ExecutorUnitTests
                 File.Delete(runSettingsFile);
             }
 
-            var fileContents = @"<RunSettings>
+            var invalidPlatform = "GZZ64";
+            Enum.IsDefined(typeof(Architecture), invalidPlatform).Should().BeFalse("because we want to provide a value that is not defined in Architecture enum");
+
+            var fileContents = $@"<RunSettings>
                                     <RunConfiguration>
-                                        <TargetPlatform>Invalid</TargetPlatform>
+                                        <TargetPlatform>{invalidPlatform}</TargetPlatform>
                                     </RunConfiguration>
                                 </RunSettings>";
 
@@ -287,9 +295,12 @@ public class ExecutorUnitTests
 
             var exitCode = new Executor(mockOutput, _mockTestPlatformEventSource.Object, new ProcessHelper(), new PlatformEnvironment(), FeatureFlag.Instance).Execute(args);
 
-            var result = mockOutput.Messages.Any(o => o.Level == OutputLevel.Error && o.Message!.Contains("Invalid setting 'RunConfiguration'. Invalid value 'Invalid' specified for 'TargetPlatform'."));
-            Assert.AreEqual(1, exitCode, "Exit code should be one because it throws exception");
-            Assert.IsTrue(result, "expecting error message : Invalid setting 'RunConfiguration'. Invalid value 'Invalid' specified for 'TargetPlatform'.");
+            mockOutput.Messages
+                .Where(m => m.Level == OutputLevel.Error)
+                .Select(m => m.Message)
+                .Should().Contain($"Invalid setting 'RunConfiguration'. Invalid value '{invalidPlatform}' specified for 'TargetPlatform'.");
+
+            Assert.AreEqual(1, exitCode, "Exit code should be 1 because execution exited with error.");
         }
         finally
         {
@@ -313,7 +324,6 @@ public class ExecutorUnitTests
         var exitCode = new Executor(mockOutput, _mockTestPlatformEventSource.Object, processHelper.Object, environment.Object, FeatureFlag.Instance).Execute();
         var assemblyVersion = typeof(Executor).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
 
-        Assert.AreEqual(5, mockOutput.Messages.Count);
         Assert.AreEqual("vstest.console.exe is running in emulated mode as x64. For better performance, please consider using the native runner vstest.console.arm64.exe.",
             mockOutput.Messages[2].Message);
         Assert.AreEqual(OutputLevel.Warning,

@@ -126,7 +126,7 @@ internal class Executor
         // to make sure we use the same instance no matter what the usage is.
         serviceProvider.AddService(_ => CommandLineOptions.Instance);
         serviceProvider.AddService<IRunSettingsProvider>(_ => RunSettingsManager.Instance);
-
+        serviceProvider.AddService<IRunSettingsHelper>(_ => RunSettingsHelper.Instance);
 
         // On syntax error print the error, and help.
         if (parseResult.Errors.Any())
@@ -161,9 +161,9 @@ internal class Executor
             {
                 _output.Error(appendPrefix: false, string.Join("\n", parseResult.Errors));
             }
-            var executor = new HelpArgumentExecutor(_output, argumentProcessors.ToList());
-            executor.Initialize(parseResult);
-            executor.Execute();
+            //var executor = new HelpArgumentExecutor(_output, argumentProcessors.ToList());
+            //executor.Initialize(parseResult);
+            //executor.Execute();
 
             EqtTrace.Verbose("Executor.Execute: Exiting with exit code of {0}", initializeExitCode);
             _testPlatformEventSource.VsTestConsoleStop();

@@ -137,6 +137,25 @@ public class ParserTests
         }
 
         [TestMethod]
+        // Edge cases
+        [Row(new[] { "1.dll", "--parameter:" }, new[] { "1.dll", "--parameter", })]
+        [Row(new[] { "1.dll", "--parameter:a:a:a" }, new[] { "1.dll", "--parameter", "a:a:a" })]
+        // Normal usage
+        [Row(new[] { "1.dll", "--parameter:aaa" }, new[] { "1.dll", "--parameter", "aaa", })]
+        [Row(new[] { "1.dll", "--parameter:aaa", "--", "RunConfiguration.MaxCpuCount=1" }, new[] { "1.dll", "--parameter", "aaa", })]
+        public void ParameterValuesThatAreJoinedBySemicolonGetSplit(string[] args, string[] expected)
+        {
+            // -- Arrange
+
+            // -- Act
+            var parseResult = new Parser().Parse(args, new List<ArgumentProcessor>(), ignoreExtraParameters: true);
+
+            // -- Assert
+            parseResult.Errors.Should().BeEmpty();
+            parseResult.Unbound.Should().ContainInOrder(expected);
+        }
+
+        [TestMethod]
         [Row(new[] { "1.dll", "2.dll", }, new[] { "1.dll", "2.dll", })]
         [Row(new[] { "1.dll", "--parameter", "value", }, new[] { "1.dll", "--parameter", "value", })]
         [Row(new[] { "--parameter", "value", }, new[] { "--parameter", "value", })]

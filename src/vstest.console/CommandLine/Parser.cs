@@ -43,6 +43,9 @@ internal class Parser
         // Expand all arguments and options we get from @ files.
         var (expandedAruments, expandedOptions) = ExpandResponseFiles(arguments, dashDashOptions, ref errors);
 
+        // Split arguments that have parameter joined with the value by a separator (e.g. --settings:C:\settings.settings)
+        var splitArguments = SplitArguments(expandedAruments);
+
         if (errors.Any())
         {
             return new ParseResult
@@ -56,14 +59,14 @@ internal class Parser
         }
 
         // Find all parameters we can link to an argument processor, and connect them together.
-        var (bound, unbound) = Parser.Bind(expandedAruments, argumentProcessors, ref errors);
+        var (bound, unbound) = Parser.Bind(splitArguments, argumentProcessors, ref errors);
         if (errors.Any())
         {
             return new ParseResult
             {
                 Parser = this,
                 Processors = argumentProcessors,
-                Args = expandedAruments,
+                Args = splitArguments,
                 Options = expandedOptions,
                 Errors = errors,
             };
@@ -77,7 +80,7 @@ internal class Parser
             {
                 Parser = this,
                 Processors = argumentProcessors,
-                Args = expandedAruments,
+                Args = splitArguments,
                 Options = expandedOptions,
                 Bound = bound,
                 Unbound = unbound,
@@ -94,7 +97,7 @@ internal class Parser
             {
                 Parser = this,
                 Processors = argumentProcessors,
-                Args = expandedAruments,
+                Args = splitArguments,
                 Bound = bound,
                 Unbound = unbound,
                 Typed = typed,
@@ -107,13 +110,41 @@ internal class Parser
         {
             Parser = this,
             Processors = argumentProcessors,
-            Args = expandedAruments,
+            Args = splitArguments,
             Bound = bound,
             Unbound = unbound,
             Typed = typed,
             Options = expandedOptions,
             Errors = errors,
         };
+    }
+
+    private static List<string> SplitArguments(List<string> args)
+    {
+        var splitArguments = new List<string>();
+        foreach(var arg in args)
+        {
+            if (IsParameter(arg))
+            {
+                var notFound = -1;
+                var separatorIndex = arg.IndexOf(":", StringComparison.OrdinalIgnoreCase);
+                if (separatorIndex == notFound)
+                {
+                    splitArguments.Add(arg);
+                }
+                else
+                {
+                    splitArguments.Add(arg.Substring(0, separatorIndex));
+                    splitArguments.Add(arg.Substring(separatorIndex + 1));
+                }
+            }
+            else
+            {
+                splitArguments.Add(arg);
+            }
+        }
+
+        return splitArguments;
     }
 
     private static (List<BoundParameter> bound, List<string> unbound) Bind(List<string> args, IReadOnlyList<ArgumentProcessor> argumentProcessors, ref List<string> bindingErrors)

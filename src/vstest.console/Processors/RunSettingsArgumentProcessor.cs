@@ -8,6 +8,8 @@ using System.IO;
 using System.Text;
 using System.Xml;
 
+using Microsoft.VisualStudio.TestPlatform.CommandLine2;
+using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;

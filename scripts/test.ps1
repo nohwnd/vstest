@@ -242,8 +242,7 @@ function Invoke-Test
 
             if (!(Test-Path $vstestConsolePath))
             {
-                Write-Log "Unable to find $vstestConsoleFileName at $vstestConsolePath. Did you run build.cmd?"
-                Write-Error "Test aborted."
+                Write-Error "Unable to find $vstestConsoleFileName at $vstestConsolePath. Did you run build.cmd?"
             }
 
             if ($TPT_Parallel)
