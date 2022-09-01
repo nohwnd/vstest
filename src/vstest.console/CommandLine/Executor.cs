@@ -53,6 +53,8 @@ internal class Executor
     private readonly IFeatureFlag? _featureFlag;
     private readonly IRunSettingsProvider _runsettingsManager;
 
+    public SharedDependencyDictionary SharedDependencies { get; } = new();
+
     internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper,
         IEnvironment environment, IFeatureFlag featureFlag, IRunSettingsProvider runsettingsManager)
     {
@@ -106,8 +108,12 @@ internal class Executor
         var initializeInvocationContext = new InvocationContext(serviceProvider, parseResult);
 
         var argumentProcessorsCopy = argumentProcessors.ToList();
+
+        var argOrder = argumentProcessors.OrderBy(a => a.Priority).ToList().Select(p => $"{p.Name} - {p.Priority}").ToList();
+
         serviceProvider.AddService(_ => argumentProcessorsCopy);
-        serviceProvider.AddService((_) => initializeInvocationContext);
+        serviceProvider.AddService(_ => initializeInvocationContext);
+        serviceProvider.AddService(_ => SharedDependencies);
 
         serviceProvider.AddService(_ => _output);
         serviceProvider.AddService(_ => _processHelper);
@@ -424,4 +430,8 @@ internal class Executor
             return ArgumentProcessorResult.Fail;
         }
     }
+}
+
+internal class SharedDependencyDictionary : Dictionary<Type, WeakReference>
+{
 }

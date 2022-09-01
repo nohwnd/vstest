@@ -120,10 +120,10 @@ internal class InProcessVsTestConsoleWrapper : IVsTestConsoleWrapper
         TestRequestManager = testRequestManager;
         if (TestRequestManager is null)
         {
-            TPDebug.Assert(
-                DesignModeClient.Instance != null,
-                "DesignModeClient.Instance is null");
-            TestRequestManager = DesignModeClient.Instance.TestRequestManager;
+            var designModeClientWeakReference = executor.SharedDependencies[typeof(DesignModeClient)];
+            var designModeClient = designModeClientWeakReference.Target as DesignModeClient;
+            TPDebug.Assert(designModeClient != null, "Design mode client is null, are we running in with /Port argument processor?");
+            TestRequestManager = designModeClient.TestRequestManager;
         }
 
         _testPlatformEventSource.TranslationLayerInitializeStop();

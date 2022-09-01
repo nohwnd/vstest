@@ -40,6 +40,7 @@ internal class ArgumentProcessor<TValue> : ArgumentProcessor
     {
     }
 
+    // Returns the parsed value, or null when it cannot parse it.
     private static Func<string, object?> GetDefaultValueParser()
     {
         return Parse;
@@ -86,6 +87,18 @@ internal class ArgumentProcessor<TValue> : ArgumentProcessor
                     }
                 }
                 catch (ArgumentException)
+                {
+                    return null;
+                }
+            }
+
+            if (destinationType == typeof(int))
+            {
+                if (int.TryParse(value, out var parsed))
+                {
+                    return parsed;
+                }
+                else
                 {
                     return null;
                 }

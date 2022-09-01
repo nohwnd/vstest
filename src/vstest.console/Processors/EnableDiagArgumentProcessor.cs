@@ -50,6 +50,7 @@ internal class EnableDiagArgumentExecutor : IArgumentExecutor
     private readonly InvocationContext _context;
     private readonly IFileHelper _fileHelper;
     private readonly IProcessHelper _processHelper;
+    private readonly IOutput _output;
 
     /// <summary>
     /// Parameter for trace level
@@ -60,11 +61,12 @@ internal class EnableDiagArgumentExecutor : IArgumentExecutor
     /// Default constructor.
     /// </summary>
     /// <param name="fileHelper">The file helper.</param>
-    public EnableDiagArgumentExecutor(InvocationContext invocationContext, IFileHelper fileHelper, IProcessHelper processHelper)
+    public EnableDiagArgumentExecutor(InvocationContext invocationContext, IFileHelper fileHelper, IProcessHelper processHelper, IOutput output)
     {
         _context = invocationContext;
         _fileHelper = fileHelper;
         _processHelper = processHelper;
+        _output = output;
     }
 
     /// <summary>
@@ -152,7 +154,7 @@ internal class EnableDiagArgumentExecutor : IArgumentExecutor
     /// </summary>
     /// <param name="diagFilePath">Diag file path.</param>
     /// <param name="diagParameters">Diag parameters</param>
-    private static void InitializeDiagLogging(string diagFilePath, Dictionary<string, string> diagParameters)
+    private void InitializeDiagLogging(string diagFilePath, Dictionary<string, string> diagParameters)
     {
         // Get trace level from diag parameters.
         var traceLevel = GetDiagTraceLevel(diagParameters);
@@ -164,7 +166,7 @@ internal class EnableDiagArgumentExecutor : IArgumentExecutor
         // Show console warning in case trace is not initialized.
         if (!traceInitialized && !StringUtils.IsNullOrEmpty(EqtTrace.ErrorOnInitialization))
         {
-            ConsoleOutput.Instance.Warning(false, EqtTrace.ErrorOnInitialization);
+            _output.Warning(false, EqtTrace.ErrorOnInitialization);
         }
     }
 

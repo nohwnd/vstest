@@ -20,7 +20,7 @@ namespace TestPlatform.Playground;
 
 internal class Program
 {
-    static int Main()
+    static void Main()
     {
         // This project references TranslationLayer, vstest.console, TestHostProvider, testhost and MSTest1 projects, to make sure
         // we build all the dependencies of that are used to run tests via VSTestConsoleWrapper. It then copies the components from
@@ -38,98 +38,98 @@ internal class Program
         var playground = Path.GetFullPath(Path.Combine(here, "..", "..", "..", ".."));
 
         var console = Path.Combine(here, "vstest.console", "vstest.console.exe");
-        var asm = Assembly.LoadFrom(console);
-        return (int)asm.EntryPoint.Invoke(null, new object[] { new string[] { "--no-logo" } });
+        //var asm = Assembly.LoadFrom(console);
+        //return (int)asm.EntryPoint.Invoke(null, new object[] { new string[] { "--no-logo" } });
 
-        //        var maxCpuCount = Environment.GetEnvironmentVariable("VSTEST_MAX_CPU_COUNT") ?? "0";
-        //        var sourceSettings = $$$"""
-        //            <RunSettings>
-        //                <RunConfiguration>
+        var maxCpuCount = Environment.GetEnvironmentVariable("VSTEST_MAX_CPU_COUNT") ?? "0";
+        var sourceSettings = $$$"""
+                    <RunSettings>
+                        <RunConfiguration>
 
-        //                    <!-- <MaxCpuCount>1</MaxCpuCount> -->
-        //                    <!-- <TargetPlatform>x86</TargetPlatform> -->
-        //                    <!-- <TargetFrameworkVersion>net472</TargetFrameworkVersion> -->
+                            <!-- <MaxCpuCount>1</MaxCpuCount> -->
+                            <!-- <TargetPlatform>x86</TargetPlatform> -->
+                            <!-- <TargetFrameworkVersion>net472</TargetFrameworkVersion> -->
 
-        //                    <!-- The settings below are what VS sends by default. -->
-        //                    <CollectSourceInformation>False</CollectSourceInformation>
-        //                    <DesignMode>True</DesignMode>
-        //                </RunConfiguration>
-        //                <BoostTestInternalSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        //                    <VSProcessId>999999</VSProcessId>
-        //                </BoostTestInternalSettings>
-        //                <GoogleTestAdapterSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        //                <SolutionSettings>
-        //                  <Settings />
-        //                </SolutionSettings>
-        //                <ProjectSettings />
-        //              </GoogleTestAdapterSettings>
-        //            </RunSettings>
-        //            """;
+                            <!-- The settings below are what VS sends by default. -->
+                            <CollectSourceInformation>False</CollectSourceInformation>
+                            <DesignMode>True</DesignMode>
+                        </RunConfiguration>
+                        <BoostTestInternalSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <VSProcessId>999999</VSProcessId>
+                        </BoostTestInternalSettings>
+                        <GoogleTestAdapterSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                        <SolutionSettings>
+                          <Settings />
+                        </SolutionSettings>
+                        <ProjectSettings />
+                      </GoogleTestAdapterSettings>
+                    </RunSettings>
+                    """;
 
-        //        var sources = new[] {
-        //            Path.Combine(playground, "MSTest1", "bin", "Debug", "net472", "MSTest1.dll"),
-        //            Path.Combine(playground, "MSTest1", "bin", "Debug", "net5.0", "MSTest1.dll"),
-        //        };
+        var sources = new[] {
+                    Path.Combine(playground, "MSTest1", "bin", "Debug", "net472", "MSTest1.dll"),
+                    Path.Combine(playground, "MSTest1", "bin", "Debug", "net5.0", "MSTest1.dll"),
+                };
 
-        //        //// console mode
-        //        //var settingsFile = Path.GetTempFileName();
-        //        //try
-        //        //{
-        //        //    File.WriteAllText(settingsFile, sourceSettings);
-        //        //    var processStartInfo = new ProcessStartInfo
-        //        //    {
-        //        //        FileName = console,
-        //        //        Arguments = $"{string.Join(" ", sources)} --settings:{settingsFile} --listtests",
-        //        //        UseShellExecute = false,
-        //        //    };
-        //        //    EnvironmentVariables.Variables.ToList().ForEach(processStartInfo.Environment.Add);
-        //        //    var process = Process.Start(processStartInfo);
-        //        //    process.WaitForExit();
-        //        //    if (process.ExitCode != 0)
-        //        //    {
-        //        //        throw new Exception($"Process failed with {process.ExitCode}");
-        //        //    }
-        //        //}
-        //        //finally
-        //        //{
-        //        //    try { File.Delete(settingsFile); } catch { }
-        //        //}
+        //// console mode
+        //var settingsFile = Path.GetTempFileName();
+        //try
+        //{
+        //    File.WriteAllText(settingsFile, sourceSettings);
+        //    var processStartInfo = new ProcessStartInfo
+        //    {
+        //        FileName = console,
+        //        Arguments = $"{string.Join(" ", sources)} --settings:{settingsFile} --listtests",
+        //        UseShellExecute = false,
+        //    };
+        //    EnvironmentVariables.Variables.ToList().ForEach(processStartInfo.Environment.Add);
+        //    var process = Process.Start(processStartInfo);
+        //    process.WaitForExit();
+        //    if (process.ExitCode != 0)
+        //    {
+        //        throw new Exception($"Process failed with {process.ExitCode}");
+        //    }
+        //}
+        //finally
+        //{
+        //    try { File.Delete(settingsFile); } catch { }
+        //}
 
-        //        // design mode
-        //        var consoleOptions = new ConsoleParameters
-        //        {
-        //            EnvironmentVariables = EnvironmentVariables.Variables,
-        //            LogFilePath = Path.Combine(here, "logs", "log.txt"),
-        //            TraceLevel = TraceLevel.Off,
-        //        };
-        //        var options = new TestPlatformOptions
-        //        {
-        //            CollectMetrics = true,
-        //        };
-        //        var r = new VsTestConsoleWrapper(console, consoleOptions);
-        //        var sessionHandler = new TestSessionHandler();
-        //#pragma warning disable CS0618 // Type or member is obsolete
-        //        //// TestSessions
-        //        // r.StartTestSession(sources, sourceSettings, sessionHandler);
-        //#pragma warning restore CS0618 // Type or member is obsolete
-        //        var discoveryHandler = new PlaygroundTestDiscoveryHandler();
-        //        var sw = Stopwatch.StartNew();
-        //        // Discovery
-        //        r.DiscoverTests(sources, sourceSettings, options, sessionHandler.TestSessionInfo, discoveryHandler);
-        //        var discoveryDuration = sw.ElapsedMilliseconds;
-        //        Console.WriteLine($"Discovery done in {discoveryDuration} ms");
-        //        sw.Restart();
-        //        // Run with test cases and custom testhost launcher
-        //        r.RunTestsWithCustomTestHost(discoveryHandler.TestCases, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler(), new DebuggerTestHostLauncher());
-        //        //// Run with test cases and without custom testhost launcher
-        //        //r.RunTests(discoveryHandler.TestCases, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler());
-        //        //// Run with sources and custom testhost launcher
-        //        //r.RunTestsWithCustomTestHost(sources, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler(), new DebuggerTestHostLauncher());
-        //        //// Run with sources
-        //        //r.RunTests(sources, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler());
-        //        var rd = sw.ElapsedMilliseconds;
-        //        Console.WriteLine($"Discovery: {discoveryDuration} ms, Run: {rd} ms, Total: {discoveryDuration + rd} ms");
-        //        Console.WriteLine($"Settings:\n{sourceSettings}");
+        // design mode
+        var consoleOptions = new ConsoleParameters
+        {
+            EnvironmentVariables = EnvironmentVariables.Variables,
+            LogFilePath = Path.Combine(here, "logs", "log.txt"),
+            TraceLevel = TraceLevel.Off,
+        };
+        var options = new TestPlatformOptions
+        {
+            CollectMetrics = true,
+        };
+        var r = new VsTestConsoleWrapper(console, consoleOptions);
+        var sessionHandler = new TestSessionHandler();
+#pragma warning disable CS0618 // Type or member is obsolete
+        //// TestSessions
+        // r.StartTestSession(sources, sourceSettings, sessionHandler);
+#pragma warning restore CS0618 // Type or member is obsolete
+        var discoveryHandler = new PlaygroundTestDiscoveryHandler();
+        var sw = Stopwatch.StartNew();
+        // Discovery
+        r.DiscoverTests(sources, sourceSettings, options, sessionHandler.TestSessionInfo, discoveryHandler);
+        var discoveryDuration = sw.ElapsedMilliseconds;
+        Console.WriteLine($"Discovery done in {discoveryDuration} ms");
+        sw.Restart();
+        // Run with test cases and custom testhost launcher
+        r.RunTestsWithCustomTestHost(discoveryHandler.TestCases, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler(), new DebuggerTestHostLauncher());
+        //// Run with test cases and without custom testhost launcher
+        //r.RunTests(discoveryHandler.TestCases, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler());
+        //// Run with sources and custom testhost launcher
+        //r.RunTestsWithCustomTestHost(sources, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler(), new DebuggerTestHostLauncher());
+        //// Run with sources
+        //r.RunTests(sources, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler());
+        var rd = sw.ElapsedMilliseconds;
+        Console.WriteLine($"Discovery: {discoveryDuration} ms, Run: {rd} ms, Total: {discoveryDuration + rd} ms");
+        Console.WriteLine($"Settings:\n{sourceSettings}");
     }
 
     public class PlaygroundTestDiscoveryHandler : ITestDiscoveryEventsHandler, ITestDiscoveryEventsHandler2
