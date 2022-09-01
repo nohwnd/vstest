@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 
 namespace Microsoft.VisualStudio.TestPlatform.Client;
@@ -16,5 +18,6 @@ public class TestPlatformFactory
     /// Gets an instance of the test platform.
     /// </summary>
     /// <returns> The <see cref="ITestPlatform"/> instance. </returns>
-    public static ITestPlatform GetTestPlatform() => s_testPlatform ??= new TestPlatform();
+    [Obsolete("don't use", error: true)]
+    public static ITestPlatform GetTestPlatform() => throw new NotSupportedException();
 }

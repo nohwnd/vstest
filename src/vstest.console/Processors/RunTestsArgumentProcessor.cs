@@ -3,21 +3,34 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
+using Microsoft.VisualStudio.TestPlatform.Client;
 using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
+using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities;
+using Microsoft.VisualStudio.TestPlatform.CommandLine.Publisher;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
 using Microsoft.VisualStudio.TestPlatform.CommandLine2;
+using Microsoft.VisualStudio.TestPlatform.CommandLineUtilities;
 using Microsoft.VisualStudio.TestPlatform.Common;
+using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
+using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
+using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.ArtifactProcessing;
+using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.TestRunAttachmentsProcessing;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
+using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
+using ObjectModelConstants = Microsoft.VisualStudio.TestPlatform.ObjectModel.Constants;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
@@ -38,7 +51,27 @@ internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>, IExecutorCre
 
         CreateExecutor = c =>
         {
-            var testRequestManager = TestRequestManager.Instance;
+            var serviceProvider = c.ServiceProvider;
+            var testSessionMessageLogger = TestSessionMessageLogger.Instance;
+            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger);
+            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
+            var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
+                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>());
+            var testPlatformEventSource = TestPlatformEventSource.Instance;
+            var metricsPublisher = serviceProvider.GetService<IMetricsPublisher>();
+            var metricsPublisherTask = Task.FromResult(metricsPublisher);
+            var testRequestManager = new TestRequestManager(
+
+                            c.ServiceProvider.GetService<CommandLineOptions>(),
+            testPlatform,
+            new TestRunResultAggregator(),
+            testPlatformEventSource,
+            new InferHelper(AssemblyMetadataProvider.Instance),
+            metricsPublisherTask,
+            serviceProvider.GetService<IProcessHelper>(),
+            new TestRunAttachmentsProcessingManager(testPlatformEventSource, new DataCollectorAttachmentsProcessorsFactory()),
+            serviceProvider.GetService<IEnvironment>()
+            );
             var artifactProcessingManager = new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId);
             // TODO: Replace those resolves by shipping the instances on the invocation context directly,
             // so we don't get strayed into trying to grab unavailable services from the provider,
@@ -183,7 +216,7 @@ internal class RunTestsArgumentExecutor : IArgumentExecutor
         var keepAlive = false;
 
         var runRequestPayload = new TestRunRequestPayload() { Sources = _commandLineOptions.Sources.ToList(), RunSettings = runSettings, KeepAlive = keepAlive, TestPlatformOptions = new TestPlatformOptions() { TestCaseFilter = _commandLineOptions.TestCaseFilterValue } };
-        _testRequestManager.RunTests(runRequestPayload, null, _testRunEventsRegistrar, Constants.DefaultProtocolConfig);
+        _testRequestManager.RunTests(runRequestPayload, null, _testRunEventsRegistrar, ObjectModelConstants.DefaultProtocolConfig);
 
         EqtTrace.Info("RunTestsArgumentProcessor:Execute: Test run is completed.");
     }

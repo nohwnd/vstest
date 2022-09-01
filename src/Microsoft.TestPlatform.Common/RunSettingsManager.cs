@@ -20,7 +20,7 @@ internal class RunSettingsManager : IRunSettingsProvider
     /// <summary>
     /// Default constructor.
     /// </summary>
-    private RunSettingsManager()
+    internal RunSettingsManager()
     {
         ActiveRunSettings = new RunSettings();
     }
@@ -35,6 +35,7 @@ internal class RunSettingsManager : IRunSettingsProvider
     #endregion
 
     [AllowNull]
+    [Obsolete("Don't use.", error: true)]
     public static RunSettingsManager Instance
     {
         get

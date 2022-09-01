@@ -14,6 +14,7 @@ using Microsoft.TestPlatform.VsTestConsole.TranslationLayer.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Client;
 using Microsoft.VisualStudio.TestPlatform.Client.DesignMode;
 using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
+using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
@@ -53,7 +54,7 @@ internal class InProcessVsTestConsoleWrapper : IVsTestConsoleWrapper
               environmentVariableHelper: new EnvironmentVariableHelper(),
               requestSender: new VsTestConsoleRequestSender(),
               testRequestManager: null,
-              executor: new Executor(new ConsoleOutput(), TestPlatformEventSource.Instance, new ProcessHelper(), new PlatformEnvironment(), FeatureFlag.Instance),
+              executor: new Executor(new ConsoleOutput(), TestPlatformEventSource.Instance, new ProcessHelper(), new PlatformEnvironment(), FeatureFlag.Instance, new RunSettingsManager()),
               testPlatformEventSource: TestPlatformEventSource.Instance)
     { }
 

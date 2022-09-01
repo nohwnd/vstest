@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -23,13 +25,6 @@ internal class TestRunResultAggregator
         // Outcome is passed until we see a failure.
         Outcome = TestOutcome.Passed;
     }
-
-    /// <summary>
-    /// Gets the instance of the test run result aggregator.
-    /// </summary>
-    /// <returns>Instance of the test run result aggregator.</returns>
-    public static TestRunResultAggregator Instance
-        => s_instance ??= new TestRunResultAggregator();
 
     /// <summary>
     /// The current test run outcome.

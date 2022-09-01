@@ -3,31 +3,21 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
-using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
-using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
+using Microsoft.VisualStudio.TestPlatform.CommandLine.Publisher;
 using Microsoft.VisualStudio.TestPlatform.CommandLine2;
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
-using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Execution;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
-
-using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
 // General Flow:
 // Create a command processor for each argument.
@@ -61,9 +51,10 @@ internal class Executor
     private readonly IProcessHelper _processHelper;
     private readonly IEnvironment _environment;
     private readonly IFeatureFlag? _featureFlag;
+    private readonly IRunSettingsProvider _runsettingsManager;
 
     internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper,
-        IEnvironment environment, IFeatureFlag featureFlag)
+        IEnvironment environment, IFeatureFlag featureFlag, IRunSettingsProvider runsettingsManager)
     {
         DebuggerBreakpoint.AttachVisualStudioDebugger("VSTEST_RUNNER_DEBUG_ATTACHVS");
         DebuggerBreakpoint.WaitForDebugger("VSTEST_RUNNER_DEBUG");
@@ -91,6 +82,7 @@ internal class Executor
         _processHelper = processHelper;
         _environment = environment;
         _featureFlag = featureFlag;
+        _runsettingsManager = runsettingsManager;
     }
 
     /// <summary>
@@ -122,11 +114,19 @@ internal class Executor
         serviceProvider.AddService(_ => _environment);
         serviceProvider.AddService(_ => _featureFlag);
         serviceProvider.AddService<IFileHelper>(_ => new FileHelper());
+
+        var isTelemetryOptedIn = Environment.GetEnvironmentVariable("VSTEST_TELEMETRY_OPTEDIN")?.Equals("1", StringComparison.Ordinal) == true;
+        var metricsPublisher = MetricsPublisherFactory.GetMetricsPublisher(isTelemetryOptedIn, CommandLineOptions.Instance.IsDesignMode).GetAwaiter().GetResult();
+
+        serviceProvider.AddService(_ => metricsPublisher);
         // Using instance because it is used in many other places, so we should eradicate it there first
         // to make sure we use the same instance no matter what the usage is.
         serviceProvider.AddService(_ => CommandLineOptions.Instance);
-        serviceProvider.AddService<IRunSettingsProvider>(_ => RunSettingsManager.Instance);
-        serviceProvider.AddService<IRunSettingsHelper>(_ => RunSettingsHelper.Instance);
+
+
+        _runsettingsManager.AddDefaultRunSettings();
+        serviceProvider.AddService(_ => _runsettingsManager);
+        serviceProvider.AddService(_ => RunSettingsHelper.Instance);
 
         // On syntax error print the error, and help.
         if (parseResult.Errors.Any())
@@ -177,8 +177,7 @@ internal class Executor
         //// Verify that the arguments are valid.
         //exitCode |= IdentifyDuplicateArguments(argumentProcessors);
 
-
-        InvocationContext executeInvocationContext = new InvocationContext(serviceProvider, parseResult);
+        InvocationContext executeInvocationContext = new(serviceProvider, parseResult);
         var executeExitCode = RunExecute(executeInvocationContext, processorsAndExecutors);
 
         // REVIEW:  Use the test run result aggregator to update the exit code. <- yeah sure, but why here, why is the command not simply outputting this?
@@ -189,7 +188,7 @@ internal class Executor
         _testPlatformEventSource.MetricsDisposeStart();
 
         // Disposing Metrics Publisher when VsTestConsole ends
-        TestRequestManager.Instance.Dispose();
+        metricsPublisher.Dispose();
 
         _testPlatformEventSource.MetricsDisposeStop();
 
@@ -205,10 +204,6 @@ internal class Executor
     /// <returns>0 if all of the processors were created successfully and 1 otherwise.</returns>
     private int RunIntialize(InvocationContext invocationContext, out List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors)
     {
-        // TODO: nope, remove.
-        // Initialize Runsettings with defaults
-        RunSettingsManager.Instance.AddDefaultRunSettings();
-
         processorsAndExecutors = new List<(ArgumentProcessor, IArgumentExecutor)>();
         var argumentProcessors = ArgumentProcessorFactory.GetProcessorList(_featureFlag);
         argumentProcessors.Sort((p1, p2) => Comparer<ArgumentProcessorPriority>.Default.Compare(p1.Priority, p2.Priority));

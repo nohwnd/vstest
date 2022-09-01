@@ -133,7 +133,7 @@ internal class ConsoleLogger : ITestLoggerWithParameters
     /// Gets instance of IOutput used for sending output.
     /// </summary>
     /// <remarks>Protected so this can be detoured for testing purposes.</remarks>
-    protected static IOutput? Output
+    protected static IOutput Output
     {
         get;
         private set;
@@ -173,8 +173,6 @@ internal class ConsoleLogger : ITestLoggerWithParameters
     public void Initialize(TestLoggerEvents events, string testRunDirectory)
     {
         ValidateArg.NotNull(events, nameof(events));
-
-        Output ??= ConsoleOutput.Instance;
 
         if (_progressIndicator == null && !Console.IsOutputRedirected && EnableProgress)
         {

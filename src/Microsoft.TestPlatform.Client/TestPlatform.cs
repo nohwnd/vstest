@@ -13,8 +13,8 @@ using Microsoft.VisualStudio.TestPlatform.Client.Execution;
 using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
+using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
-using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine;
@@ -34,27 +34,9 @@ namespace Microsoft.VisualStudio.TestPlatform.Client;
 internal class TestPlatform : ITestPlatform
 {
     private readonly ITestRuntimeProviderManager _testHostProviderManager;
-
     private readonly IFileHelper _fileHelper;
-
-    static TestPlatform()
-    {
-        // TODO: This is not the right way to force initialization of default extensions.
-        // Test runtime providers require this today. They're getting initialized even before
-        // test adapter paths are provided, which is incorrect.
-        AddExtensionAssembliesFromExtensionDirectory();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TestPlatform"/> class.
-    /// </summary>
-    public TestPlatform()
-        : this(
-            new TestEngine(),
-            new FileHelper(),
-            TestRuntimeProviderManager.Instance)
-    {
-    }
+    private readonly ITestEngine _testEngine;
+    private readonly IRunSettingsProvider _runsettingsManager;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestPlatform"/> class.
@@ -63,17 +45,19 @@ internal class TestPlatform : ITestPlatform
     /// <param name="testEngine">The test engine.</param>
     /// <param name="filehelper">The file helper.</param>
     /// <param name="testHostProviderManager">The data.</param>
-    protected internal TestPlatform(
+    public TestPlatform(
         ITestEngine testEngine,
         IFileHelper filehelper,
-        ITestRuntimeProviderManager testHostProviderManager)
+        ITestRuntimeProviderManager testHostProviderManager,
+        IRunSettingsProvider runsettingsManager)
     {
         _testEngine = testEngine;
         _fileHelper = filehelper;
         _testHostProviderManager = testHostProviderManager;
-    }
+        _runsettingsManager = runsettingsManager;
 
-    private readonly ITestEngine _testEngine;
+        AddExtensionAssembliesFromExtensionDirectory();
+    }
 
     /// <inheritdoc/>
     public IDiscoveryRequest CreateDiscoveryRequest(
@@ -266,7 +250,7 @@ internal class TestPlatform : ITestPlatform
     /// load the inbox extensions like TrxLogger and legacy test extensions like MSTest v1,
     /// MSTest C++, etc..
     /// </summary>
-    private static void AddExtensionAssembliesFromExtensionDirectory()
+    private void AddExtensionAssembliesFromExtensionDirectory()
     {
         // This method needs to run statically before we have any adapter discovery.
         // TestHostProviderManager get initialized just after this call and it
@@ -276,7 +260,7 @@ internal class TestPlatform : ITestPlatform
         // Otherwise we will always get a "No suitable test runtime provider found for this run." error.
         // I (@haplois) will modify this behavior later on, but we also need to consider legacy adapters
         // and make sure they still work after modification.
-        string? runSettings = RunSettingsManager.Instance.ActiveRunSettings.SettingsXml;
+        string? runSettings = _runsettingsManager.ActiveRunSettings.SettingsXml;
         RunConfiguration runConfiguration = XmlRunSettingsUtilities.GetRunConfigurationNode(runSettings);
         TestAdapterLoadingStrategy strategy = runConfiguration.TestAdapterLoadingStrategy;
 

@@ -49,15 +49,15 @@ internal class PlatformArgumentExecutor : IArgumentExecutor
     /// </summary>
     /// <param name="options"> The options. </param>
     /// <param name="runSettingsManager"> The runsettings manager. </param>
-    public PlatformArgumentExecutor(CommandLineOptions options, IRunSettingsProvider runSettingsManager)
+    public PlatformArgumentExecutor(CommandLineOptions options, IRunSettingsProvider runSettingsManager, IRunSettingsHelper runSettingsHelper)
     {
         ValidateArg.NotNull(options, nameof(options));
         ValidateArg.NotNull(runSettingsManager, nameof(runSettingsManager));
+        ValidateArg.NotNull(runSettingsHelper, nameof(runSettingsHelper));
         _commandLineOptions = options;
         _runSettingsManager = runSettingsManager;
+        _runsettingsHelper = runSettingsHelper;
     }
-
-
 
     /// <summary>
     /// Initializes with the argument that was provided with the command.

@@ -1,38 +1,60 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Globalization;
 
-using Microsoft.VisualStudio.TestPlatform.Client;
+using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
+using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
+using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.Common.Logging;
+using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
+using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
 namespace Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 
-internal class ListLoggersArgumentProcessor : ArgumentProcessor<bool>
+internal class ListLoggersArgumentProcessor : ArgumentProcessor<bool>, IExecutorCreator
 {
     public ListLoggersArgumentProcessor()
         : base("--ListLoggers", typeof(ListLoggersArgumentExecutor))
     {
         IsCommand = true;
         IsHiddenInHelp = true;
+
+        CreateExecutor = c =>
+        {
+            var serviceProvider = c.ServiceProvider;
+            var testSessionMessageLogger = TestSessionMessageLogger.Instance;
+            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger);
+            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
+            var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
+                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>());
+            return new ListDiscoverersArgumentExecutor(serviceProvider.GetService<IOutput>(), testPlatform);
+        };
     }
+
+    public Func<InvocationContext, IArgumentExecutor> CreateExecutor { get; }
 }
 
 internal class ListLoggersArgumentExecutor : IArgumentExecutor
 {
     private readonly IOutput _output;
+    private readonly ITestPlatform _testPlatform;
     private readonly TestLoggerExtensionManager _extensionManager;
     private bool _shouldExecute;
 
-    public ListLoggersArgumentExecutor(IOutput output)
+    public ListLoggersArgumentExecutor(IOutput output, ITestPlatform testPlatform)
     {
         _output = output;
-        // TODO: static "hidden" dependencies, with temporal dependencies
-        _ = TestPlatformFactory.GetTestPlatform();
+        // Test platform populates extension manager in constructor.
+        _testPlatform = testPlatform;
         _extensionManager = TestLoggerExtensionManager.Create(new NullMessageLogger());
     }
     public void Initialize(ParseResult parseResult)
