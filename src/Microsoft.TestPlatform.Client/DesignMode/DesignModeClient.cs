@@ -63,12 +63,13 @@ public class DesignModeClient : IDesignModeClient
     /// <param name="platformEnvironment">
     /// The platform Environment
     /// </param>
-    internal DesignModeClient(/* transitive dependency */ ICommunicationManager communicationManager, IDataSerializer dataSerializer, IEnvironment platformEnvironment)
+    internal DesignModeClient(/* transitive dependency */ ICommunicationManager communicationManager, IDataSerializer dataSerializer,
+        IEnvironment platformEnvironment, TestSessionMessageLogger testSessionMessageLogger)
     {
         _communicationManager = communicationManager;
         _dataSerializer = dataSerializer;
         _platformEnvironment = platformEnvironment;
-        _testSessionMessageLogger = TestSessionMessageLogger.Instance;
+        _testSessionMessageLogger = testSessionMessageLogger;
         _testSessionMessageLogger.TestRunMessage += TestRunMessageHandler;
     }
 

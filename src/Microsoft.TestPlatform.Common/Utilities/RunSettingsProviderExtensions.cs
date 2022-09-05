@@ -49,7 +49,7 @@ internal static class RunSettingsProviderExtensions
         ValidateArg.NotNull(runSettingsProvider, nameof(runSettingsProvider));
         ValidateArg.NotNullOrWhiteSpace(runsettingsXml, nameof(runsettingsXml));
 
-        var runSettings = new RunSettings();
+        var runSettings = runSettingsProvider.CreateRunSettings();
         runSettings.LoadSettingsXml(runsettingsXml);
         runSettingsProvider.SetActiveRunSettings(runSettings);
     }

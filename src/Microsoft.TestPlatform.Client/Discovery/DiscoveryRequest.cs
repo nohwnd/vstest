@@ -25,18 +25,33 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Discovery;
 /// </summary>
 public sealed class DiscoveryRequest : IDiscoveryRequest, ITestDiscoveryEventsHandler2
 {
-    private readonly IDataSerializer _dataSerializer;
+    /// <summary>
+    /// Request Data
+    /// </summary>
+    private readonly IRequestData _requestData;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DiscoveryRequest"/> class.
+    /// If this request has been disposed.
     /// </summary>
-    /// <param name="requestData">The Request Data instance providing services and data for discovery</param>
-    /// <param name="criteria">Discovery criterion.</param>
-    /// <param name="discoveryManager">Discovery manager instance.</param>
-    internal DiscoveryRequest(IRequestData requestData, DiscoveryCriteria criteria, IProxyDiscoveryManager discoveryManager, ITestLoggerManager loggerManager)
-        : this(requestData, criteria, discoveryManager, loggerManager, JsonDataSerializer.Instance)
-    {
-    }
+    private bool _isDisposed;
+
+    /// <summary>
+    /// It get set when current discovery request is completed.
+    /// </summary>
+    private ManualResetEvent _discoveryCompleted = new(false);
+
+    /// <summary>
+    /// Sync object for various operations
+    /// </summary>
+    private readonly object _syncObject = new();
+    private readonly TestPluginCache _testPluginCache;
+
+    /// <summary>
+    /// Discovery Start Time
+    /// </summary>
+    private DateTime _discoveryStartTime;
+
+    private readonly IDataSerializer _dataSerializer;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DiscoveryRequest"/> class.
@@ -50,13 +65,17 @@ public sealed class DiscoveryRequest : IDiscoveryRequest, ITestDiscoveryEventsHa
         DiscoveryCriteria criteria,
         IProxyDiscoveryManager discoveryManager,
         ITestLoggerManager loggerManager,
-        IDataSerializer dataSerializer)
+        IDataSerializer dataSerializer,
+        // LIFETIME: This needs to be injected because it must be the same instance as many other places.
+        // Other places add or change extensions in the cache.
+        TestPluginCache testPluginCache)
     {
-        RequestData = requestData;
+        _requestData = requestData;
         DiscoveryCriteria = criteria;
         DiscoveryManager = discoveryManager;
         LoggerManager = loggerManager;
         _dataSerializer = dataSerializer;
+        _testPluginCache = testPluginCache;
     }
 
     /// <summary>
@@ -82,7 +101,7 @@ public sealed class DiscoveryRequest : IDiscoveryRequest, ITestDiscoveryEventsHa
                 _discoveryStartTime = DateTime.UtcNow;
 
                 // Collecting Data Point Number of sources sent for discovery
-                RequestData.MetricsCollection.Add(TelemetryDataConstants.NumberOfSourcesSentForDiscovery, DiscoveryCriteria.Sources.Count());
+                _requestData.MetricsCollection.Add(TelemetryDataConstants.NumberOfSourcesSentForDiscovery, DiscoveryCriteria.Sources.Count());
 
                 // Invoke OnDiscoveryStart event
                 var discoveryStartEvent = new DiscoveryStartEventArgs(DiscoveryCriteria);
@@ -257,9 +276,9 @@ public sealed class DiscoveryRequest : IDiscoveryRequest, ITestDiscoveryEventsHa
                 // and then we write again here. We should refactor this code and write only once.
                 discoveryCompleteEventArgs.DiscoveredExtensions = TestExtensions.CreateMergedDictionary(
                     discoveryCompleteEventArgs.DiscoveredExtensions,
-                    TestPluginCache.Instance.TestExtensions?.GetCachedExtensions());
+                    _testPluginCache.TestExtensions?.GetCachedExtensions());
 
-                if (RequestData.IsTelemetryOptedIn)
+                if (_requestData.IsTelemetryOptedIn)
                 {
                     TestExtensions.AddExtensionTelemetry(
                         discoveryCompleteEventArgs.Metrics!,
@@ -291,12 +310,12 @@ public sealed class DiscoveryRequest : IDiscoveryRequest, ITestDiscoveryEventsHa
                 {
                     foreach (var metric in metrics)
                     {
-                        RequestData.MetricsCollection.Add(metric.Key, metric.Value);
+                        _requestData.MetricsCollection.Add(metric.Key, metric.Value);
                     }
                 }
 
                 // Collecting Total Time Taken
-                RequestData.MetricsCollection.Add(
+                _requestData.MetricsCollection.Add(
                     TelemetryDataConstants.TimeTakenInSecForDiscovery, discoveryFinalTimeTaken.TotalSeconds);
             }
         }
@@ -358,7 +377,7 @@ public sealed class DiscoveryRequest : IDiscoveryRequest, ITestDiscoveryEventsHa
     {
         // Note: Deserialize rawMessage only if required.
 
-        var message = LoggerManager.LoggersInitialized || RequestData.IsTelemetryOptedIn
+        var message = LoggerManager.LoggersInitialized || _requestData.IsTelemetryOptedIn
             ? _dataSerializer.DeserializeMessage(rawMessage)
             : null;
 
@@ -404,7 +423,7 @@ public sealed class DiscoveryRequest : IDiscoveryRequest, ITestDiscoveryEventsHa
     {
         var rawMessage = default(string);
 
-        if (!RequestData.IsTelemetryOptedIn)
+        if (!_requestData.IsTelemetryOptedIn)
         {
             return rawMessage;
         }
@@ -413,11 +432,11 @@ public sealed class DiscoveryRequest : IDiscoveryRequest, ITestDiscoveryEventsHa
         {
             if (discoveryCompletePayload.Metrics == null)
             {
-                discoveryCompletePayload.Metrics = RequestData.MetricsCollection.Metrics;
+                discoveryCompletePayload.Metrics = _requestData.MetricsCollection.Metrics;
             }
             else
             {
-                foreach (var kvp in RequestData.MetricsCollection.Metrics)
+                foreach (var kvp in _requestData.MetricsCollection.Metrics)
                 {
                     discoveryCompletePayload.Metrics[kvp.Key] = kvp.Value;
                 }
@@ -440,7 +459,7 @@ public sealed class DiscoveryRequest : IDiscoveryRequest, ITestDiscoveryEventsHa
             // would probably mean a performance hit.
             discoveryCompletePayload.DiscoveredExtensions = TestExtensions.CreateMergedDictionary(
                 discoveryCompletePayload.DiscoveredExtensions,
-                TestPluginCache.Instance.TestExtensions?.GetCachedExtensions());
+                _testPluginCache.TestExtensions?.GetCachedExtensions());
 
             // Write extensions to telemetry data.
             TestExtensions.AddExtensionTelemetry(
@@ -498,29 +517,4 @@ public sealed class DiscoveryRequest : IDiscoveryRequest, ITestDiscoveryEventsHa
     }
 
     #endregion
-    /// <summary>
-    /// Request Data
-    /// </summary>
-    internal IRequestData RequestData;
-
-    /// <summary>
-    /// If this request has been disposed.
-    /// </summary>
-    private bool _isDisposed;
-
-    /// <summary>
-    /// It get set when current discovery request is completed.
-    /// </summary>
-    private ManualResetEvent _discoveryCompleted = new(false);
-
-    /// <summary>
-    /// Sync object for various operations
-    /// </summary>
-    private readonly object _syncObject = new();
-
-    /// <summary>
-    /// Discovery Start Time
-    /// </summary>
-    private DateTime _discoveryStartTime;
-
 }

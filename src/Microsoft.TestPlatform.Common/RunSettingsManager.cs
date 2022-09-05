@@ -2,9 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 namespace Microsoft.VisualStudio.TestPlatform.Common;
 
@@ -13,16 +14,17 @@ namespace Microsoft.VisualStudio.TestPlatform.Common;
 /// </summary>
 internal class RunSettingsManager : IRunSettingsProvider
 {
-    private static readonly object LockObject = new();
-
-    private static RunSettingsManager? s_runSettingsManagerInstance;
+    private readonly IMessageLogger _messageLogger;
+    private readonly TestPluginCache _testPluginCache;
 
     /// <summary>
     /// Default constructor.
     /// </summary>
-    internal RunSettingsManager()
+    internal RunSettingsManager(IMessageLogger messageLogger, TestPluginCache testPluginCache)
     {
-        ActiveRunSettings = new RunSettings();
+        ActiveRunSettings = new RunSettings(messageLogger, testPluginCache);
+        _messageLogger = messageLogger;
+        _testPluginCache = testPluginCache;
     }
 
     #region IRunSettingsProvider
@@ -34,30 +36,6 @@ internal class RunSettingsManager : IRunSettingsProvider
 
     #endregion
 
-    [AllowNull]
-    [Obsolete("Don't use.", error: true)]
-    public static RunSettingsManager Instance
-    {
-        get
-        {
-            if (s_runSettingsManagerInstance != null)
-            {
-                return s_runSettingsManagerInstance;
-            }
-
-            lock (LockObject)
-            {
-                s_runSettingsManagerInstance ??= new RunSettingsManager();
-            }
-
-            return s_runSettingsManagerInstance;
-        }
-        internal set
-        {
-            s_runSettingsManagerInstance = value;
-        }
-    }
-
     /// <summary>
     /// Set the active run settings.
     /// </summary>
@@ -65,6 +43,11 @@ internal class RunSettingsManager : IRunSettingsProvider
     public void SetActiveRunSettings(RunSettings runSettings)
     {
         ActiveRunSettings = runSettings ?? throw new ArgumentNullException(nameof(runSettings));
+    }
+
+    public RunSettings CreateRunSettings()
+    {
+        return new RunSettings(_messageLogger, _testPluginCache);
     }
 
 }

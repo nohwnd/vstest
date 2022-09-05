@@ -7,7 +7,6 @@ using System.Linq;
 
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
-using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -19,25 +18,37 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 /// </summary>
 internal class TestExecutorExtensionManager : TestExtensionManager<ITestExecutor, ITestExecutorCapabilities>
 {
-    private static TestExecutorExtensionManager? s_testExecutorExtensionManager;
-    private static readonly object Synclock = new();
-
     /// <summary>
     /// Default constructor.
     /// </summary>
     /// <param name="unfilteredTestExtensions"> The unfiltered Test Extensions. </param>
     /// <param name="testExtensions"> The test Extensions. </param>
-    /// <param name="logger"> The logger. </param>
+    /// <param name="messageLogger"> The logger. </param>
     /// <remarks>
     /// This constructor is not public because instances should be retrieved using the
     /// factory method.  The constructor is protected for testing purposes.
     /// </remarks>
-    protected TestExecutorExtensionManager(
+    protected internal TestExecutorExtensionManager(
         IEnumerable<LazyExtension<ITestExecutor, Dictionary<string, object>>> unfilteredTestExtensions,
         IEnumerable<LazyExtension<ITestExecutor, ITestExecutorCapabilities>> testExtensions,
-        IMessageLogger logger)
-        : base(unfilteredTestExtensions, testExtensions, logger)
+        IMessageLogger messageLogger,
+        TestPluginManager testPluginManager)
+        : base(unfilteredTestExtensions, testExtensions, messageLogger, testPluginManager)
     {
+    }
+}
+
+internal class TestExecutorExtensionManagerFactory
+{
+    private static TestExecutorExtensionManager? s_testExecutorExtensionManager;
+    private static readonly object Synclock = new();
+    private readonly TestPluginCache _testPluginCache;
+    private readonly IMessageLogger _messageLogger;
+
+    public TestExecutorExtensionManagerFactory(IMessageLogger messageLogger, TestPluginCache testPluginCache)
+    {
+        _messageLogger = messageLogger;
+        _testPluginCache = testPluginCache;
     }
 
     /// <summary>
@@ -97,7 +108,7 @@ internal class TestExecutorExtensionManager : TestExtensionManager<ITestExecutor
     /// Creates the TestExecutorExtensionManager.
     /// </summary>
     /// <returns>Instance of the TestExecutorExtensionManager</returns>
-    internal static TestExecutorExtensionManager Create()
+    internal TestExecutorExtensionManager Create()
     {
         if (s_testExecutorExtensionManager == null)
         {
@@ -105,15 +116,16 @@ internal class TestExecutorExtensionManager : TestExtensionManager<ITestExecutor
             {
                 if (s_testExecutorExtensionManager == null)
                 {
+                    var testPluginManager = new TestPluginManager(_testPluginCache);
 
                     // Get all extensions for ITestExecutor.
-                    TestPluginManager.GetSpecificTestExtensions<TestExecutorPluginInformation, ITestExecutor, ITestExecutorCapabilities, TestExecutorMetadata>(
+                    testPluginManager.GetSpecificTestExtensions<TestExecutorPluginInformation, ITestExecutor, ITestExecutorCapabilities, TestExecutorMetadata>(
                             TestPlatformConstants.TestAdapterEndsWithPattern,
                             out var unfilteredTestExtensions1,
                             out var testExtensions1);
 
                     // Get all extensions for ITestExecutor2.
-                    TestPluginManager.GetSpecificTestExtensions<TestExecutorPluginInformation2, ITestExecutor2, ITestExecutorCapabilities, TestExecutorMetadata>(
+                    testPluginManager.GetSpecificTestExtensions<TestExecutorPluginInformation2, ITestExecutor2, ITestExecutorCapabilities, TestExecutorMetadata>(
                             TestPlatformConstants.TestAdapterEndsWithPattern,
                             out var unfilteredTestExtensions2,
                             out var testExtensions2);
@@ -129,7 +141,7 @@ internal class TestExecutorExtensionManager : TestExtensionManager<ITestExecutor
 
                     // Create the TestExecutorExtensionManager using the merged extension list.
                     s_testExecutorExtensionManager = new TestExecutorExtensionManager(
-                        mergedUnfilteredTestExtensions, mergedTestExtensions, TestSessionMessageLogger.Instance);
+                        mergedUnfilteredTestExtensions, mergedTestExtensions, _messageLogger, testPluginManager);
                 }
             }
         }
@@ -146,17 +158,18 @@ internal class TestExecutorExtensionManager : TestExtensionManager<ITestExecutor
     /// This would provide an execution extension manager where extensions in
     /// only the extension assembly provided are discovered. This is not cached.
     /// </remarks>
-    internal static TestExecutorExtensionManager GetExecutionExtensionManager(string extensionAssembly)
+    internal TestExecutorExtensionManager GetExecutionExtensionManager(string extensionAssembly)
     {
 
+        var testPluginManager = new TestPluginManager(_testPluginCache);
         // Get all extensions for ITestExecutor.
-        TestPluginManager.GetTestExtensions<TestExecutorPluginInformation, ITestExecutor, ITestExecutorCapabilities, TestExecutorMetadata>(
+        testPluginManager.GetTestExtensions<TestExecutorPluginInformation, ITestExecutor, ITestExecutorCapabilities, TestExecutorMetadata>(
                 extensionAssembly,
                 out var unfilteredTestExtensions1,
                 out var testExtensions1);
 
         // Get all extensions for ITestExecutor2.
-        TestPluginManager.GetTestExtensions<TestExecutorPluginInformation2, ITestExecutor2, ITestExecutorCapabilities, TestExecutorMetadata>(
+        testPluginManager.GetTestExtensions<TestExecutorPluginInformation2, ITestExecutor2, ITestExecutorCapabilities, TestExecutorMetadata>(
                 extensionAssembly,
                 out var unfilteredTestExtensions2,
                 out var testExtensions2);
@@ -175,7 +188,8 @@ internal class TestExecutorExtensionManager : TestExtensionManager<ITestExecutor
         return new TestExecutorExtensionManager(
             mergedUnfilteredTestExtensions,
             mergedTestExtensions,
-            TestSessionMessageLogger.Instance);
+            _messageLogger,
+            testPluginManager);
     }
 
     /// <summary>
@@ -193,7 +207,7 @@ internal class TestExecutorExtensionManager : TestExtensionManager<ITestExecutor
     /// Load all the executors and fail on error
     /// </summary>
     /// <param name="shouldThrowOnError"> Indicates whether this method should throw on error. </param>
-    internal static void LoadAndInitializeAllExtensions(bool shouldThrowOnError)
+    internal void LoadAndInitializeAllExtensions(bool shouldThrowOnError)
     {
         var executorExtensionManager = Create();
 

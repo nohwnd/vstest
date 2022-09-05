@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilities;
-using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -21,9 +20,15 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 /// <summary>
 /// Discovers test extensions in a directory.
 /// </summary>
-internal static class TestPluginDiscoverer
+internal class TestPluginDiscoverer
 {
-    private static readonly HashSet<string> UnloadableFiles = new();
+    private readonly HashSet<string> _unloadableFiles = new();
+    private readonly IMessageLogger _messageLogger;
+
+    public TestPluginDiscoverer(IMessageLogger messageLogger)
+    {
+        _messageLogger = messageLogger;
+    }
 
 #if WINDOWS_UAP
         private static HashSet<string> platformAssemblies = new HashSet<string>(new string[] {
@@ -50,7 +55,7 @@ internal static class TestPluginDiscoverer
     /// <returns>
     /// A dictionary of assembly qualified name and test plugin information.
     /// </returns>
-    public static Dictionary<string, TPluginInfo> GetTestExtensionsInformation<TPluginInfo, TExtension>(IEnumerable<string> extensionPaths) where TPluginInfo : TestPluginInformation
+    public Dictionary<string, TPluginInfo> GetTestExtensionsInformation<TPluginInfo, TExtension>(IEnumerable<string> extensionPaths) where TPluginInfo : TestPluginInformation
     {
         TPDebug.Assert(extensionPaths != null);
 
@@ -90,7 +95,7 @@ internal static class TestPluginDiscoverer
     /// <param name="pluginInfos">
     /// Test plugins collection to add to.
     /// </param>
-    private static void GetTestExtensionsFromFiles<TPluginInfo, TExtension>(
+    private void GetTestExtensionsFromFiles<TPluginInfo, TExtension>(
         string[] files,
         Dictionary<string, TPluginInfo> pluginInfos)
         where TPluginInfo : TestPluginInformation
@@ -101,7 +106,7 @@ internal static class TestPluginDiscoverer
         // Scan each of the files for data extensions.
         foreach (var file in files)
         {
-            if (UnloadableFiles.Contains(file))
+            if (_unloadableFiles.Contains(file))
             {
                 continue;
             }
@@ -119,8 +124,8 @@ internal static class TestPluginDiscoverer
             {
                 EqtTrace.Warning("TestPluginDiscoverer-FileLoadException: Failed to load extensions from file '{0}'.  Skipping test extension scan for this file.  Error: {1}", file, e);
                 string fileLoadErrorMessage = string.Format(CultureInfo.CurrentCulture, CommonResources.FailedToLoadAdapaterFile, file);
-                TestSessionMessageLogger.Instance.SendMessage(TestMessageLevel.Warning, fileLoadErrorMessage);
-                UnloadableFiles.Add(file);
+                _messageLogger.SendMessage(TestMessageLevel.Warning, fileLoadErrorMessage);
+                _unloadableFiles.Add(file);
             }
             catch (Exception e)
             {

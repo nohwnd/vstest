@@ -35,6 +35,7 @@ internal class ProxyExecutionManager : IProxyExecutionManager, IBaseProxy, IInte
     private readonly TestSessionInfo? _testSessionInfo;
     private readonly Func<string, ProxyExecutionManager, ProxyOperationManager>? _proxyOperationManagerCreator;
     private readonly IFileHelper _fileHelper;
+    private readonly TestPluginCache _testPluginCache;
     private readonly IDataSerializer _dataSerializer;
     private readonly bool _debugEnabledForTestSession;
 
@@ -76,7 +77,10 @@ internal class ProxyExecutionManager : IProxyExecutionManager, IBaseProxy, IInte
     public ProxyExecutionManager(
         TestSessionInfo testSessionInfo,
         Func<string, ProxyExecutionManager, ProxyOperationManager> proxyOperationManagerCreator,
-        bool debugEnabledForTestSession)
+        bool debugEnabledForTestSession,
+        IDataSerializer dataSerializer,
+        IFileHelper fileHelper,
+        TestPluginCache testPluginCache)
     {
         // Filling in test session info and proxy information.
         _testSessionInfo = testSessionInfo;
@@ -86,33 +90,10 @@ internal class ProxyExecutionManager : IProxyExecutionManager, IBaseProxy, IInte
         _debugEnabledForTestSession = debugEnabledForTestSession;
 
         _testHostManager = null;
-        _dataSerializer = JsonDataSerializer.Instance;
-        _fileHelper = new FileHelper();
+        _dataSerializer = dataSerializer;
+        _fileHelper = fileHelper;
+        _testPluginCache = testPluginCache;
         _isCommunicationEstablished = false;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ProxyExecutionManager"/> class.
-    /// </summary>
-    ///
-    /// <param name="requestData">
-    /// The request data for providing services and data for run.
-    /// </param>
-    /// <param name="requestSender">Test request sender instance.</param>
-    /// <param name="testHostManager">Test host manager for this proxy.</param>
-    public ProxyExecutionManager(
-        IRequestData requestData,
-        ITestRequestSender requestSender,
-        ITestRuntimeProvider testHostManager,
-        Framework testHostManagerFramework) :
-        this(
-            requestData,
-            requestSender,
-            testHostManager,
-            testHostManagerFramework,
-            JsonDataSerializer.Instance,
-            new FileHelper())
-    {
     }
 
     /// <summary>
@@ -134,12 +115,14 @@ internal class ProxyExecutionManager : IProxyExecutionManager, IBaseProxy, IInte
         ITestRuntimeProvider testHostManager,
         Framework testHostManagerFramework,
         IDataSerializer dataSerializer,
-        IFileHelper fileHelper)
+        IFileHelper fileHelper,
+        TestPluginCache testPluginCache)
     {
         _testHostManager = testHostManager;
         _dataSerializer = dataSerializer;
         _isCommunicationEstablished = false;
         _fileHelper = fileHelper;
+        _testPluginCache = testPluginCache;
 
         // Create a new proxy operation manager.
         _proxyOperationManager = new ProxyOperationManager(requestData, requestSender, testHostManager, testHostManagerFramework, this);
@@ -435,7 +418,7 @@ internal class ProxyExecutionManager : IProxyExecutionManager, IBaseProxy, IInte
 
     private void InitializeExtensions(IEnumerable<string> sources)
     {
-        var extensions = TestPluginCache.Instance.GetExtensionPaths(TestPlatformConstants.TestAdapterEndsWithPattern, _skipDefaultAdapters);
+        var extensions = _testPluginCache.GetExtensionPaths(TestPlatformConstants.TestAdapterEndsWithPattern, _skipDefaultAdapters);
 
         // Filter out non existing extensions.
         var nonExistingExtensions = extensions.Where(extension => !_fileHelper.Exists(extension));

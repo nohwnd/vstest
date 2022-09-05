@@ -14,10 +14,12 @@ using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
 using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.CommandLineUtilities;
 using Microsoft.VisualStudio.TestPlatform.Common;
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.ArtifactProcessing;
@@ -28,6 +30,8 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
+
+using Newtonsoft.Json;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 using ObjectModelConstants = Microsoft.VisualStudio.TestPlatform.ObjectModel.Constants;
@@ -52,11 +56,12 @@ internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>, IExecutorCre
         CreateExecutor = c =>
         {
             var serviceProvider = c.ServiceProvider;
-            var testSessionMessageLogger = TestSessionMessageLogger.Instance;
-            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger);
+            var testSessionMessageLogger = new TestSessionMessageLogger();
+            var testPluginCache = new TestPluginCache(testSessionMessageLogger);
+            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger, testPluginCache);
             var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
             var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
-                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>());
+                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>(), testPluginCache, JsonDataSerializer.Instance);
             var testPlatformEventSource = TestPlatformEventSource.Instance;
             var metricsPublisher = serviceProvider.GetService<IMetricsPublisher>();
             var metricsPublisherTask = Task.FromResult(metricsPublisher);
@@ -177,7 +182,7 @@ internal class RunTestsArgumentExecutor : IArgumentExecutor
         if (_commandLineOptions.IsDesignMode)
         {
             // Do not attempt execution in case of design mode. Expect execution to happen via the design mode client.
-            return ArgumentProcessorResult.Success;
+            throw new InvalidOperationException($"Design mode is active, executor {nameof(RunTestsArgumentExecutor)} should never be reached.");
         }
 
         // Ensure a test source file was provided

@@ -24,6 +24,7 @@ internal class InProcessProxyExecutionManager : IProxyExecutionManager
     private readonly ITestHostManagerFactory _testHostManagerFactory;
     private readonly IExecutionManager _executionManager;
     private readonly ITestRuntimeProvider _testHostManager;
+    private readonly TestPluginCache _testPluginCache;
 
     public bool IsInitialized { get; private set; }
 
@@ -36,11 +37,12 @@ internal class InProcessProxyExecutionManager : IProxyExecutionManager
     /// <param name="testHostManagerFactory">
     /// Manager factory
     /// </param>
-    public InProcessProxyExecutionManager(ITestRuntimeProvider testHostManager, ITestHostManagerFactory testHostManagerFactory)
+    public InProcessProxyExecutionManager(ITestRuntimeProvider testHostManager, ITestHostManagerFactory testHostManagerFactory, TestPluginCache testPluginCache)
     {
         _testHostManager = testHostManager;
         _testHostManagerFactory = testHostManagerFactory;
         _executionManager = _testHostManagerFactory.GetExecutionManager();
+        _testPluginCache = testPluginCache;
     }
 
     /// <summary>
@@ -139,7 +141,7 @@ internal class InProcessProxyExecutionManager : IProxyExecutionManager
         var extensionsFromSource = _testHostManager.GetTestPlatformExtensions(sources, Enumerable.Empty<string>());
         if (extensionsFromSource.Any())
         {
-            TestPluginCache.Instance.UpdateExtensions(extensionsFromSource, false);
+            _testPluginCache.UpdateExtensions(extensionsFromSource, false);
         }
 
         // We don't need to pass list of extension as we are running inside vstest.console and

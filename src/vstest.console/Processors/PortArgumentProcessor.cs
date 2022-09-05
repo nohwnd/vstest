@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.TestPlatform.CommandLine.Publisher;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
 using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.CommandLineUtilities;
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
@@ -48,25 +49,25 @@ internal class PortArgumentProcessor : ArgumentProcessor<int>, IExecutorCreator
         CreateExecutor = c =>
         {
             var serviceProvider = c.ServiceProvider;
-            var testSessionMessageLogger = TestSessionMessageLogger.Instance;
-            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger);
+            var testSessionMessageLogger = new TestSessionMessageLogger();
+            var testPluginCache = new TestPluginCache(testSessionMessageLogger);
+            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger, testPluginCache);
             var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
             var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
-                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>());
+                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>(), testPluginCache, JsonDataSerializer.Instance);
             var testPlatformEventSource = TestPlatformEventSource.Instance;
             var metricsPublisher = serviceProvider.GetService<IMetricsPublisher>();
             var metricsPublisherTask = Task.FromResult(metricsPublisher);
             var testRequestManager = new TestRequestManager(
-
-                            c.ServiceProvider.GetService<CommandLineOptions>(),
-            testPlatform,
-            new TestRunResultAggregator(),
-            testPlatformEventSource,
-            new InferHelper(AssemblyMetadataProvider.Instance),
-            metricsPublisherTask,
-            serviceProvider.GetService<IProcessHelper>(),
-            new TestRunAttachmentsProcessingManager(testPlatformEventSource, new DataCollectorAttachmentsProcessorsFactory()),
-            serviceProvider.GetService<IEnvironment>()
+                c.ServiceProvider.GetService<CommandLineOptions>(),
+                testPlatform,
+                new TestRunResultAggregator(),
+                testPlatformEventSource,
+                new InferHelper(AssemblyMetadataProvider.Instance),
+                metricsPublisherTask,
+                serviceProvider.GetService<IProcessHelper>(),
+                new TestRunAttachmentsProcessingManager(testPlatformEventSource, new DataCollectorAttachmentsProcessorsFactory()),
+                serviceProvider.GetService<IEnvironment>()
             );
             var artifactProcessingManager = new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId);
 
@@ -81,7 +82,8 @@ internal class PortArgumentProcessor : ArgumentProcessor<int>, IExecutorCreator
                 c.ServiceProvider.GetService<CommandLineOptions>(),
                     testRequestManager,
                    c.ServiceProvider.GetService<IProcessHelper>(),
-                   designModeClient);
+                   designModeClient,
+                   c.ServiceProvider.GetService<IRunSettingsHelper>());
         };
     }
 
@@ -112,6 +114,7 @@ internal class PortArgumentExecutor : IArgumentExecutor
     /// IDesignModeClient
     /// </summary>
     private IDesignModeClient? _designModeClient;
+    private readonly IRunSettingsHelper _runSettingsHelper;
 
     /// <summary>
     /// Process helper for process management actions.
@@ -119,12 +122,12 @@ internal class PortArgumentExecutor : IArgumentExecutor
     private readonly IProcessHelper _processHelper;
 
     // REVIEW: this has initialize design mode callback, I guess that is to prevent startup during unit tests
-    internal PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager, IProcessHelper processHelper, IDesignModeClient designModeClient)
-        : this(options, testRequestManager, InitializeDesignMode, processHelper, designModeClient)
+    internal PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager, IProcessHelper processHelper, IDesignModeClient designModeClient, IRunSettingsHelper runSettingsHelper)
+        : this(options, testRequestManager, InitializeDesignMode, processHelper, designModeClient, runSettingsHelper)
     {
     }
 
-    internal PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager, Func<IDesignModeClient?, int, IProcessHelper, IDesignModeClient> designModeInitializer, IProcessHelper processHelper, IDesignModeClient designModeClient)
+    internal PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager, Func<IDesignModeClient?, int, IProcessHelper, IDesignModeClient> designModeInitializer, IProcessHelper processHelper, IDesignModeClient designModeClient, IRunSettingsHelper runSettingsHelper)
     {
         ValidateArg.NotNull(options, nameof(options));
         _commandLineOptions = options;
@@ -132,6 +135,7 @@ internal class PortArgumentExecutor : IArgumentExecutor
         _initializeDesignMode = designModeInitializer;
         _processHelper = processHelper;
         _designModeClient = designModeClient;
+        _runSettingsHelper = runSettingsHelper;
     }
 
 
@@ -147,7 +151,7 @@ internal class PortArgumentExecutor : IArgumentExecutor
 
         _commandLineOptions.Port = portNumber;
         _commandLineOptions.IsDesignMode = true;
-        RunSettingsHelper.Instance.IsDesignMode = true;
+        _runSettingsHelper.IsDesignMode = true;
         _designModeClient = _initializeDesignMode?.Invoke(_designModeClient, _commandLineOptions.ParentProcessId, _processHelper);
     }
 

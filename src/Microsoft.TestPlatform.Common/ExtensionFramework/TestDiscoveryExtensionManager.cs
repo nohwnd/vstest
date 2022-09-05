@@ -17,13 +17,11 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 /// </summary>
 internal class TestDiscoveryExtensionManager
 {
-    private static TestDiscoveryExtensionManager? s_testDiscoveryExtensionManager;
-
     /// <summary>
     /// Default constructor.
     /// </summary>
     /// <remarks>The factory should be used for getting instances of this type so the constructor is not public.</remarks>
-    protected TestDiscoveryExtensionManager(
+    protected internal TestDiscoveryExtensionManager(
         IEnumerable<LazyExtension<ITestDiscoverer, ITestDiscovererCapabilities>> discoverers,
         IEnumerable<LazyExtension<ITestDiscoverer, Dictionary<string, object>>> unfilteredDiscoverers)
     {
@@ -43,6 +41,17 @@ internal class TestDiscoveryExtensionManager
     /// Gets the discoverers which are available for discovering tests.
     /// </summary>
     public IEnumerable<LazyExtension<ITestDiscoverer, ITestDiscovererCapabilities>> Discoverers { get; private set; }
+}
+
+internal class TestDiscoveryExtensionManagerFactory
+{
+    private static TestDiscoveryExtensionManager? s_testDiscoveryExtensionManager;
+    private readonly TestPluginCache _testPluginCache;
+
+    public TestDiscoveryExtensionManagerFactory(TestPluginCache testPluginCache)
+    {
+        _testPluginCache = testPluginCache;
+    }
 
     /// <summary>
     /// Gets an instance of the Test Discovery Extension Manager.
@@ -54,11 +63,12 @@ internal class TestDiscoveryExtensionManager
     /// This would provide a discovery extension manager where extensions in
     /// all the extension assemblies are discovered. This is cached.
     /// </remarks>
-    public static TestDiscoveryExtensionManager Create()
+    public TestDiscoveryExtensionManager Create()
     {
         if (s_testDiscoveryExtensionManager == null)
         {
-            TestPluginManager.GetSpecificTestExtensions<TestDiscovererPluginInformation, ITestDiscoverer, ITestDiscovererCapabilities, TestDiscovererMetadata>(
+            var testPluginManager = new TestPluginManager(_testPluginCache);
+            testPluginManager.GetSpecificTestExtensions<TestDiscovererPluginInformation, ITestDiscoverer, ITestDiscovererCapabilities, TestDiscovererMetadata>(
                     TestPlatformConstants.TestAdapterEndsWithPattern,
                     out var unfilteredTestExtensions,
                     out var testExtensions);
@@ -80,10 +90,11 @@ internal class TestDiscoveryExtensionManager
     /// This would provide a discovery extension manager where extensions in
     /// only the extension assembly provided are discovered. This is not cached
     /// </remarks>
-    public static TestDiscoveryExtensionManager GetDiscoveryExtensionManager(string extensionAssembly)
+    public TestDiscoveryExtensionManager GetDiscoveryExtensionManager(string extensionAssembly)
     {
 
-        TestPluginManager.GetTestExtensions<TestDiscovererPluginInformation, ITestDiscoverer, ITestDiscovererCapabilities, TestDiscovererMetadata>(
+        var testPluginManager = new TestPluginManager(_testPluginCache);
+        testPluginManager.GetTestExtensions<TestDiscovererPluginInformation, ITestDiscoverer, ITestDiscovererCapabilities, TestDiscovererMetadata>(
                 extensionAssembly,
                 out var unfilteredTestExtensions,
                 out var testExtensions);
@@ -97,7 +108,7 @@ internal class TestDiscoveryExtensionManager
     /// Loads and Initializes all the extensions.
     /// </summary>
     /// <param name="throwOnError"> The throw On Error. </param>
-    internal static void LoadAndInitializeAllExtensions(bool throwOnError)
+    internal void LoadAndInitializeAllExtensions(bool throwOnError)
     {
         try
         {
@@ -128,7 +139,6 @@ internal class TestDiscoveryExtensionManager
     {
         s_testDiscoveryExtensionManager = null;
     }
-
 }
 
 /// <summary>

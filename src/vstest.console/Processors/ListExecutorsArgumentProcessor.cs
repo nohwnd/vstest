@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
@@ -30,12 +31,18 @@ internal class ListExecutorsArgumentProcessor : ArgumentProcessor<bool>, IExecut
         CreateExecutor = c =>
         {
             var serviceProvider = c.ServiceProvider;
-            var testSessionMessageLogger = TestSessionMessageLogger.Instance;
-            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger);
+            var testSessionMessageLogger = new TestSessionMessageLogger();
+            var testPluginCache = new TestPluginCache(testSessionMessageLogger);
+            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger, testPluginCache);
             var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
-            var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
-                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>());
-            return new ListExecutorsArgumentExecutor(serviceProvider.GetService<IOutput>(), testPlatform);
+            var testPlatform = new Client.TestPlatform(
+                testEngine,
+                serviceProvider.GetService<IFileHelper>(),
+                testhostProviderManager,
+                serviceProvider.GetService<IRunSettingsProvider>(),
+                testPluginCache,
+                JsonDataSerializer.Instance);
+            return new ListExecutorsArgumentExecutor(serviceProvider.GetService<IOutput>(), testPlatform, testSessionMessageLogger, testPluginCache);
         };
     }
 
@@ -50,12 +57,12 @@ internal class ListExecutorsArgumentExecutor : IArgumentExecutor
     private readonly TestExecutorExtensionManager _extensionManager;
     private bool _shouldExecute;
 
-    public ListExecutorsArgumentExecutor(IOutput output, ITestPlatform testPlatform)
+    public ListExecutorsArgumentExecutor(IOutput output, ITestPlatform testPlatform, ObjectModel.Logging.IMessageLogger messageLogger, TestPluginCache testPluginCache)
     {
         _output = output;
         // Test platform populates extension manager in constructor.
         _testPlatform = testPlatform;
-        _extensionManager = TestExecutorExtensionManager.Create();
+        _extensionManager =  new TestExecutorExtensionManagerFactory(messageLogger, testPluginCache).Create();
     }
 
     public void Initialize(ParseResult parseResult)

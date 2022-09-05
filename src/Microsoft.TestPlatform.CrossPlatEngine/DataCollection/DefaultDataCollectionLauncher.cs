@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
-using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
@@ -23,14 +22,6 @@ internal class DefaultDataCollectionLauncher : DataCollectionLauncher
     private const string DataCollectorProcessNameArm64 = "datacollector.arm64.exe";
 
     /// <summary>
-    /// The constructor.
-    /// </summary>
-    public DefaultDataCollectionLauncher()
-        : this(new ProcessHelper(), TestSessionMessageLogger.Instance)
-    {
-    }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="DefaultDataCollectionLauncher"/> class.
     /// </summary>
     /// <param name="processHelper">
@@ -39,7 +30,7 @@ internal class DefaultDataCollectionLauncher : DataCollectionLauncher
     /// <param name="messageLogger">
     /// The message Logger.
     /// </param>
-    internal DefaultDataCollectionLauncher(IProcessHelper processHelper, IMessageLogger messageLogger) : base(processHelper, messageLogger)
+    public DefaultDataCollectionLauncher(IProcessHelper processHelper, IMessageLogger messageLogger) : base(processHelper, messageLogger)
     {
         _processHelper = processHelper;
         DataCollectorProcessId = -1;

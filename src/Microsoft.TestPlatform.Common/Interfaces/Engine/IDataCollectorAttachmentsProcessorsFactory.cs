@@ -4,6 +4,7 @@
 using System;
 
 using Microsoft.VisualStudio.TestPlatform.Common;
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
@@ -20,7 +21,7 @@ internal interface IDataCollectorAttachmentsProcessorsFactory
     /// <param name="invokedDataCollector">List of invoked data collectors</param>
     /// <param name="logger">Message logger</param>
     /// <returns>List of attachments processors</returns>
-    DataCollectorAttachmentProcessor[] Create(InvokedDataCollector[]? invokedDataCollectors, IMessageLogger logger);
+    DataCollectorAttachmentProcessor[] Create(InvokedDataCollector[]? invokedDataCollectors, IMessageLogger logger, TestPluginCache testPluginCache);
 }
 
 /// <summary>

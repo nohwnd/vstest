@@ -9,7 +9,9 @@ using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Publisher;
 using Microsoft.VisualStudio.TestPlatform.CommandLine2;
+using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Execution;
@@ -51,12 +53,11 @@ internal class Executor
     private readonly IProcessHelper _processHelper;
     private readonly IEnvironment _environment;
     private readonly IFeatureFlag? _featureFlag;
-    private readonly IRunSettingsProvider _runsettingsManager;
 
     public SharedDependencyDictionary SharedDependencies { get; } = new();
 
     internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper,
-        IEnvironment environment, IFeatureFlag featureFlag, IRunSettingsProvider runsettingsManager)
+        IEnvironment environment, IFeatureFlag featureFlag)
     {
         DebuggerBreakpoint.AttachVisualStudioDebugger("VSTEST_RUNNER_DEBUG_ATTACHVS");
         DebuggerBreakpoint.WaitForDebugger("VSTEST_RUNNER_DEBUG");
@@ -84,7 +85,6 @@ internal class Executor
         _processHelper = processHelper;
         _environment = environment;
         _featureFlag = featureFlag;
-        _runsettingsManager = runsettingsManager;
     }
 
     /// <summary>
@@ -130,8 +130,11 @@ internal class Executor
         serviceProvider.AddService(_ => CommandLineOptions.Instance);
 
 
-        _runsettingsManager.AddDefaultRunSettings();
-        serviceProvider.AddService(_ => _runsettingsManager);
+        var messageLogger = new TestSessionMessageLogger();
+        var runsettingsManager = new RunSettingsManager(messageLogger, new Common.ExtensionFramework.TestPluginCache(messageLogger));
+
+        runsettingsManager.AddDefaultRunSettings();
+        serviceProvider.AddService(_ => runsettingsManager);
         serviceProvider.AddService(_ => RunSettingsHelper.Instance);
 
         // On syntax error print the error, and help.
@@ -156,7 +159,8 @@ internal class Executor
         }
 
         // Get the argument processors for the arguments, and initialize them.
-        var initializeExitCode = RunIntialize(initializeInvocationContext, out List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors);
+        var initializeExitCode = RunIntialize(initializeInvocationContext, out List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors,
+            out ArgumentProcessor? selectedCommand);
         if (initializeExitCode != 0)
         {
             if (!parseResult.Errors.Any())
@@ -184,7 +188,7 @@ internal class Executor
         //exitCode |= IdentifyDuplicateArguments(argumentProcessors);
 
         InvocationContext executeInvocationContext = new(serviceProvider, parseResult);
-        var executeExitCode = RunExecute(executeInvocationContext, processorsAndExecutors);
+        var executeExitCode = RunExecute(executeInvocationContext, selectedCommand, processorsAndExecutors);
 
         // REVIEW:  Use the test run result aggregator to update the exit code. <- yeah sure, but why here, why is the command not simply outputting this?
         // exitCode |= (TestRunResultAggregator.Instance.Outcome == TestOutcome.Passed) ? 0 : 1;
@@ -208,8 +212,9 @@ internal class Executor
     /// <param name="args">Arguments provided to perform execution with.</param>
     /// <param name="processors">List of argument processors for the arguments.</param>
     /// <returns>0 if all of the processors were created successfully and 1 otherwise.</returns>
-    private int RunIntialize(InvocationContext invocationContext, out List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors)
+    private int RunIntialize(InvocationContext invocationContext, out List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors, out ArgumentProcessor? selectedCommand)
     {
+        selectedCommand = null;
         processorsAndExecutors = new List<(ArgumentProcessor, IArgumentExecutor)>();
         var argumentProcessors = ArgumentProcessorFactory.GetProcessorList(_featureFlag);
         argumentProcessors.Sort((p1, p2) => Comparer<ArgumentProcessorPriority>.Default.Compare(p1.Priority, p2.Priority));
@@ -231,6 +236,7 @@ internal class Executor
                     // Only run initialization for processors that are before the matched command.
                     if (processor.IsCommand)
                     {
+                        selectedCommand = processor;
                         break;
                     }
                 }
@@ -356,8 +362,13 @@ internal class Executor
         return 0;
     }
 
-    private int RunExecute(InvocationContext invocationContext, List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors)
+    private int RunExecute(InvocationContext invocationContext, ArgumentProcessor selectedCommand, List<(ArgumentProcessor processor, IArgumentExecutor executor)> processorsAndExecutors)
     {
+        // Because we only have one priority, commands are registered early in the order of processors (e.g. --port will set design mode to true, and logger
+        // processor will then skip loading ConsoleLogger). This does not fit nicely with the current model, and so instead we skip executing any command.
+        // And execute the selected command we bound in initialize after we executed all other non-commands.
+        var command = processorsAndExecutors.Where(p => p.processor == selectedCommand);
+        var processorsToExecute = processorsAndExecutors.Where(p => !p.processor.IsCommand).Concat(command);
         foreach (var (processor, executor) in processorsAndExecutors)
         {
             var result = ExecuteArgumentProcessor(executor);

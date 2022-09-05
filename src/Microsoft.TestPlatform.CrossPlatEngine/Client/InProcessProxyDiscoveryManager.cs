@@ -19,6 +19,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client;
 internal class InProcessProxyDiscoveryManager : IProxyDiscoveryManager
 {
     private readonly ITestHostManagerFactory _testHostManagerFactory;
+    private readonly TestPluginCache _testPluginCache;
     private readonly IDiscoveryManager _discoveryManager;
     private readonly ITestRuntimeProvider _testHostManager;
 
@@ -33,10 +34,11 @@ internal class InProcessProxyDiscoveryManager : IProxyDiscoveryManager
     /// <param name="testHostManagerFactory">
     /// Manager factory
     /// </param>
-    public InProcessProxyDiscoveryManager(ITestRuntimeProvider testHostManager, ITestHostManagerFactory testHostManagerFactory)
+    public InProcessProxyDiscoveryManager(ITestRuntimeProvider testHostManager, ITestHostManagerFactory testHostManagerFactory, TestPluginCache testPluginCache)
     {
         _testHostManager = testHostManager;
         _testHostManagerFactory = testHostManagerFactory;
+        _testPluginCache = testPluginCache;
         _discoveryManager = _testHostManagerFactory.GetDiscoveryManager();
     }
 
@@ -106,7 +108,7 @@ internal class InProcessProxyDiscoveryManager : IProxyDiscoveryManager
         var extensionsFromSource = _testHostManager.GetTestPlatformExtensions(sources, Enumerable.Empty<string>());
         if (extensionsFromSource.Any())
         {
-            TestPluginCache.Instance.UpdateExtensions(extensionsFromSource, false);
+            _testPluginCache.UpdateExtensions(extensionsFromSource, false);
         }
 
         // We don't need to pass list of extension as we are running inside vstest.console and

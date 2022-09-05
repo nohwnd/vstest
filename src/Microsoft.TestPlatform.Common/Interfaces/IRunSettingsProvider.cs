@@ -18,4 +18,11 @@ internal interface IRunSettingsProvider
     /// </summary>
     /// <param name="runSettings">RunSettings to make the active Run Settings.</param>
     void SetActiveRunSettings(RunSettings runSettings);
+
+    /// <summary>
+    /// Create new instance of RunSettings associated with the cache and message logger
+    /// the provider owns.
+    /// </summary>
+    /// <returns></returns>
+    internal RunSettings CreateRunSettings();
 }

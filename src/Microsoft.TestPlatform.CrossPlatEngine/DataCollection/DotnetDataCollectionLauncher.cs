@@ -6,13 +6,11 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 
-using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Extensions;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
-using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection;
@@ -26,14 +24,6 @@ internal class DotnetDataCollectionLauncher : DataCollectionLauncher
     private const string DataCollectorProcessName = "datacollector.dll";
 
     private readonly IFileHelper _fileHelper;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DotnetDataCollectionLauncher"/> class.
-    /// </summary>
-    public DotnetDataCollectionLauncher()
-        : this(new ProcessHelper(), new FileHelper(), TestSessionMessageLogger.Instance)
-    {
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DotnetDataCollectionLauncher"/> class.

@@ -13,7 +13,6 @@ using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.Common.Telemetry;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
-using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -33,6 +32,7 @@ namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery;
 public class DiscoveryManager : IDiscoveryManager
 {
     private readonly TestSessionMessageLogger _sessionMessageLogger;
+    private readonly TestPluginCache _testPluginCache;
     private readonly ITestPlatformEventSource _testPlatformEventSource;
     private readonly IRequestData _requestData;
     private readonly CancellationTokenSource _cancellationTokenSource = new();
@@ -45,24 +45,17 @@ public class DiscoveryManager : IDiscoveryManager
     /// <summary>
     /// Initializes a new instance of the <see cref="DiscoveryManager"/> class.
     /// </summary>
-    public DiscoveryManager(IRequestData requestData)
-        : this(requestData, TestPlatformEventSource.Instance)
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DiscoveryManager"/> class.
-    /// </summary>
     /// <param name="requestData">
     /// The Request Data for providing discovery services and data.
     /// </param>
     /// <param name="testPlatformEventSource">
     ///     The test platform event source.
     /// </param>
-    protected DiscoveryManager(IRequestData requestData, ITestPlatformEventSource testPlatformEventSource)
+    internal DiscoveryManager(IRequestData requestData, ITestPlatformEventSource testPlatformEventSource, TestSessionMessageLogger sessionMessageLogger, TestPluginCache testPluginCache)
     {
         _requestData = requestData ?? throw new ArgumentNullException(nameof(requestData));
-        _sessionMessageLogger = TestSessionMessageLogger.Instance;
+        _sessionMessageLogger = sessionMessageLogger;
+        _testPluginCache = testPluginCache;
         _sessionMessageLogger.TestRunMessage += TestSessionMessageHandler;
         _testPlatformEventSource = testPlatformEventSource;
     }
@@ -81,11 +74,11 @@ public class DiscoveryManager : IDiscoveryManager
         if (pathToAdditionalExtensions != null && pathToAdditionalExtensions.Any())
         {
             // Start using these additional extensions
-            TestPluginCache.Instance.DefaultExtensionPaths = pathToAdditionalExtensions;
+            _testPluginCache.DefaultExtensionPaths = pathToAdditionalExtensions;
         }
 
         // Load and Initialize extensions.
-        TestDiscoveryExtensionManager.LoadAndInitializeAllExtensions(false);
+        new TestDiscoveryExtensionManagerFactory(_testPluginCache).LoadAndInitializeAllExtensions(false);
         _testPlatformEventSource.AdapterSearchStop();
     }
 
@@ -123,8 +116,8 @@ public class DiscoveryManager : IDiscoveryManager
             // If there are sources to discover
             if (verifiedExtensionSourceMap.Any())
             {
-                var runSettings = RunSettingsUtilities.CreateAndInitializeRunSettings(discoveryCriteria.RunSettings);
-                var discovererEnumerator = new DiscovererEnumerator(_requestData, discoveryResultCache, _cancellationTokenSource.Token);
+                var runSettings = RunSettingsUtilities.CreateAndInitializeRunSettings(discoveryCriteria.RunSettings, _sessionMessageLogger, _testPluginCache);
+                var discovererEnumerator = new DiscovererEnumerator(_requestData, discoveryResultCache, _testPlatformEventSource, _testPluginCache, _cancellationTokenSource.Token);
                 discovererEnumerator.LoadTests(verifiedExtensionSourceMap, runSettings, discoveryCriteria.TestCaseFilter, _sessionMessageLogger);
             }
         }
@@ -176,7 +169,7 @@ public class DiscoveryManager : IDiscoveryManager
                     PartiallyDiscoveredSources = _discoveryDataAggregator.GetSourcesWithStatus(DiscoveryStatus.PartiallyDiscovered),
                     NotDiscoveredSources = _discoveryDataAggregator.GetSourcesWithStatus(DiscoveryStatus.NotDiscovered),
                     SkippedDiscoveredSources = _discoveryDataAggregator.GetSourcesWithStatus(DiscoveryStatus.SkippedDiscovery),
-                    DiscoveredExtensions = TestPluginCache.Instance.TestExtensions?.GetCachedExtensions(),
+                    DiscoveredExtensions = _testPluginCache.TestExtensions?.GetCachedExtensions(),
                     Metrics = _requestData.MetricsCollection.Metrics,
                 };
 

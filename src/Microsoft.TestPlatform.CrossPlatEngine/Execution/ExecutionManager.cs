@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.Common.SettingsProvider;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
-using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection.Interfaces;
@@ -31,28 +31,24 @@ public class ExecutionManager : IExecutionManager
 {
     private readonly ITestPlatformEventSource _testPlatformEventSource;
     private readonly IRequestData _requestData;
-    private readonly TestSessionMessageLogger? _sessionMessageLogger;
+    private readonly TestPluginCache _testPluginCache;
+    private readonly TestSessionMessageLogger _sessionMessageLogger;
+    private readonly IDataSerializer _dataSerializer;
     private BaseRunTests? _activeTestRun;
     private ITestMessageEventHandler? _testMessageEventsHandler;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
     /// </summary>
-    public ExecutionManager(IRequestData requestData)
-        : this(TestPlatformEventSource.Instance, requestData)
-    {
-        _sessionMessageLogger = TestSessionMessageLogger.Instance;
-        _sessionMessageLogger.TestRunMessage += TestSessionMessageHandler;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
-    /// </summary>
     /// <param name="testPlatformEventSource">Test platform event source.</param>
-    protected ExecutionManager(ITestPlatformEventSource testPlatformEventSource, IRequestData requestData)
+    public ExecutionManager(IRequestData requestData, ITestPlatformEventSource testPlatformEventSource, TestPluginCache testPluginCache, TestSessionMessageLogger sessionMessageLogger, IDataSerializer dataSerializer)
     {
         _testPlatformEventSource = testPlatformEventSource;
         _requestData = requestData ?? throw new ArgumentNullException(nameof(requestData));
+        _testPluginCache = testPluginCache;
+        _sessionMessageLogger = sessionMessageLogger;
+        _dataSerializer = dataSerializer;
+        _sessionMessageLogger.TestRunMessage += TestSessionMessageHandler;
     }
 
     #region IExecutionManager Implementation
@@ -72,7 +68,7 @@ public class ExecutionManager : IExecutionManager
         if (pathToAdditionalExtensions != null && pathToAdditionalExtensions.Any())
         {
             // Start using these additional extensions
-            TestPluginCache.Instance.DefaultExtensionPaths = pathToAdditionalExtensions;
+            _testPluginCache.DefaultExtensionPaths = pathToAdditionalExtensions;
         }
 
         LoadExtensions();
@@ -107,7 +103,8 @@ public class ExecutionManager : IExecutionManager
         {
             InitializeDataCollectors(runSettings, testCaseEventsHandler as ITestEventsPublisher, TestSourcesUtility.GetDefaultCodebasePath(adapterSourceMap!));
 
-            _activeTestRun = new RunTestsWithSources(_requestData, adapterSourceMap, package, runSettings, testExecutionContext, testCaseEventsHandler, runEventsHandler);
+            _activeTestRun = new RunTestsWithSources(_requestData, adapterSourceMap, package, runSettings, testExecutionContext, testCaseEventsHandler, runEventsHandler,
+                _testPlatformEventSource, _dataSerializer, _sessionMessageLogger, _testPluginCache);
             _activeTestRun.RunTests();
         }
         catch (Exception e)
@@ -142,7 +139,8 @@ public class ExecutionManager : IExecutionManager
         {
             InitializeDataCollectors(runSettings, testCaseEventsHandler as ITestEventsPublisher, TestSourcesUtility.GetDefaultCodebasePath(tests));
 
-            _activeTestRun = new RunTestsWithTests(_requestData, tests, package, runSettings, testExecutionContext, testCaseEventsHandler, runEventsHandler);
+            _activeTestRun = new RunTestsWithTests(_requestData, tests, package, runSettings, testExecutionContext, testCaseEventsHandler, runEventsHandler,
+                _testPlatformEventSource, _dataSerializer, _sessionMessageLogger, _testPluginCache);
             _activeTestRun.RunTests();
         }
         catch (Exception e)
@@ -189,18 +187,18 @@ public class ExecutionManager : IExecutionManager
     }
 
     #endregion
-    private static void LoadExtensions()
+    private void LoadExtensions()
     {
         try
         {
             // Load the extensions on creation so that we dont have to spend time during first execution.
             EqtTrace.Verbose("TestExecutorService: Loading the extensions");
 
-            TestExecutorExtensionManager.LoadAndInitializeAllExtensions(false);
+            new TestExecutorExtensionManagerFactory(_sessionMessageLogger, _testPluginCache).LoadAndInitializeAllExtensions(false);
 
             EqtTrace.Verbose("TestExecutorService: Loaded the executors");
 
-            SettingsProviderExtensionManager.LoadAndInitializeAllExtensions(false);
+            new SettingsProviderExtensionManagerFactory(_testPluginCache, _sessionMessageLogger).LoadAndInitializeAllExtensions(false);
 
             EqtTrace.Verbose("TestExecutorService: Loaded the settings providers");
             EqtTrace.Info("TestExecutorService: Loaded the extensions");
@@ -214,7 +212,7 @@ public class ExecutionManager : IExecutionManager
     /// <summary>
     /// Initializes out-proc and in-proc data collectors.
     /// </summary>
-    private static void InitializeDataCollectors(string? runSettings, ITestEventsPublisher? testEventsPublisher, string? defaultCodeBase)
+    private void InitializeDataCollectors(string? runSettings, ITestEventsPublisher? testEventsPublisher, string? defaultCodeBase)
     {
         // Initialize out-proc data collectors if declared in run settings.
         if (DataCollectionTestCaseEventSender.Instance != null && XmlRunSettingsUtilities.IsDataCollectionEnabled(runSettings))
@@ -227,7 +225,7 @@ public class ExecutionManager : IExecutionManager
         if (XmlRunSettingsUtilities.IsInProcDataCollectionEnabled(runSettings))
         {
             TPDebug.Assert(testEventsPublisher is not null, "testEventsPublisher is null");
-            _ = new InProcDataCollectionExtensionManager(runSettings, testEventsPublisher, defaultCodeBase, TestPluginCache.Instance);
+            _ = new InProcDataCollectionExtensionManager(runSettings, testEventsPublisher, defaultCodeBase, _testPluginCache);
         }
     }
 

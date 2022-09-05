@@ -33,12 +33,23 @@ internal class TestRuntimeExtensionManager : TestExtensionManager<ITestRuntimePr
     /// <remarks>
     /// The constructor is not public because the factory method should be used to get instances of this class.
     /// </remarks>
-    protected TestRuntimeExtensionManager(
+    protected internal TestRuntimeExtensionManager(
         IEnumerable<LazyExtension<ITestRuntimeProvider, Dictionary<string, object>>> unfilteredTestExtensions,
         IEnumerable<LazyExtension<ITestRuntimeProvider, ITestRuntimeCapabilities>> testExtensions,
-        IMessageLogger logger)
-        : base(unfilteredTestExtensions, testExtensions, logger)
+        IMessageLogger logger,
+        TestPluginManager testPluginManager)
+        : base(unfilteredTestExtensions, testExtensions, logger, testPluginManager)
     {
+    }
+}
+
+internal class TestRuntimeExtensionManagerFactory
+{
+    private readonly TestPluginCache _testPluginCache;
+
+    public TestRuntimeExtensionManagerFactory(TestPluginCache testPluginCache)
+    {
+        _testPluginCache = testPluginCache;
     }
 
     /// <summary>
@@ -50,13 +61,14 @@ internal class TestRuntimeExtensionManager : TestExtensionManager<ITestRuntimePr
     /// <returns>
     /// The TestLoggerExtensionManager.
     /// </returns>
-    public static TestRuntimeExtensionManager Create(IMessageLogger messageLogger)
+    public TestRuntimeExtensionManager Create(IMessageLogger messageLogger)
     {
-        TestPluginManager.GetSpecificTestExtensions<TestRuntimePluginInformation, ITestRuntimeProvider, ITestRuntimeCapabilities, TestRuntimeMetadata>(
-            TestPlatformConstants.RunTimeEndsWithPattern,
-            out IEnumerable<LazyExtension<ITestRuntimeProvider, Dictionary<string, object>>> unfilteredTestExtensions,
-            out IEnumerable<LazyExtension<ITestRuntimeProvider, ITestRuntimeCapabilities>> filteredTestExtensions);
+        var testPluginManager = new TestPluginManager(_testPluginCache);
+        testPluginManager.GetSpecificTestExtensions<TestRuntimePluginInformation, ITestRuntimeProvider, ITestRuntimeCapabilities, TestRuntimeMetadata>(
+           TestPlatformConstants.RunTimeEndsWithPattern,
+           out IEnumerable<LazyExtension<ITestRuntimeProvider, Dictionary<string, object>>> unfilteredTestExtensions,
+           out IEnumerable<LazyExtension<ITestRuntimeProvider, ITestRuntimeCapabilities>> filteredTestExtensions);
 
-        return new TestRuntimeExtensionManager(unfilteredTestExtensions, filteredTestExtensions, messageLogger);
+        return new TestRuntimeExtensionManager(unfilteredTestExtensions, filteredTestExtensions, messageLogger, testPluginManager);
     }
 }

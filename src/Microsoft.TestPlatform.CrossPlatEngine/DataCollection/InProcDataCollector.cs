@@ -45,8 +45,9 @@ internal class InProcDataCollector : IInProcDataCollector
         string codeBase,
         string assemblyQualifiedName,
         TypeInfo interfaceTypeInfo,
-        string? configXml)
-        : this(codeBase, assemblyQualifiedName, interfaceTypeInfo, configXml, new PlatformAssemblyLoadContext(), TestPluginCache.Instance)
+        string? configXml,
+        TestPluginCache testPluginCache)
+        : this(codeBase, assemblyQualifiedName, interfaceTypeInfo, configXml, new PlatformAssemblyLoadContext(), testPluginCache)
     {
     }
 

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Host;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -26,17 +27,10 @@ public class TestRuntimeProviderManager : ITestRuntimeProviderManager
     /// <param name="sessionLogger">
     /// The session Logger.
     /// </param>
-    public TestRuntimeProviderManager(IMessageLogger sessionLogger)
+    public TestRuntimeProviderManager(IMessageLogger sessionLogger, TestPluginCache testPluginCache)
     {
-        _testHostExtensionManager = TestRuntimeExtensionManager.Create(sessionLogger);
+        _testHostExtensionManager = new TestRuntimeExtensionManagerFactory(testPluginCache).Create(sessionLogger);
     }
-
-    /// <summary>
-    /// Gets the instance of TestRuntimeProviderManager
-    /// </summary>
-    [Obsolete("don't use", error: true)]
-    public static TestRuntimeProviderManager Instance
-        => s_testHostManager ??= new TestRuntimeProviderManager(TestSessionMessageLogger.Instance);
 
     public ITestRuntimeProvider? GetTestHostManagerByUri(string hostUri)
     {

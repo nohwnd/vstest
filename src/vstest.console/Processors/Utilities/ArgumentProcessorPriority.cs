@@ -24,12 +24,6 @@ internal enum ArgumentProcessorPriority
     Diag = 1,
 
     /// <summary>
-    /// Priority of processors related to design mode. This needs to be higher priority
-    /// since some of the functionalities (like logger) depend on this.
-    /// </summary>
-    DesignMode = 2,
-
-    /// <summary>
     /// Priority of UseVsixArgumentProcessor.
     /// The priority of useVsix processor is more than the logger because logger initialization
     /// loads the extensions which are incomplete if vsix processor is enabled
@@ -65,6 +59,12 @@ internal enum ArgumentProcessorPriority
     /// Priority of processors related to CLI Run Settings.
     /// </summary>
     CliRunSettings = 12,
+
+    /// <summary>
+    /// Priority of processors related to design mode. This needs to be after runsettings, but before
+    /// logger since some of the functionalities (like logger) depend on this.
+    /// </summary>
+    DesignMode = 13,
 
     /// <summary>
     /// Priority of processors related to logging.

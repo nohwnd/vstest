@@ -15,6 +15,8 @@ using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine;
@@ -37,6 +39,8 @@ internal class TestPlatform : ITestPlatform
     private readonly IFileHelper _fileHelper;
     private readonly ITestEngine _testEngine;
     private readonly IRunSettingsProvider _runsettingsManager;
+    private readonly TestPluginCache _testPluginCache;
+    private readonly IDataSerializer _dataSerializer;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestPlatform"/> class.
@@ -49,13 +53,16 @@ internal class TestPlatform : ITestPlatform
         ITestEngine testEngine,
         IFileHelper filehelper,
         ITestRuntimeProviderManager testHostProviderManager,
-        IRunSettingsProvider runsettingsManager)
+        IRunSettingsProvider runsettingsManager,
+        TestPluginCache testPluginCache,
+        IDataSerializer dataSerializer)
     {
         _testEngine = testEngine;
         _fileHelper = filehelper;
         _testHostProviderManager = testHostProviderManager;
         _runsettingsManager = runsettingsManager;
-
+        _testPluginCache = testPluginCache;
+        _dataSerializer = dataSerializer;
         AddExtensionAssembliesFromExtensionDirectory();
     }
 
@@ -78,7 +85,7 @@ internal class TestPlatform : ITestPlatform
         IProxyDiscoveryManager discoveryManager = _testEngine.GetDiscoveryManager(requestData, discoveryCriteria, sourceToSourceDetailMap, warningLogger);
         discoveryManager.Initialize(options?.SkipDefaultAdapters ?? false);
 
-        return new DiscoveryRequest(requestData, discoveryCriteria, discoveryManager, loggerManager);
+        return new DiscoveryRequest(requestData, discoveryCriteria, discoveryManager, loggerManager, _dataSerializer, _testPluginCache);
     }
 
     /// <inheritdoc/>
@@ -252,6 +259,13 @@ internal class TestPlatform : ITestPlatform
     /// </summary>
     private void AddExtensionAssembliesFromExtensionDirectory()
     {
+        ///
+       //  var a = CONTINUE;
+            // here. AddExtensionAssembliesFromExtensionDirectory needs to be called before
+        //    TestRuntimeExtensionManager Create
+        //    because that loads up the runtime providers from the cache.
+
+
         // This method needs to run statically before we have any adapter discovery.
         // TestHostProviderManager get initialized just after this call and it
         // requires DefaultExtensionPaths to be set to resolve a TestHostProvider.
@@ -305,7 +319,7 @@ internal class TestPlatform : ITestPlatform
             }
         }
 
-        TestPluginCache.Instance.DefaultExtensionPaths = defaultExtensionPaths.Distinct();
+        _testPluginCache.DefaultExtensionPaths = defaultExtensionPaths.Distinct();
     }
 
     private static SearchOption GetSearchOption(TestAdapterLoadingStrategy strategy, SearchOption defaultStrategyOption)

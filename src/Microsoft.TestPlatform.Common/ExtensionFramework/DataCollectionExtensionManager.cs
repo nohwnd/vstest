@@ -31,14 +31,18 @@ internal class DataCollectorExtensionManager : TestExtensionManager<ObjectModel.
     /// <remarks>
     /// The constructor is not public because the factory method should be used to get instances of this class.
     /// </remarks>
-    protected DataCollectorExtensionManager(
+    protected internal DataCollectorExtensionManager(
         IEnumerable<LazyExtension<ObjectModel.DataCollection.DataCollector, Dictionary<string, object>>> unfilteredTestExtensions,
         IEnumerable<LazyExtension<ObjectModel.DataCollection.DataCollector, IDataCollectorCapabilities>> testExtensions,
-        IMessageLogger logger)
-        : base(unfilteredTestExtensions, testExtensions, logger)
+        IMessageLogger logger,
+        TestPluginManager testPluginManager)
+        : base(unfilteredTestExtensions, testExtensions, logger, testPluginManager)
     {
     }
+}
 
+internal class DataCollectorExtensionManagerFactory
+{
     /// <summary>
     /// Gets an instance of the DataCollectorExtensionManager.
     /// </summary>
@@ -48,14 +52,15 @@ internal class DataCollectorExtensionManager : TestExtensionManager<ObjectModel.
     /// <returns>
     /// The DataCollectorExtensionManager.
     /// </returns>
-    public static DataCollectorExtensionManager Create(IMessageLogger messageLogger)
+    public static DataCollectorExtensionManager Create(IMessageLogger messageLogger, TestPluginCache testPluginCache)
     {
-        TestPluginManager.GetSpecificTestExtensions<DataCollectorConfig, ObjectModel.DataCollection.DataCollector, IDataCollectorCapabilities, DataCollectorMetadata>(
+        var testPluginManager = new TestPluginManager(testPluginCache);
+        testPluginManager.GetSpecificTestExtensions<DataCollectorConfig, ObjectModel.DataCollection.DataCollector, IDataCollectorCapabilities, DataCollectorMetadata>(
             TestPlatformConstants.DataCollectorEndsWithPattern,
             out var unfilteredTestExtensions,
             out var filteredTestExtensions);
 
-        return new DataCollectorExtensionManager(unfilteredTestExtensions, filteredTestExtensions, messageLogger);
+        return new DataCollectorExtensionManager(unfilteredTestExtensions, filteredTestExtensions, messageLogger, testPluginManager);
     }
 
     /// <summary>
@@ -73,15 +78,16 @@ internal class DataCollectorExtensionManager : TestExtensionManager<ObjectModel.
     /// <returns>
     /// The DataCollectorExtensionManager.
     /// </returns>
-    public static DataCollectorExtensionManager Create(string extensionAssemblyFilePath, bool skipCache, IMessageLogger messageLogger)
+    public static DataCollectorExtensionManager Create(string extensionAssemblyFilePath, bool skipCache, IMessageLogger messageLogger, TestPluginCache testPluginCache)
     {
-        TestPluginManager.GetTestExtensions<DataCollectorConfig, ObjectModel.DataCollection.DataCollector, IDataCollectorCapabilities, DataCollectorMetadata>(
+        var testPluginManager = new TestPluginManager(testPluginCache);
+        testPluginManager.GetTestExtensions<DataCollectorConfig, ObjectModel.DataCollection.DataCollector, IDataCollectorCapabilities, DataCollectorMetadata>(
             extensionAssemblyFilePath,
             out var unfilteredTestExtensions,
             out var filteredTestExtensions,
             skipCache);
 
-        return new DataCollectorExtensionManager(unfilteredTestExtensions, filteredTestExtensions, messageLogger);
+        return new DataCollectorExtensionManager(unfilteredTestExtensions, filteredTestExtensions, messageLogger, testPluginManager);
     }
 }
 

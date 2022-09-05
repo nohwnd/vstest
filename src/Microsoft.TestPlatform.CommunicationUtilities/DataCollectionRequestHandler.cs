@@ -38,8 +38,6 @@ namespace Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.DataCollect
 /// </summary>
 internal class DataCollectionRequestHandler : IDataCollectionRequestHandler, IDisposable
 {
-    private static readonly object SyncObject = new();
-
     private readonly ICommunicationManager _communicationManager;
     private readonly IMessageSink _messageSink;
     private readonly IDataCollectionManager _dataCollectionManager;
@@ -54,6 +52,7 @@ internal class DataCollectionRequestHandler : IDataCollectionRequestHandler, IDi
     /// Use to cancel data collection test case events monitoring if test run is canceled.
     /// </summary>
     private readonly CancellationTokenSource _cancellationTokenSource;
+    private readonly TestPluginCache _testPluginCache;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataCollectionRequestHandler"/> class.
@@ -64,17 +63,17 @@ internal class DataCollectionRequestHandler : IDataCollectionRequestHandler, IDi
     /// <param name="requestData">
     /// The request data.
     /// </param>
-    protected DataCollectionRequestHandler(IMessageSink messageSink, IRequestData requestData)
+    protected internal DataCollectionRequestHandler(IMessageSink messageSink, IRequestData requestData, IMessageLogger messageLogger,
+        TestPluginCache testPluginCache, IDataSerializer dataSerializer, IFileHelper fileHelper)
         : this(
             new SocketCommunicationManager(),
             messageSink,
-            DataCollectionManager.Create(messageSink, requestData),
+            DataCollectionManager.Create(messageSink, requestData, messageLogger, testPluginCache),
             new DataCollectionTestCaseEventHandler(messageSink),
-            JsonDataSerializer.Instance,
-            new FileHelper(),
+            dataSerializer,
+            fileHelper,
             requestData)
     {
-        _messageSink = messageSink;
     }
 
     /// <summary>
@@ -101,7 +100,7 @@ internal class DataCollectionRequestHandler : IDataCollectionRequestHandler, IDi
     /// <param name="requestData">
     /// Request data
     /// </param>
-    protected DataCollectionRequestHandler(
+    protected internal DataCollectionRequestHandler(
         ICommunicationManager communicationManager,
         IMessageSink messageSink,
         IDataCollectionManager dataCollectionManager,
@@ -124,56 +123,6 @@ internal class DataCollectionRequestHandler : IDataCollectionRequestHandler, IDi
     /// Gets the singleton instance of DataCollectionRequestHandler.
     /// </summary>
     public static DataCollectionRequestHandler? Instance { get; private set; }
-
-    /// <summary>
-    /// Creates singleton instance of DataCollectionRequestHandler.
-    /// </summary>
-    /// <param name="communicationManager">
-    /// Handles socket communication.
-    /// </param>
-    /// <param name="messageSink">
-    /// Message sink for sending messages to execution process.
-    /// </param>
-    /// <returns>
-    /// The instance of <see cref="DataCollectionRequestHandler"/>.
-    /// </returns>
-    public static DataCollectionRequestHandler Create(
-        ICommunicationManager communicationManager,
-        IMessageSink messageSink)
-    {
-        ValidateArg.NotNull(communicationManager, nameof(communicationManager));
-        ValidateArg.NotNull(messageSink, nameof(messageSink));
-
-        // TODO: The MessageSink and DataCollectionRequestHandler have circular dependency.
-        // Message sink is injected into this Create method and then into constructor
-        // and into the constructor of DataCollectionRequestHandler. Data collection manager
-        // is then assigned to .Instace (which unlike many other .Instance is not populated
-        // directly in that property, but is created here). And then MessageSink depends on
-        // the .Instance. This is a very complicated way of solving the circular dependency,
-        // and should be replaced by adding a property to Message and assigning it.
-        // .Instance can then be removed.
-        if (Instance == null)
-        {
-            lock (SyncObject)
-            {
-                if (Instance == null)
-                {
-                    var requestData = new RequestData();
-
-                    Instance = new DataCollectionRequestHandler(
-                        communicationManager,
-                        messageSink,
-                        DataCollectionManager.Create(messageSink, requestData),
-                        new DataCollectionTestCaseEventHandler(messageSink),
-                        JsonDataSerializer.Instance,
-                        new FileHelper(),
-                        requestData);
-                }
-            }
-        }
-
-        return Instance;
-    }
 
     /// <inheritdoc />
     public void InitializeCommunication(int port)
@@ -305,7 +254,7 @@ internal class DataCollectionRequestHandler : IDataCollectionRequestHandler, IDi
 
             if (extensionAssemblies.Count > 0)
             {
-                TestPluginCache.Instance.UpdateExtensions(extensionAssemblies, skipExtensionFilters: false);
+                _testPluginCache.UpdateExtensions(extensionAssemblies, skipExtensionFilters: false);
             }
         }
         catch (Exception e)
@@ -432,4 +381,54 @@ internal class DataCollectionRequestHandler : IDataCollectionRequestHandler, IDi
             _requestData.IsTelemetryOptedIn = isTelemetryOptedIn;
         }
     }
+}
+
+internal class DataCollectionRequestHandlerFactory
+{
+    private static readonly object SyncObject = new();
+
+    /// <summary>
+    /// Creates singleton instance of DataCollectionRequestHandler.
+    /// </summary>
+    /// <param name="communicationManager">
+    /// Handles socket communication.
+    /// </param>
+    /// <param name="messageSink">
+    /// Message sink for sending messages to execution process.
+    /// </param>
+    /// <returns>
+    /// The instance of <see cref="DataCollectionRequestHandler"/>.
+    /// </returns>
+    public static DataCollectionRequestHandler Create(
+        ICommunicationManager communicationManager,
+        IMessageSink messageSink,
+        IMessageLogger messageLogger,
+        TestPluginCache testPluginCache)
+    {
+        ValidateArg.NotNull(communicationManager, nameof(communicationManager));
+        ValidateArg.NotNull(messageSink, nameof(messageSink));
+
+        // TODO: The MessageSink and DataCollectionRequestHandler have circular dependency.
+        // Message sink is injected into this Create method and then into constructor
+        // and into the constructor of DataCollectionRequestHandler. Data collection manager
+        // is then assigned to .Instace (which unlike many other .Instance is not populated
+        // directly in that property, but is created here). And then MessageSink depends on
+        // the .Instance. This is a very complicated way of solving the circular dependency,
+        // and should be replaced by adding a property to Message and assigning it.
+        // .Instance can then be removed.
+
+        // BUG: I did not populate the circular dependency above.
+
+        var requestData = new RequestData();
+
+        return new DataCollectionRequestHandler(
+            communicationManager,
+            messageSink,
+            DataCollectionManager.Create(messageSink, requestData, messageLogger, testPluginCache),
+            new DataCollectionTestCaseEventHandler(messageSink),
+            JsonDataSerializer.Instance,
+            new FileHelper(),
+            requestData);
+    }
+
 }

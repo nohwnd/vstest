@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -31,12 +32,13 @@ internal class ListLoggersArgumentProcessor : ArgumentProcessor<bool>, IExecutor
         CreateExecutor = c =>
         {
             var serviceProvider = c.ServiceProvider;
-            var testSessionMessageLogger = TestSessionMessageLogger.Instance;
-            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger);
+            var testSessionMessageLogger = new TestSessionMessageLogger();
+            var testPluginCache = new TestPluginCache(testSessionMessageLogger);
+            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger, testPluginCache);
             var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
             var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
-                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>());
-            return new ListDiscoverersArgumentExecutor(serviceProvider.GetService<IOutput>(), testPlatform);
+                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>(), testPluginCache, JsonDataSerializer.Instance);
+            return new ListLoggersArgumentExecutor(serviceProvider.GetService<IOutput>(), testPlatform, testSessionMessageLogger, testPluginCache);
         };
     }
 
@@ -50,12 +52,12 @@ internal class ListLoggersArgumentExecutor : IArgumentExecutor
     private readonly TestLoggerExtensionManager _extensionManager;
     private bool _shouldExecute;
 
-    public ListLoggersArgumentExecutor(IOutput output, ITestPlatform testPlatform)
+    public ListLoggersArgumentExecutor(IOutput output, ITestPlatform testPlatform, IMessageLogger messageLogger, TestPluginCache testPluginCache)
     {
         _output = output;
         // Test platform populates extension manager in constructor.
         _testPlatform = testPlatform;
-        _extensionManager = TestLoggerExtensionManager.Create(new NullMessageLogger());
+        _extensionManager = TestLoggerExtensionManagerFactory.Create(messageLogger, testPluginCache);
     }
     public void Initialize(ParseResult parseResult)
     {

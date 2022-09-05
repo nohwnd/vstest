@@ -32,7 +32,7 @@ internal sealed class DataCollectorAttachmentProcessorRemoteWrapper : MarshalByR
     private readonly AnonymousPipeServerStream _pipeServerStream = new(PipeDirection.Out, HandleInheritability.None);
     private readonly object _pipeClientLock = new();
     private readonly string _pipeShutdownMessagePrefix;
-
+    private readonly TestPluginCache _testPluginCache;
     private IDataCollectorAttachmentProcessor? _dataCollectorAttachmentProcessorInstance;
 
     private CancellationTokenSource? _processAttachmentCts;
@@ -45,9 +45,10 @@ internal sealed class DataCollectorAttachmentProcessorRemoteWrapper : MarshalByR
 
     public bool HasAttachmentProcessor { get; private set; }
 
-    public DataCollectorAttachmentProcessorRemoteWrapper(string pipeShutdownMessagePrefix)
+    public DataCollectorAttachmentProcessorRemoteWrapper(string pipeShutdownMessagePrefix, TestPluginCache testPluginCache)
     {
         _pipeShutdownMessagePrefix = pipeShutdownMessagePrefix ?? throw new ArgumentNullException(nameof(pipeShutdownMessagePrefix));
+        _testPluginCache = testPluginCache;
     }
 
     public string GetClientHandleAsString() => _pipeServerStream.GetClientHandleAsString();
@@ -83,7 +84,7 @@ internal sealed class DataCollectorAttachmentProcessorRemoteWrapper : MarshalByR
 
     public bool LoadExtension(string filePath, Uri dataCollectorUri)
     {
-        var dataCollectorExtensionManager = DataCollectorExtensionManager.Create(filePath, true, new MessageLogger(this, nameof(LoadExtension)));
+        var dataCollectorExtensionManager = DataCollectorExtensionManagerFactory.Create(filePath, true, new MessageLogger(this, nameof(LoadExtension)), _testPluginCache);
         var dataCollectorExtension = dataCollectorExtensionManager.TryGetTestExtension(dataCollectorUri);
         if (dataCollectorExtension is null || dataCollectorExtension.Metadata.HasAttachmentProcessor == false)
         {

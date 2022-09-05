@@ -25,20 +25,24 @@ internal class TestLoggerExtensionManager : TestExtensionManager<ITestLogger, IT
     /// <param name="testExtensions">
     /// The test Extensions.
     /// </param>
-    /// <param name="logger">
+    /// <param name="messageLogger">
     /// The logger.
     /// </param>
     /// <remarks>
     /// The constructor is not public because the factory method should be used to get instances of this class.
     /// </remarks>
-    protected TestLoggerExtensionManager(
+    protected internal TestLoggerExtensionManager(
         IEnumerable<LazyExtension<ITestLogger, Dictionary<string, object>>> unfilteredTestExtensions,
         IEnumerable<LazyExtension<ITestLogger, ITestLoggerCapabilities>> testExtensions,
-        IMessageLogger logger)
-        : base(unfilteredTestExtensions, testExtensions, logger)
+        IMessageLogger messageLogger,
+        TestPluginManager testPluginManager)
+        : base(unfilteredTestExtensions, testExtensions, messageLogger, testPluginManager)
     {
     }
+}
 
+internal class TestLoggerExtensionManagerFactory
+{
     /// <summary>
     /// Gets an instance of the TestLoggerExtensionManager.
     /// </summary>
@@ -48,15 +52,16 @@ internal class TestLoggerExtensionManager : TestExtensionManager<ITestLogger, IT
     /// <returns>
     /// The TestLoggerExtensionManager.
     /// </returns>
-    public static TestLoggerExtensionManager Create(IMessageLogger messageLogger)
+    public static TestLoggerExtensionManager Create(IMessageLogger messageLogger, TestPluginCache testPluginCache)
     {
+        var testPluginManager = new TestPluginManager(testPluginCache);
 
-        TestPluginManager.GetSpecificTestExtensions<TestLoggerPluginInformation, ITestLogger, ITestLoggerCapabilities, TestLoggerMetadata>(
+        testPluginManager.GetSpecificTestExtensions<TestLoggerPluginInformation, ITestLogger, ITestLoggerCapabilities, TestLoggerMetadata>(
             TestPlatformConstants.TestLoggerEndsWithPattern,
             out IEnumerable<LazyExtension<ITestLogger, Dictionary<string, object>>> unfilteredTestExtensions,
             out IEnumerable<LazyExtension<ITestLogger, ITestLoggerCapabilities>> filteredTestExtensions);
 
-        return new TestLoggerExtensionManager(unfilteredTestExtensions, filteredTestExtensions, messageLogger);
+        return new TestLoggerExtensionManager(unfilteredTestExtensions, filteredTestExtensions, messageLogger, testPluginManager);
     }
 }
 

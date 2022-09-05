@@ -8,7 +8,6 @@ using System.Globalization;
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
-using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -27,9 +26,6 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.SettingsProvider;
 /// </remarks>
 public class SettingsProviderExtensionManager
 {
-    private static SettingsProviderExtensionManager? s_settingsProviderExtensionManager;
-    private static readonly object Synclock = new();
-
     /// <summary>
     /// The settings providers which are available.
     /// </summary>
@@ -47,7 +43,7 @@ public class SettingsProviderExtensionManager
     /// The settings providers are imported as non-shared because we need different settings provider
     /// instances to be used for each run settings.
     /// </remarks>
-    protected SettingsProviderExtensionManager(
+    protected internal SettingsProviderExtensionManager(
         IEnumerable<LazyExtension<ISettingsProvider, ISettingsProviderCapabilities>> settingsProviders,
         IEnumerable<LazyExtension<ISettingsProvider, Dictionary<string, object>>> unfilteredSettingsProviders,
         IMessageLogger logger)
@@ -94,10 +90,44 @@ public class SettingsProviderExtensionManager
     public Dictionary<string, LazyExtension<ISettingsProvider, ISettingsProviderCapabilities>> SettingsProvidersMap { get; }
 
     /// <summary>
+    /// Gets the settings with the provided name.
+    /// </summary>
+    /// <param name="settingsName">Name of the settings to get.</param>
+    /// <returns>Settings provider with the provided name or null if one was not found.</returns>
+    internal LazyExtension<ISettingsProvider, ISettingsProviderCapabilities>? GetSettingsProvider(string settingsName)
+    {
+        if (settingsName.IsNullOrWhiteSpace())
+        {
+            throw new ArgumentException(ObjectModelCommonResources.CannotBeNullOrEmpty, nameof(settingsName));
+        }
+
+        SettingsProvidersMap.TryGetValue(settingsName, out var settingsProvider);
+
+        return settingsProvider;
+    }
+}
+
+// TODO: this is secretly also a cache that ensures we only get a single instance of SettingsProviderExtensionManager.
+// Could the usages be rewired to not require us to explicitly do that, but instead we would provide the same instance
+// in both places that need it?
+internal class SettingsProviderExtensionManagerFactory
+{
+    private static SettingsProviderExtensionManager? s_settingsProviderExtensionManager;
+    private static readonly object Synclock = new();
+    private readonly TestPluginManager _testPluginManager;
+    private readonly IMessageLogger _messageLogger;
+
+    public SettingsProviderExtensionManagerFactory(TestPluginCache testPluginCache, IMessageLogger messageLogger)
+    {
+        _testPluginManager = new TestPluginManager(testPluginCache);
+        _messageLogger = messageLogger;
+    }
+
+    /// <summary>
     /// Creates an instance of the settings provider.
     /// </summary>
     /// <returns>Instance of the settings provider.</returns>
-    public static SettingsProviderExtensionManager Create()
+    public SettingsProviderExtensionManager Create()
     {
         if (s_settingsProviderExtensionManager == null)
         {
@@ -106,13 +136,13 @@ public class SettingsProviderExtensionManager
                 if (s_settingsProviderExtensionManager == null)
                 {
 
-                    TestPluginManager.GetSpecificTestExtensions<TestSettingsProviderPluginInformation, ISettingsProvider, ISettingsProviderCapabilities, TestSettingsProviderMetadata>(
+                    _testPluginManager.GetSpecificTestExtensions<TestSettingsProviderPluginInformation, ISettingsProvider, ISettingsProviderCapabilities, TestSettingsProviderMetadata>(
                             TestPlatformConstants.TestAdapterEndsWithPattern,
                             out var unfilteredTestExtensions,
                             out var testExtensions);
 
                     s_settingsProviderExtensionManager = new SettingsProviderExtensionManager(
-                        testExtensions, unfilteredTestExtensions, TestSessionMessageLogger.Instance);
+                        testExtensions, unfilteredTestExtensions, _messageLogger);
                 }
             }
         }
@@ -135,7 +165,7 @@ public class SettingsProviderExtensionManager
     /// Load all the settings provider and fail on error
     /// </summary>
     /// <param name="shouldThrowOnError"> Indicates whether this method should throw on error. </param>
-    public static void LoadAndInitializeAllExtensions(bool shouldThrowOnError)
+    public void LoadAndInitializeAllExtensions(bool shouldThrowOnError)
     {
         var extensionManager = Create();
 
@@ -158,24 +188,6 @@ public class SettingsProviderExtensionManager
             }
         }
     }
-
-    /// <summary>
-    /// Gets the settings with the provided name.
-    /// </summary>
-    /// <param name="settingsName">Name of the settings to get.</param>
-    /// <returns>Settings provider with the provided name or null if one was not found.</returns>
-    internal LazyExtension<ISettingsProvider, ISettingsProviderCapabilities>? GetSettingsProvider(string settingsName)
-    {
-        if (settingsName.IsNullOrWhiteSpace())
-        {
-            throw new ArgumentException(ObjectModelCommonResources.CannotBeNullOrEmpty, nameof(settingsName));
-        }
-
-        SettingsProvidersMap.TryGetValue(settingsName, out var settingsProvider);
-
-        return settingsProvider;
-    }
-
 }
 
 /// <summary>

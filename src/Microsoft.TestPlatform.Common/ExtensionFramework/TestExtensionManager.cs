@@ -43,11 +43,13 @@ internal abstract class TestExtensionManager<TExtension, TMetadata>
     protected TestExtensionManager(
         IEnumerable<LazyExtension<TExtension, Dictionary<string, object>>> unfilteredTestExtensions,
         IEnumerable<LazyExtension<TExtension, TMetadata>> testExtensions,
-        IMessageLogger logger)
+        IMessageLogger logger,
+        TestPluginManager testPluginManager)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         TestExtensions = testExtensions ?? throw new ArgumentNullException(nameof(testExtensions));
         UnfilteredTestExtensions = unfilteredTestExtensions ?? throw new ArgumentNullException(nameof(unfilteredTestExtensions));
+        TestPluginManager = testPluginManager;
 
         // Populate the map to avoid threading issues
         PopulateMap();
@@ -66,6 +68,7 @@ internal abstract class TestExtensionManager<TExtension, TMetadata>
     {
         get; private set;
     }
+    public TestPluginManager TestPluginManager { get; }
 
     /// <summary>
     /// Gets filtered list of test extensions which are available.

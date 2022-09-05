@@ -15,13 +15,14 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 /// </summary>
 internal class TestPluginManager
 {
-    private static TestPluginManager? s_instance;
+    private readonly TestPluginCache _testPluginCache;
 
-    /// <summary>
-    /// Gets the singleton instance of TestPluginManager.
-    /// </summary>
-    public static TestPluginManager Instance
-        => s_instance ??= new TestPluginManager();
+    public TestPluginManager(TestPluginCache testPluginCache)
+    {
+        // LIFETIME: This needs to be injected because it must be the same instance as many other places.
+        // Other places add or change extensions in the cache.
+        _testPluginCache = testPluginCache;
+    }
 
     /// <summary>
     /// Gets data type of test extension with given assembly qualified name.
@@ -106,12 +107,12 @@ internal class TestPluginManager
     /// <param name="filtered">
     /// Receives test extensions filtered by Identifier data
     /// </param>
-    public static void GetSpecificTestExtensions<TPluginInfo, TExtension, IMetadata, TMetadata>(
+    public void GetSpecificTestExtensions<TPluginInfo, TExtension, IMetadata, TMetadata>(
         string endsWithPattern,
         out IEnumerable<LazyExtension<TExtension, Dictionary<string, object>>> unfiltered,
         out IEnumerable<LazyExtension<TExtension, IMetadata>> filtered) where TMetadata : IMetadata where TPluginInfo : TestPluginInformation
     {
-        var extensions = TestPluginCache.Instance.DiscoverTestExtensions<TPluginInfo, TExtension>(endsWithPattern);
+        var extensions = _testPluginCache.DiscoverTestExtensions<TPluginInfo, TExtension>(endsWithPattern);
         TPDebug.Assert(extensions is not null, "extensions is null");
         GetExtensions<TPluginInfo, TExtension, IMetadata, TMetadata>(extensions, out unfiltered, out filtered);
     }
@@ -142,13 +143,13 @@ internal class TestPluginManager
     /// <param name="skipCache">
     /// Skip the extensions cache.
     /// </param>
-    public static void GetTestExtensions<TPluginInfo, TExtension, IMetadata, TMetadata>(
+    public void GetTestExtensions<TPluginInfo, TExtension, IMetadata, TMetadata>(
         string extensionAssembly,
         out IEnumerable<LazyExtension<TExtension, Dictionary<string, object>>> unfiltered,
         out IEnumerable<LazyExtension<TExtension, IMetadata>> filtered,
         bool skipCache = false) where TMetadata : IMetadata where TPluginInfo : TestPluginInformation
     {
-        var extensions = TestPluginCache.Instance.GetTestExtensions<TPluginInfo, TExtension>(extensionAssembly, skipCache);
+        var extensions = _testPluginCache.GetTestExtensions<TPluginInfo, TExtension>(extensionAssembly, skipCache);
         GetExtensions<TPluginInfo, TExtension, IMetadata, TMetadata>(extensions, out unfiltered, out filtered);
     }
 

@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
-using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Adapter;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -14,6 +16,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.ClientProtocol;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Execution;
 
@@ -24,8 +27,12 @@ internal class RunTestsWithTests : BaseRunTests
 
     private Dictionary<Tuple<Uri, string>, List<TestCase>>? _executorUriVsTestList;
 
-    public RunTestsWithTests(IRequestData requestData, IEnumerable<TestCase> testCases, string? package, string? runSettings, TestExecutionContext testExecutionContext, ITestCaseEventsHandler? testCaseEventsHandler, IInternalTestRunEventsHandler testRunEventsHandler)
-        : this(requestData, testCases, package, runSettings, testExecutionContext, testCaseEventsHandler, testRunEventsHandler, null)
+    public RunTestsWithTests(IRequestData requestData, IEnumerable<TestCase> testCases, string? package, string? runSettings,
+        TestExecutionContext testExecutionContext, ITestCaseEventsHandler? testCaseEventsHandler,
+        IInternalTestRunEventsHandler testRunEventsHandler, ITestPlatformEventSource testPlatformEventSource,
+        IDataSerializer dataSerializer, IMessageLogger messageLogger, TestPluginCache testPluginCache)
+        : this(requestData, testCases, package, runSettings, testExecutionContext, testCaseEventsHandler,
+              testRunEventsHandler, null, testPlatformEventSource, dataSerializer, messageLogger, testPluginCache)
     {
     }
 
@@ -40,8 +47,13 @@ internal class RunTestsWithTests : BaseRunTests
     /// <param name="testCaseEventsHandler"></param>
     /// <param name="testRunEventsHandler"></param>
     /// <param name="executorUriVsTestList"></param>
-    internal RunTestsWithTests(IRequestData requestData, IEnumerable<TestCase> testCases, string? package, string? runSettings, TestExecutionContext testExecutionContext, ITestCaseEventsHandler? testCaseEventsHandler, IInternalTestRunEventsHandler testRunEventsHandler, Dictionary<Tuple<Uri, string>, List<TestCase>>? executorUriVsTestList)
-        : base(requestData, package, runSettings, testExecutionContext, testCaseEventsHandler, testRunEventsHandler, TestPlatformEventSource.Instance)
+    internal RunTestsWithTests(IRequestData requestData, IEnumerable<TestCase> testCases, string? package, string? runSettings,
+        TestExecutionContext testExecutionContext, ITestCaseEventsHandler? testCaseEventsHandler,
+        IInternalTestRunEventsHandler testRunEventsHandler, Dictionary<Tuple<Uri, string>,
+        List<TestCase>>? executorUriVsTestList, ITestPlatformEventSource testPlatformEventSource,
+        IDataSerializer dataSerializer, IMessageLogger messageLogger, TestPluginCache testPluginCache)
+        : base(requestData, package, runSettings, testExecutionContext, testCaseEventsHandler, testRunEventsHandler, testPlatformEventSource,
+            dataSerializer, messageLogger, testPluginCache)
     {
         _testCases = testCases;
         _executorUriVsTestList = executorUriVsTestList;

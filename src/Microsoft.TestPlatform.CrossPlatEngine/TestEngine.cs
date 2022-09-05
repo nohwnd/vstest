@@ -6,11 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.Common.Telemetry;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client.Parallel;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection;
@@ -19,10 +22,11 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Host;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
+using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 
@@ -34,17 +38,34 @@ public class TestEngine : ITestEngine
     private readonly ITestRuntimeProviderManager _testHostProviderManager;
     private readonly IProcessHelper _processHelper;
     private readonly IEnvironment _environment;
-
+    private readonly TestSessionMessageLogger _testSessionMessageLogger;
+    private readonly ITestPlatformEventSource _testPlatformEventSource;
+    private readonly TestPluginCache _testPluginCache;
+    private readonly IMessageLogger _messageLogger;
+    private readonly IDataSerializer _dataSerializer;
+    private readonly IFileHelper _fileHelper;
     private ITestExtensionManager? _testExtensionManager;
 
     internal TestEngine(
         ITestRuntimeProviderManager testHostProviderManager,
         IProcessHelper processHelper,
-        IEnvironment environment)
+        IEnvironment environment,
+        TestSessionMessageLogger testSessionMessageLogger,
+        ITestPlatformEventSource testPlatformEventSource,
+        TestPluginCache testPluginCache,
+        IMessageLogger messageLogger,
+        IDataSerializer dataSerializer,
+        IFileHelper fileHelper)
     {
         _testHostProviderManager = testHostProviderManager;
         _processHelper = processHelper;
         _environment = environment;
+        _testSessionMessageLogger = testSessionMessageLogger;
+        _testPlatformEventSource = testPlatformEventSource;
+        _testPluginCache = testPluginCache;
+        _messageLogger = messageLogger;
+        _dataSerializer = dataSerializer;
+        _fileHelper = fileHelper;
     }
 
     #region ITestEngine implementation
@@ -96,7 +117,8 @@ public class TestEngine : ITestEngine
 
             return new InProcessProxyDiscoveryManager(
                 testHostManager,
-                new TestHostManagerFactory(requestData.IsTelemetryOptedIn));
+                new TestHostManagerFactory(requestData.IsTelemetryOptedIn, _testPlatformEventSource, _testSessionMessageLogger, _testPluginCache, _dataSerializer),
+                _testPluginCache);
         }
 
         // Create one data aggregator per parallel discovery and share it with all the proxy discovery managers.
@@ -109,7 +131,7 @@ public class TestEngine : ITestEngine
         {
             var sources = runtimeProviderInfo.SourceDetails.Select(r => r.Source!).ToList();
             var hostManager = _testHostProviderManager.GetTestHostManagerByRunConfiguration(runtimeProviderInfo.RunSettings, sources);
-            hostManager?.Initialize(TestSessionMessageLogger.Instance, runtimeProviderInfo.RunSettings!);
+            hostManager?.Initialize(_testSessionMessageLogger, runtimeProviderInfo.RunSettings!);
 
             ThrowExceptionIfTestHostManagerIsNull(hostManager, runtimeProviderInfo.RunSettings);
             TPDebug.Assert(hostManager is not null, "hostManager is null");
@@ -166,6 +188,7 @@ public class TestEngine : ITestEngine
                     hostManager,
                     // There is always at least one, and all of them have the same framework and architecture.
                     runtimeProviderInfo.SourceDetails[0].Framework,
+                    _testPluginCache,
                     discoveryDataAggregator);
         };
 
@@ -224,7 +247,8 @@ public class TestEngine : ITestEngine
 
             return new InProcessProxyExecutionManager(
                 testHostManager,
-                new TestHostManagerFactory(requestData.IsTelemetryOptedIn));
+                new TestHostManagerFactory(requestData.IsTelemetryOptedIn, _testPlatformEventSource, _testSessionMessageLogger, _testPluginCache, _dataSerializer),
+                _testPluginCache);
         }
 
         // This creates a single non-parallel execution manager, based requestData, isDataCollectorEnabled and the
@@ -255,7 +279,7 @@ public class TestEngine : ITestEngine
         var sources = runtimeProviderInfo.SourceDetails.Select(r => r.Source!).ToList();
         var hostManager = _testHostProviderManager.GetTestHostManagerByRunConfiguration(runtimeProviderInfo.RunSettings, sources);
         ThrowExceptionIfTestHostManagerIsNull(hostManager, runtimeProviderInfo.RunSettings);
-        hostManager!.Initialize(TestSessionMessageLogger.Instance, runtimeProviderInfo.RunSettings!);
+        hostManager!.Initialize(_testSessionMessageLogger, runtimeProviderInfo.RunSettings!);
 
         if (testRunCriteria.TestHostLauncher != null)
         {
@@ -308,7 +332,10 @@ public class TestEngine : ITestEngine
             return new ProxyExecutionManager(
                 testRunCriteria.TestSessionInfo,
                 proxyOperationManagerCreator,
-                testRunCriteria.DebugEnabledForTestSession);
+                testRunCriteria.DebugEnabledForTestSession,
+                _dataSerializer,
+                _fileHelper,
+                _testPluginCache);
         }
 
         return isDataCollectorEnabled
@@ -327,7 +354,10 @@ public class TestEngine : ITestEngine
                 requestSender,
                 hostManager,
                 // There is always at least one, and all of them have the same framework and architecture.
-                runtimeProviderInfo.SourceDetails[0].Framework!);
+                runtimeProviderInfo.SourceDetails[0].Framework!,
+                _dataSerializer,
+                _fileHelper,
+                _testPluginCache);
     }
 
     /// <inheritdoc/>
@@ -368,7 +398,7 @@ public class TestEngine : ITestEngine
             var hostManager = _testHostProviderManager.GetTestHostManagerByRunConfiguration(testRuntimeProviderInfo.RunSettings, sources);
             ThrowExceptionIfTestHostManagerIsNull(hostManager, testRuntimeProviderInfo.RunSettings);
 
-            hostManager!.Initialize(TestSessionMessageLogger.Instance, testRuntimeProviderInfo.RunSettings!);
+            hostManager!.Initialize(_testSessionMessageLogger, testRuntimeProviderInfo.RunSettings!);
             if (testSessionCriteria.TestHostLauncher != null)
             {
                 hostManager.SetCustomLauncher(testSessionCriteria.TestHostLauncher);
@@ -439,7 +469,7 @@ public class TestEngine : ITestEngine
             if (testRuntimeProvider != null)
             {
                 // Initialize here, because Shared is picked up from the instance, and it can be set during initalization.
-                testRuntimeProvider.Initialize(TestSessionMessageLogger.Instance, runsettingsXml);
+                testRuntimeProvider.Initialize(_testSessionMessageLogger, runsettingsXml);
 
                 // DO NOT move this above Initialize, the intialization can set Shared, to true, and we would not capture that.
                 testRuntimeProviders.Add(new TestRuntimeProviderInfo(testRuntimeProvider.GetType(), testRuntimeProvider.Shared,
@@ -464,15 +494,16 @@ public class TestEngine : ITestEngine
     }
 
     /// <inheritdoc/>
-    public ITestExtensionManager GetExtensionManager() => _testExtensionManager ??= new TestExtensionManager();
+    public ITestExtensionManager GetExtensionManager() => _testExtensionManager ??= new TestExtensionManager(_testPluginCache);
 
     /// <inheritdoc/>
     public ITestLoggerManager GetLoggerManager(IRequestData requestData)
     {
         return new TestLoggerManager(
             requestData,
-            TestSessionMessageLogger.Instance,
-            new InternalTestLoggerEvents(TestSessionMessageLogger.Instance));
+            _testSessionMessageLogger,
+            new InternalTestLoggerEvents(_testSessionMessageLogger),
+            _testPluginCache);
     }
 
     #endregion

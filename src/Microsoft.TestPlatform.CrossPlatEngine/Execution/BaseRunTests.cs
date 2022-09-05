@@ -61,6 +61,7 @@ internal abstract class BaseRunTests
 
     private protected string? _package;
     private readonly IRequestData _requestData;
+    private protected TestPluginCache _testPluginCache;
 
     /// <summary>
     /// Specifies that the test run cancellation is requested
@@ -89,7 +90,10 @@ internal abstract class BaseRunTests
         TestExecutionContext testExecutionContext,
         ITestCaseEventsHandler? testCaseEventsHandler,
         IInternalTestRunEventsHandler testRunEventsHandler,
-        ITestPlatformEventSource testPlatformEventSource)
+        ITestPlatformEventSource testPlatformEventSource,
+        IDataSerializer dataSerializer,
+        IMessageLogger messageLogger,
+        TestPluginCache testPluginCache)
         : this(
             requestData,
             package,
@@ -100,7 +104,9 @@ internal abstract class BaseRunTests
             testPlatformEventSource,
             testCaseEventsHandler as ITestEventsPublisher,
             new PlatformThread(),
-            JsonDataSerializer.Instance)
+            dataSerializer,
+            messageLogger,
+            testPluginCache)
     {
     }
 
@@ -128,7 +134,9 @@ internal abstract class BaseRunTests
         ITestPlatformEventSource testPlatformEventSource,
         ITestEventsPublisher? testEventsPublisher,
         IThread platformThread,
-        IDataSerializer dataSerializer)
+        IDataSerializer dataSerializer,
+        IMessageLogger messageLogger,
+        TestPluginCache testPluginCache)
     {
         _package = package;
         RunSettings = runSettings;
@@ -141,11 +149,11 @@ internal abstract class BaseRunTests
         _testPlatformEventSource = testPlatformEventSource;
         _platformThread = platformThread;
         _dataSerializer = dataSerializer;
-
+        _testPluginCache = testPluginCache;
         TestRunCache = new TestRunCache(TestExecutionContext.FrequencyOfRunStatsChangeEvent, TestExecutionContext.RunStatsChangeEventTimeout, OnCacheHit);
 
         RunContext = new RunContext();
-        RunContext.RunSettings = RunSettingsUtilities.CreateAndInitializeRunSettings(RunSettings);
+        RunContext.RunSettings = RunSettingsUtilities.CreateAndInitializeRunSettings(RunSettings, messageLogger, testPluginCache);
         RunContext.KeepAlive = TestExecutionContext.KeepAlive;
         RunContext.InIsolation = TestExecutionContext.InIsolation;
         RunContext.IsDataCollectionEnabled = TestExecutionContext.IsDataCollectionEnabled;
@@ -551,7 +559,7 @@ internal abstract class BaseRunTests
         return _runConfiguration.ExecutionThreadApartmentState != PlatformApartmentState.STA;
     }
 
-    private static TestExecutorExtensionManager? GetExecutorExtensionManager(string extensionAssembly)
+    private TestExecutorExtensionManager? GetExecutorExtensionManager(string extensionAssembly)
     {
         try
         {
@@ -559,11 +567,11 @@ internal abstract class BaseRunTests
                 || string.Equals(extensionAssembly, ObjectModel.Constants.UnspecifiedAdapterPath))
             {
                 // full execution. Since the extension manager is cached this can be created multiple times without harming performance.
-                return TestExecutorExtensionManager.Create();
+                return new TestExecutorExtensionManagerFactory(FrameworkHandle, _testPluginCache).Create();
             }
             else
             {
-                return TestExecutorExtensionManager.GetExecutionExtensionManager(extensionAssembly);
+                return new TestExecutorExtensionManagerFactory(FrameworkHandle, _testPluginCache).GetExecutionExtensionManager(extensionAssembly);
             }
         }
         catch (Exception ex)
@@ -628,7 +636,7 @@ internal abstract class BaseRunTests
                 new Collection<InvokedDataCollector>(),
                 elapsedTime);
 
-            testRunCompleteEventArgs.DiscoveredExtensions = TestPluginCache.Instance.TestExtensions?.GetCachedExtensions();
+            testRunCompleteEventArgs.DiscoveredExtensions = _testPluginCache.TestExtensions?.GetCachedExtensions();
             testRunCompleteEventArgs.Metrics = _requestData.MetricsCollection.Metrics;
 
             TestRunEventsHandler.HandleTestRunComplete(

@@ -52,7 +52,7 @@ internal class Program
 
                             <!-- The settings below are what VS sends by default. -->
                             <CollectSourceInformation>False</CollectSourceInformation>
-                            <DesignMode>True</DesignMode>
+
                         </RunConfiguration>
                         <BoostTestInternalSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                             <VSProcessId>999999</VSProcessId>

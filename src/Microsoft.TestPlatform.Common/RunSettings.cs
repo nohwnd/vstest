@@ -7,9 +7,9 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
-using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.Common.SettingsProvider;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
@@ -30,6 +30,8 @@ public class RunSettings : IRunSettings
     /// Map of the settings names in the file to their associated settings provider.
     /// </summary>
     private readonly Dictionary<string, LazyExtension<ISettingsProvider, ISettingsProviderCapabilities>> _settings;
+    private readonly IMessageLogger _messageLogger;
+    private readonly TestPluginCache _testPluginCache;
 
     /// <summary>
     /// Used to keep track if settings have been loaded.
@@ -39,9 +41,11 @@ public class RunSettings : IRunSettings
     /// <summary>
     /// Initializes a new instance of the <see cref="RunSettings"/> class.
     /// </summary>
-    public RunSettings()
+    public RunSettings(IMessageLogger messageLogger, TestPluginCache testPluginCache)
     {
         _settings = new Dictionary<string, LazyExtension<ISettingsProvider, ISettingsProviderCapabilities>>();
+        _messageLogger = messageLogger;
+        _testPluginCache = testPluginCache;
     }
 
     /// <summary>
@@ -144,7 +148,7 @@ public class RunSettings : IRunSettings
             reader.ReadToNextElement();
 
             // Lookup the settings provider for each of the elements.
-            var settingsExtensionManager = SettingsProviderExtensionManager.Create();
+            var settingsExtensionManager = new SettingsProviderExtensionManagerFactory(_testPluginCache, _messageLogger).Create();
             while (!reader.EOF)
             {
                 LoadSection(reader, settingsExtensionManager);
@@ -179,7 +183,7 @@ public class RunSettings : IRunSettings
         // Check for duplicate settings
         if (_settings.ContainsKey(reader.Name))
         {
-            TestSessionMessageLogger.Instance.SendMessage(
+            _messageLogger.SendMessage(
                 TestMessageLevel.Error,
                 string.Format(CultureInfo.CurrentCulture, CommonResources.DuplicateSettingsProvided, reader.Name));
 

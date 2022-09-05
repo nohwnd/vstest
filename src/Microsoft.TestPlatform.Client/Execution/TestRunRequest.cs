@@ -73,13 +73,10 @@ public class TestRunRequest : ITestRunRequest, IInternalTestRunEventsHandler
     /// Request Data
     /// </summary>
     private readonly IRequestData _requestData;
+    private readonly TestPluginCache _testPluginCache;
 
-    internal TestRunRequest(IRequestData requestData, TestRunCriteria testRunCriteria, IProxyExecutionManager executionManager, ITestLoggerManager loggerManager) :
-        this(requestData, testRunCriteria, executionManager, loggerManager, JsonDataSerializer.Instance)
-    {
-    }
-
-    internal TestRunRequest(IRequestData requestData, TestRunCriteria testRunCriteria, IProxyExecutionManager executionManager, ITestLoggerManager loggerManager, IDataSerializer dataSerializer)
+    internal TestRunRequest(IRequestData requestData, TestRunCriteria testRunCriteria, IProxyExecutionManager executionManager,
+        ITestLoggerManager loggerManager, IDataSerializer dataSerializer, TestPluginCache testPluginCache)
     {
         TPDebug.Assert(testRunCriteria != null, "Test run criteria cannot be null");
         TPDebug.Assert(executionManager != null, "ExecutionManager cannot be null");
@@ -93,6 +90,7 @@ public class TestRunRequest : ITestRunRequest, IInternalTestRunEventsHandler
         LoggerManager = loggerManager;
         State = TestRunState.Pending;
         _dataSerializer = dataSerializer;
+        _testPluginCache = testPluginCache;
         _requestData = requestData;
     }
 
@@ -409,7 +407,7 @@ public class TestRunRequest : ITestRunRequest, IInternalTestRunEventsHandler
                 // and then we write again here. We should refactor this code and write only once.
                 runCompleteArgs.DiscoveredExtensions = TestExtensions.CreateMergedDictionary(
                     runCompleteArgs.DiscoveredExtensions,
-                    TestPluginCache.Instance.TestExtensions?.GetCachedExtensions());
+                    _testPluginCache.TestExtensions?.GetCachedExtensions());
 
                 if (_requestData.IsTelemetryOptedIn)
                 {
@@ -617,7 +615,7 @@ public class TestRunRequest : ITestRunRequest, IInternalTestRunEventsHandler
             // would probably mean a performance hit.
             testRunCompletePayload.TestRunCompleteArgs.DiscoveredExtensions = TestExtensions.CreateMergedDictionary(
                 testRunCompletePayload.TestRunCompleteArgs.DiscoveredExtensions,
-                TestPluginCache.Instance.TestExtensions?.GetCachedExtensions());
+               _testPluginCache.TestExtensions?.GetCachedExtensions());
 
             // Write extensions to telemetry data.
             TestExtensions.AddExtensionTelemetry(

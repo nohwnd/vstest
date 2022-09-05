@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
@@ -30,12 +31,13 @@ internal class ListDiscoverersArgumentProcessor : ArgumentProcessor<bool>, IExec
         CreateExecutor = c =>
         {
             var serviceProvider = c.ServiceProvider;
-            var testSessionMessageLogger = TestSessionMessageLogger.Instance;
-            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger);
+            var testSessionMessageLogger = new TestSessionMessageLogger();
+            var testPluginCache = new TestPluginCache(testSessionMessageLogger);
+            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger, testPluginCache);
             var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
             var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
-                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>());
-            return new ListDiscoverersArgumentExecutor(serviceProvider.GetService<IOutput>(), testPlatform);
+                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>(), testPluginCache, JsonDataSerializer.Instance);
+            return new ListDiscoverersArgumentExecutor(serviceProvider.GetService<IOutput>(), testPlatform, testPluginCache);
         };
     }
     public Func<InvocationContext, IArgumentExecutor> CreateExecutor { get; }
@@ -48,12 +50,12 @@ internal class ListDiscoverersArgumentExecutor : IArgumentExecutor
     private readonly TestDiscoveryExtensionManager _extensionManager;
     private bool _shouldExecute;
 
-    public ListDiscoverersArgumentExecutor(IOutput output, ITestPlatform testPlatform)
+    public ListDiscoverersArgumentExecutor(IOutput output, ITestPlatform testPlatform, TestPluginCache testPluginCache)
     {
         _output = output;
         // Test platform populates extension manager in constructor.
         _testPlatform = testPlatform;
-        _extensionManager = TestDiscoveryExtensionManager.Create();
+        _extensionManager = new TestDiscoveryExtensionManagerFactory(testPluginCache).Create();
     }
 
     public void Initialize(ParseResult parseResult)

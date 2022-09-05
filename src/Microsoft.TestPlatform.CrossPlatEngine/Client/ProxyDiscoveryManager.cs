@@ -34,6 +34,7 @@ public class ProxyDiscoveryManager : IProxyDiscoveryManager, IBaseProxy, ITestDi
     private readonly IDataSerializer _dataSerializer;
 
     private ITestRuntimeProvider? _testHostManager;
+    private readonly TestPluginCache _testPluginCache;
     private bool _isCommunicationEstablished;
     private ProxyOperationManager? _proxyOperationManager;
     private ITestDiscoveryEventsHandler2? _baseTestDiscoveryEventsHandler;
@@ -102,11 +103,13 @@ public class ProxyDiscoveryManager : IProxyDiscoveryManager, IBaseProxy, ITestDi
         ITestRequestSender requestSender,
         ITestRuntimeProvider testHostManager,
         Framework? testhostManagerFramework,
+        TestPluginCache testPluginCache,
         DiscoveryDataAggregator? discoveryDataAggregator = null,
         IDataSerializer? dataSerializer = null,
         IFileHelper? fileHelper = null)
     {
         _testHostManager = testHostManager;
+        _testPluginCache = testPluginCache;
         _discoveryDataAggregator = discoveryDataAggregator ?? new();
         _dataSerializer = dataSerializer ?? JsonDataSerializer.Instance;
         _fileHelper = fileHelper ?? new FileHelper();
@@ -315,7 +318,7 @@ public class ProxyDiscoveryManager : IProxyDiscoveryManager, IBaseProxy, ITestDi
 
     private void InitializeExtensions(IEnumerable<string> sources)
     {
-        var extensions = TestPluginCache.Instance.GetExtensionPaths(TestPlatformConstants.TestAdapterEndsWithPattern, _skipDefaultAdapters);
+        var extensions = _testPluginCache.GetExtensionPaths(TestPlatformConstants.TestAdapterEndsWithPattern, _skipDefaultAdapters);
 
         // Filter out non existing extensions
         var nonExistingExtensions = extensions.Where(extension => !_fileHelper.Exists(extension));

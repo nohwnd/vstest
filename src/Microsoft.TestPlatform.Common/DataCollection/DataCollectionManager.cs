@@ -66,6 +66,8 @@ internal class DataCollectionManager : IDataCollectionManager
     /// Request data
     /// </summary>
     private readonly IDataCollectionTelemetryManager _dataCollectionTelemetryManager;
+    private readonly IMessageLogger _messageLogger;
+    private readonly TestPluginCache _testPluginCache;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataCollectionManager"/> class.
@@ -73,7 +75,7 @@ internal class DataCollectionManager : IDataCollectionManager
     /// <param name="messageSink">
     /// The message Sink.
     /// </param>
-    internal DataCollectionManager(IMessageSink messageSink, IRequestData requestData) : this(new DataCollectionAttachmentManager(), messageSink, new DataCollectionTelemetryManager(requestData))
+    internal DataCollectionManager(IMessageSink messageSink, IMessageLogger messageLogger, IRequestData requestData, TestPluginCache testPluginCache) : this(new DataCollectionAttachmentManager(), messageSink, new DataCollectionTelemetryManager(requestData), messageLogger, testPluginCache)
     {
     }
 
@@ -89,7 +91,7 @@ internal class DataCollectionManager : IDataCollectionManager
     /// <remarks>
     /// The constructor is not public because the factory method should be used to get instances of this class.
     /// </remarks>
-    protected DataCollectionManager(IDataCollectionAttachmentManager datacollectionAttachmentManager, IMessageSink messageSink, IDataCollectionTelemetryManager dataCollectionTelemetryManager)
+    protected DataCollectionManager(IDataCollectionAttachmentManager datacollectionAttachmentManager, IMessageSink messageSink, IDataCollectionTelemetryManager dataCollectionTelemetryManager, IMessageLogger messageLogger, TestPluginCache testPluginCache)
     {
         _attachmentManager = datacollectionAttachmentManager;
         _messageSink = messageSink;
@@ -97,6 +99,8 @@ internal class DataCollectionManager : IDataCollectionManager
         _dataCollectorExtensionManager = null;
         RunDataCollectors = new Dictionary<Type, DataCollectorInformation>();
         _dataCollectionTelemetryManager = dataCollectionTelemetryManager;
+        _messageLogger = messageLogger;
+        _testPluginCache = testPluginCache;
     }
 
     /// <summary>
@@ -117,7 +121,7 @@ internal class DataCollectionManager : IDataCollectionManager
         get
         {
             // TODO : change IMessageSink and use IMessageLogger instead.
-            _dataCollectorExtensionManager ??= DataCollectorExtensionManager.Create(TestSessionMessageLogger.Instance);
+            _dataCollectorExtensionManager ??= DataCollectorExtensionManagerFactory.Create(_messageLogger, _testPluginCache);
 
             return _dataCollectorExtensionManager;
         }
@@ -132,13 +136,13 @@ internal class DataCollectionManager : IDataCollectionManager
     /// <returns>
     /// The <see cref="DataCollectionManager"/>.
     /// </returns>
-    public static DataCollectionManager Create(IMessageSink messageSink, IRequestData requestData)
+    public static DataCollectionManager Create(IMessageSink messageSink, IRequestData requestData, IMessageLogger messageLogger, TestPluginCache testPluginCache)
     {
         if (Instance == null)
         {
             lock (SyncObject)
             {
-                Instance ??= new DataCollectionManager(messageSink, requestData);
+                Instance ??= new DataCollectionManager(messageSink, messageLogger, requestData, testPluginCache);
             }
         }
 

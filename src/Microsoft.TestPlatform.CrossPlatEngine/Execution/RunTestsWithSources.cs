@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Common.Filtering;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
-using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Adapter;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Utilities;
@@ -32,8 +34,11 @@ internal class RunTestsWithSources : BaseRunTests
 
     private readonly ITestCaseEventsHandler? _testCaseEventsHandler;
 
-    public RunTestsWithSources(IRequestData requestData, Dictionary<string, IEnumerable<string>> adapterSourceMap, string? package, string? runSettings, TestExecutionContext testExecutionContext, ITestCaseEventsHandler? testCaseEventsHandler, IInternalTestRunEventsHandler testRunEventsHandler)
-        : this(requestData, adapterSourceMap, package, runSettings, testExecutionContext, testCaseEventsHandler, testRunEventsHandler, null)
+    public RunTestsWithSources(IRequestData requestData, Dictionary<string, IEnumerable<string>> adapterSourceMap, string? package, string? runSettings,
+        TestExecutionContext testExecutionContext, ITestCaseEventsHandler? testCaseEventsHandler, IInternalTestRunEventsHandler testRunEventsHandler,
+        ITestPlatformEventSource testPlatformEventSource, IDataSerializer dataSerializer, IMessageLogger messageLogger, TestPluginCache testPluginCache)
+        : this(requestData, adapterSourceMap, package, runSettings, testExecutionContext, testCaseEventsHandler,
+              testRunEventsHandler, null, testPlatformEventSource, dataSerializer, messageLogger, testPluginCache)
     {
     }
 
@@ -49,8 +54,10 @@ internal class RunTestsWithSources : BaseRunTests
     /// <param name="testRunEventsHandler"></param>
     /// <param name="executorUriVsSourceList"></param>
     /// <param name="testRunCache"></param>
-    internal RunTestsWithSources(IRequestData requestData, Dictionary<string, IEnumerable<string>> adapterSourceMap, string? package, string? runSettings, TestExecutionContext testExecutionContext, ITestCaseEventsHandler? testCaseEventsHandler, IInternalTestRunEventsHandler testRunEventsHandler, Dictionary<Tuple<Uri, string>, IEnumerable<string>>? executorUriVsSourceList)
-        : base(requestData, package, runSettings, testExecutionContext, testCaseEventsHandler, testRunEventsHandler, TestPlatformEventSource.Instance)
+    internal RunTestsWithSources(IRequestData requestData, Dictionary<string, IEnumerable<string>> adapterSourceMap, string? package,
+        string? runSettings, TestExecutionContext testExecutionContext, ITestCaseEventsHandler? testCaseEventsHandler, IInternalTestRunEventsHandler testRunEventsHandler,
+        Dictionary<Tuple<Uri, string>, IEnumerable<string>>? executorUriVsSourceList, ITestPlatformEventSource testPlatformEventSource, IDataSerializer dataSerializer, IMessageLogger messageLogger, TestPluginCache testPluginCache)
+        : base(requestData, package, runSettings, testExecutionContext, testCaseEventsHandler, testRunEventsHandler, testPlatformEventSource, dataSerializer, messageLogger, testPluginCache)
     {
         _adapterSourceMap = adapterSourceMap;
         _executorUriVsSourceList = executorUriVsSourceList;
@@ -157,6 +164,7 @@ internal class RunTestsWithSources : BaseRunTests
         foreach (var kvp in verifiedExtensionSourceMap)
         {
             var discovererToSourcesMap = DiscovererEnumerator.GetDiscovererToSourcesMap(
+                _testPluginCache,
                 kvp.Key,
                 kvp.Value,
                 logger,

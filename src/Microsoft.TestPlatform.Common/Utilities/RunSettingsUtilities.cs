@@ -19,13 +19,13 @@ public static class RunSettingsUtilities
     /// <summary>
     /// Create RunSettings object corresponding to settingsXml
     /// </summary>
-    public static RunSettings? CreateAndInitializeRunSettings(string? settingsXml)
+    public static RunSettings? CreateAndInitializeRunSettings(string? settingsXml, ObjectModel.Logging.IMessageLogger messageLogger, ExtensionFramework.TestPluginCache testPluginCache)
     {
         RunSettings? settings = null;
 
         if (!settingsXml.IsNullOrWhiteSpace())
         {
-            settings = new RunSettings();
+            settings = new RunSettings(messageLogger, testPluginCache);
             settings.LoadSettingsXml(settingsXml);
             settings.InitializeSettingsProviders(settingsXml);
         }

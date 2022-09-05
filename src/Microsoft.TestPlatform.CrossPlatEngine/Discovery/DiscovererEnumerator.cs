@@ -17,7 +17,6 @@ using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.Common.Telemetry;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
-using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -40,16 +39,7 @@ internal class DiscovererEnumerator
     private readonly IRequestData _requestData;
     private readonly IAssemblyProperties _assemblyProperties;
     private readonly CancellationToken _cancellationToken;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DiscovererEnumerator"/> class.
-    /// </summary>
-    /// <param name="requestData">The request data for providing discovery services and data.</param>
-    /// <param name="discoveryResultCache"> The discovery result cache. </param>
-    public DiscovererEnumerator(IRequestData requestData, DiscoveryResultCache discoveryResultCache, CancellationToken token)
-        : this(requestData, discoveryResultCache, TestPlatformEventSource.Instance, token)
-    {
-    }
+    private readonly TestPluginCache _testPluginCache;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DiscovererEnumerator"/> class.
@@ -61,8 +51,9 @@ internal class DiscovererEnumerator
     public DiscovererEnumerator(IRequestData requestData,
         DiscoveryResultCache discoveryResultCache,
         ITestPlatformEventSource testPlatformEventSource,
+        TestPluginCache testPluginCache,
         CancellationToken token)
-        : this(requestData, discoveryResultCache, testPlatformEventSource, new AssemblyProperties(), token)
+        : this(requestData, discoveryResultCache, testPlatformEventSource, new AssemblyProperties(), testPluginCache, token)
     {
     }
 
@@ -78,6 +69,7 @@ internal class DiscovererEnumerator
         DiscoveryResultCache discoveryResultCache,
         ITestPlatformEventSource testPlatformEventSource,
         IAssemblyProperties assemblyProperties,
+        TestPluginCache testPluginCache,
         CancellationToken token)
     {
         // Added this to make class testable, needed a PEHeader mocked Instance
@@ -85,6 +77,7 @@ internal class DiscovererEnumerator
         _testPlatformEventSource = testPlatformEventSource;
         _requestData = requestData;
         _assemblyProperties = assemblyProperties;
+        _testPluginCache = testPluginCache;
         _cancellationToken = token;
     }
 
@@ -126,7 +119,7 @@ internal class DiscovererEnumerator
         // Stopwatch to collect metrics
         var timeStart = DateTime.UtcNow;
 
-        var discovererToSourcesMap = GetDiscovererToSourcesMap(extensionAssembly, sources, logger, _assemblyProperties);
+        var discovererToSourcesMap = GetDiscovererToSourcesMap(_testPluginCache, extensionAssembly, sources, logger, _assemblyProperties);
         var totalAdapterLoadTIme = DateTime.UtcNow - timeStart;
 
         // Collecting Data Point for TimeTaken to Load Adapters
@@ -349,12 +342,13 @@ internal class DiscovererEnumerator
     /// <param name="logger"> The logger instance. </param>
     /// <returns> The map between an extension type and a source. </returns>
     internal static Dictionary<LazyExtension<ITestDiscoverer, ITestDiscovererCapabilities>, IEnumerable<string>>? GetDiscovererToSourcesMap(
+        TestPluginCache testPluginCache,
         string extensionAssembly,
         IEnumerable<string> sources,
         IMessageLogger logger,
         IAssemblyProperties assemblyProperties)
     {
-        var allDiscoverers = GetDiscoverers(extensionAssembly, throwOnError: true);
+        var allDiscoverers = GetDiscoverers(testPluginCache, extensionAssembly, throwOnError: true);
 
         if (allDiscoverers == null || !allDiscoverers.Any())
         {
@@ -459,6 +453,7 @@ internal class DiscovererEnumerator
     }
 
     private static IEnumerable<LazyExtension<ITestDiscoverer, ITestDiscovererCapabilities>>? GetDiscoverers(
+        TestPluginCache testPluginCache,
         string extensionAssembly,
         bool throwOnError)
     {
@@ -467,11 +462,11 @@ internal class DiscovererEnumerator
             if (StringUtils.IsNullOrEmpty(extensionAssembly) || string.Equals(extensionAssembly, ObjectModel.Constants.UnspecifiedAdapterPath))
             {
                 // full discovery.
-                return TestDiscoveryExtensionManager.Create().Discoverers;
+                return new TestDiscoveryExtensionManagerFactory(testPluginCache).Create().Discoverers;
             }
             else
             {
-                return TestDiscoveryExtensionManager.GetDiscoveryExtensionManager(extensionAssembly).Discoverers;
+                return new TestDiscoveryExtensionManagerFactory(testPluginCache).GetDiscoveryExtensionManager(extensionAssembly).Discoverers;
             }
         }
         catch (Exception ex)

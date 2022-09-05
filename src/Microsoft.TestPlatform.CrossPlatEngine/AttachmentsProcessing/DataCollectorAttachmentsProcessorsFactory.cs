@@ -23,7 +23,7 @@ internal class DataCollectorAttachmentsProcessorsFactory : IDataCollectorAttachm
     private const string CoverageFriendlyName = "Code Coverage";
     private static readonly ConcurrentDictionary<string, DataCollectorExtensionManager> DataCollectorExtensionManagerCache = new();
 
-    public DataCollectorAttachmentProcessor[] Create(InvokedDataCollector[]? invokedDataCollectors, IMessageLogger? logger)
+    public DataCollectorAttachmentProcessor[] Create(InvokedDataCollector[]? invokedDataCollectors, IMessageLogger? logger, TestPluginCache testPluginCache)
     {
         IDictionary<string, Tuple<string, IDataCollectorAttachmentProcessor>> datacollectorsAttachmentsProcessors = new Dictionary<string, Tuple<string, IDataCollectorAttachmentProcessor>>();
 
@@ -87,7 +87,7 @@ internal class DataCollectorAttachmentsProcessorsFactory : IDataCollectorAttachm
                 else
                 {
                     // We cache extension locally by file path
-                    var dataCollectorExtensionManager = DataCollectorExtensionManagerCache.GetOrAdd(invokedDataCollector.FilePath, DataCollectorExtensionManager.Create(invokedDataCollector.FilePath, true, TestSessionMessageLogger.Instance));
+                    var dataCollectorExtensionManager = DataCollectorExtensionManagerCache.GetOrAdd(invokedDataCollector.FilePath, DataCollectorExtensionManagerFactory.Create(invokedDataCollector.FilePath, true, logger, testPluginCache));
                     var dataCollectorExtension = dataCollectorExtensionManager.TryGetTestExtension(invokedDataCollector.Uri);
                     if ((dataCollectorExtension?.Metadata.HasAttachmentProcessor) != true)
                     {

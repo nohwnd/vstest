@@ -15,14 +15,16 @@ namespace Microsoft.VisualStudio.TestPlatform.Common.Logging;
 /// <summary>
 /// The test session message logger.
 /// </summary>
-internal class TestSessionMessageLogger : IMessageLogger
+// REVIEW: multiple places depend on TestRunMessage that is NOT on the IMessageLogger interface. So when this is added as dependency to public constructor
+// it does not compile because of type visibility issues.
+public class TestSessionMessageLogger : IMessageLogger
 {
     private static TestSessionMessageLogger? s_instance;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestSessionMessageLogger"/> class.
     /// </summary>
-    protected TestSessionMessageLogger()
+    protected internal TestSessionMessageLogger()
     {
         TreatTestAdapterErrorsAsWarnings = Constants.DefaultTreatTestAdapterErrorsAsWarnings;
     }
@@ -36,6 +38,7 @@ internal class TestSessionMessageLogger : IMessageLogger
     /// Gets the instance of the singleton.
     /// </summary>
     [AllowNull]
+    [Obsolete("don't use", error: true)]
     public static TestSessionMessageLogger Instance
     {
         get

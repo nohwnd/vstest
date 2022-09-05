@@ -80,6 +80,7 @@ internal class TestLoggerManager : ITestLoggerManager
     /// AssemblyLoadContext for current platform
     /// </summary>
     private readonly IAssemblyLoadContext _assemblyLoadContext;
+    private readonly TestPluginCache _testPluginCache;
 
     /// <summary>
     /// Test logger manager.
@@ -87,7 +88,8 @@ internal class TestLoggerManager : ITestLoggerManager
     /// <param name="requestData">Request Data for Providing Common Services/Data for Discovery and Execution.</param>
     /// <param name="messageLogger">Message Logger.</param>
     /// <param name="loggerEvents">Logger events.</param>
-    public TestLoggerManager(IRequestData requestData, IMessageLogger messageLogger, InternalTestLoggerEvents loggerEvents) : this(requestData, messageLogger, loggerEvents, new PlatformAssemblyLoadContext())
+    public TestLoggerManager(IRequestData requestData, IMessageLogger messageLogger, InternalTestLoggerEvents loggerEvents, TestPluginCache testPluginCache)
+        : this(requestData, messageLogger, loggerEvents, new PlatformAssemblyLoadContext(), testPluginCache)
     {
     }
 
@@ -99,13 +101,14 @@ internal class TestLoggerManager : ITestLoggerManager
     /// <param name="loggerEvents"></param>
     /// <param name="assemblyLoadContext"></param>
     internal TestLoggerManager(IRequestData requestData, IMessageLogger messageLogger,
-        InternalTestLoggerEvents loggerEvents, IAssemblyLoadContext assemblyLoadContext)
+        InternalTestLoggerEvents loggerEvents, IAssemblyLoadContext assemblyLoadContext, TestPluginCache testPluginCache)
     {
         _requestData = requestData;
         _messageLogger = messageLogger;
         _testLoggerExtensionManager = null;
         _loggerEvents = loggerEvents;
         _assemblyLoadContext = assemblyLoadContext;
+        _testPluginCache = testPluginCache;
     }
 
     /// <summary>
@@ -117,7 +120,7 @@ internal class TestLoggerManager : ITestLoggerManager
     {
         get
         {
-            _testLoggerExtensionManager ??= TestLoggerExtensionManager.Create(_messageLogger);
+            _testLoggerExtensionManager ??= TestLoggerExtensionManagerFactory.Create(_messageLogger, _testPluginCache);
 
             return _testLoggerExtensionManager;
         }

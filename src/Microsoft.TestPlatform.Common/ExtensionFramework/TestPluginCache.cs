@@ -15,6 +15,7 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
@@ -43,33 +44,19 @@ public class TestPluginCache
     /// </summary>
     private readonly object _lockForExtensionsUpdate;
 
-    private static TestPluginCache? s_instance;
-
     private readonly List<string> _defaultExtensionPaths = new();
+    private readonly IMessageLogger _messageLogger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestPluginCache"/> class.
     /// </summary>
-    protected TestPluginCache()
+    public TestPluginCache(IMessageLogger messageLogger)
     {
         _filterableExtensionPaths = new List<string>();
         _unfilterableExtensionPaths = new List<string>();
         _lockForExtensionsUpdate = new object();
         TestExtensions = null;
-    }
-
-    [AllowNull]
-    public static TestPluginCache Instance
-    {
-        get
-        {
-            return s_instance ??= new TestPluginCache();
-        }
-
-        internal set
-        {
-            s_instance = value;
-        }
+        _messageLogger = messageLogger;
     }
 
     /// <summary>
@@ -458,7 +445,7 @@ public class TestPluginCache
             SetupAssemblyResolver(extensionPath);
         }
 
-        return TestPluginDiscoverer.GetTestExtensionsInformation<TPluginInfo, TExtension>(extensionPaths);
+        return new TestPluginDiscoverer(_messageLogger).GetTestExtensionsInformation<TPluginInfo, TExtension>(extensionPaths);
     }
 
     protected void SetupAssemblyResolver(string? extensionAssembly)
