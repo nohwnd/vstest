@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Telemetry;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -31,14 +32,16 @@ internal class TestRunAttachmentsProcessingManager : ITestRunAttachmentsProcessi
 
     private readonly ITestPlatformEventSource _testPlatformEventSource;
     private readonly IDataCollectorAttachmentsProcessorsFactory _dataCollectorAttachmentsProcessorsFactory;
+    private readonly TestPluginCache _testPluginCache;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestRunAttachmentsProcessingManager"/> class.
     /// </summary>
-    public TestRunAttachmentsProcessingManager(ITestPlatformEventSource testPlatformEventSource, IDataCollectorAttachmentsProcessorsFactory dataCollectorAttachmentsProcessorsFactory)
+    public TestRunAttachmentsProcessingManager(ITestPlatformEventSource testPlatformEventSource, IDataCollectorAttachmentsProcessorsFactory dataCollectorAttachmentsProcessorsFactory, TestPluginCache testPluginCache)
     {
         _testPlatformEventSource = testPlatformEventSource ?? throw new ArgumentNullException(nameof(testPlatformEventSource));
         _dataCollectorAttachmentsProcessorsFactory = dataCollectorAttachmentsProcessorsFactory ?? throw new ArgumentNullException(nameof(dataCollectorAttachmentsProcessorsFactory));
+        _testPluginCache = testPluginCache;
     }
 
     /// <inheritdoc/>
@@ -115,7 +118,7 @@ internal class TestRunAttachmentsProcessingManager : ITestRunAttachmentsProcessi
         var dataCollectionRunSettings = XmlRunSettingsUtilities.GetDataCollectionRunSettings(runSettingsXml);
 
         var logger = CreateMessageLogger(eventsHandler);
-        var dataCollectorAttachmentsProcessors = _dataCollectorAttachmentsProcessorsFactory.Create(invokedDataCollector?.ToArray(), logger);
+        var dataCollectorAttachmentsProcessors = _dataCollectorAttachmentsProcessorsFactory.Create(invokedDataCollector?.ToArray(), logger, _testPluginCache);
         for (int i = 0; i < dataCollectorAttachmentsProcessors.Length; i++)
         {
             // We need to dispose the DataCollectorAttachmentProcessor to unload the AppDomain for net462

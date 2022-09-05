@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
@@ -58,6 +59,7 @@ internal sealed class ParallelProxyExecutionManager : IParallelProxyExecutionMan
     /// LockObject to update execution status in parallel
     /// </summary>
     private readonly object _executionStatusLockObject = new();
+    private readonly TestPluginCache _testPluginCache;
 
     #endregion
 
@@ -65,8 +67,9 @@ internal sealed class ParallelProxyExecutionManager : IParallelProxyExecutionMan
         IRequestData requestData,
         Func<TestRuntimeProviderInfo, IProxyExecutionManager> actualProxyManagerCreator,
         int parallelLevel,
-         List<TestRuntimeProviderInfo> testHostProviders)
-        : this(requestData, actualProxyManagerCreator, JsonDataSerializer.Instance, parallelLevel, testHostProviders)
+         List<TestRuntimeProviderInfo> testHostProviders,
+         TestPluginCache testPluginCache)
+        : this(requestData, actualProxyManagerCreator, JsonDataSerializer.Instance, parallelLevel, testHostProviders, testPluginCache)
     {
     }
 
@@ -75,10 +78,12 @@ internal sealed class ParallelProxyExecutionManager : IParallelProxyExecutionMan
         Func<TestRuntimeProviderInfo, IProxyExecutionManager> actualProxyManagerCreator,
         IDataSerializer dataSerializer,
         int parallelLevel,
-        List<TestRuntimeProviderInfo> testHostProviders)
+        List<TestRuntimeProviderInfo> testHostProviders,
+        TestPluginCache testPluginCache)
     {
         _requestData = requestData;
         _dataSerializer = dataSerializer;
+        _testPluginCache = testPluginCache;
         _isParallel = parallelLevel > 1;
         _parallelOperationManager = new(actualProxyManagerCreator, parallelLevel);
         _sourceToTestHostProviderMap = testHostProviders
@@ -339,7 +344,7 @@ internal sealed class ParallelProxyExecutionManager : IParallelProxyExecutionMan
 
         if (concurrentManager is ProxyExecutionManagerWithDataCollection concurrentManagerWithDataCollection)
         {
-            var attachmentsProcessingManager = new TestRunAttachmentsProcessingManager(TestPlatformEventSource.Instance, new DataCollectorAttachmentsProcessorsFactory());
+            var attachmentsProcessingManager = new TestRunAttachmentsProcessingManager(TestPlatformEventSource.Instance, new DataCollectorAttachmentsProcessorsFactory(), _testPluginCache);
 
             return new ParallelDataCollectionEventsHandler(
                 _requestData,

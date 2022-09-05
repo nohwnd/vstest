@@ -23,6 +23,7 @@ using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.ArtifactProcessing;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.TestRunAttachmentsProcessing;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
@@ -49,13 +50,16 @@ internal class PortArgumentProcessor : ArgumentProcessor<int>, IExecutorCreator
         CreateExecutor = c =>
         {
             var serviceProvider = c.ServiceProvider;
+            var testPlatformEventSource = TestPlatformEventSource.Instance;
+            var dataSerializer = JsonDataSerializer.Instance;
             var testSessionMessageLogger = new TestSessionMessageLogger();
             var testPluginCache = new TestPluginCache(testSessionMessageLogger);
             var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger, testPluginCache);
-            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
+            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>(),
+                testSessionMessageLogger, testPlatformEventSource, testPluginCache, dataSerializer, serviceProvider.GetService<IFileHelper>());
             var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
-                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>(), testPluginCache, JsonDataSerializer.Instance);
-            var testPlatformEventSource = TestPlatformEventSource.Instance;
+                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>(), testPluginCache, dataSerializer);
+
             var metricsPublisher = serviceProvider.GetService<IMetricsPublisher>();
             var metricsPublisherTask = Task.FromResult(metricsPublisher);
             var testRequestManager = new TestRequestManager(
@@ -66,12 +70,12 @@ internal class PortArgumentProcessor : ArgumentProcessor<int>, IExecutorCreator
                 new InferHelper(AssemblyMetadataProvider.Instance),
                 metricsPublisherTask,
                 serviceProvider.GetService<IProcessHelper>(),
-                new TestRunAttachmentsProcessingManager(testPlatformEventSource, new DataCollectorAttachmentsProcessorsFactory()),
+                new TestRunAttachmentsProcessingManager(testPlatformEventSource, new DataCollectorAttachmentsProcessorsFactory(), testPluginCache),
                 serviceProvider.GetService<IEnvironment>()
             );
-            var artifactProcessingManager = new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId);
+            var artifactProcessingManager = new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId, testPlatformEventSource, testPluginCache, serviceProvider.GetService<IOutput>());
 
-            var designModeClient = new DesignModeClient(new SocketCommunicationManager(), JsonDataSerializer.Instance, serviceProvider.GetService<IEnvironment>());
+            var designModeClient = new DesignModeClient(new SocketCommunicationManager(), dataSerializer, serviceProvider.GetService<IEnvironment>(), testSessionMessageLogger);
             // TODO: Replace those resolves by shipping the instances on the invocation context directly.
 
             var sharedDependencies = serviceProvider.GetService<SharedDependencyDictionary>();

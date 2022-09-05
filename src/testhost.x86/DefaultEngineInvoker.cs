@@ -12,9 +12,12 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
+using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Helpers;
+using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.TesthostProtocol;
@@ -65,17 +68,27 @@ internal class DefaultEngineInvoker :
     private readonly IDataCollectionTestCaseEventSender _dataCollectionTestCaseEventSender;
 
     private readonly IProcessHelper _processHelper;
+    private readonly ITestPlatformEventSource _testPlatformEventSource;
+    private readonly TestSessionMessageLogger _testSessionMessageLogger;
+    private readonly TestPluginCache _testPluginCache;
+    private readonly IDataSerializer _dataSerializer;
 
-    public DefaultEngineInvoker() : this(new TestRequestHandler(), DataCollectionTestCaseEventSender.Create(), new ProcessHelper())
+    public DefaultEngineInvoker(IProcessHelper processHelper, ITestPlatformEventSource testPlatformEventSource, TestSessionMessageLogger testSessionMessageLogger, TestPluginCache testPluginCache, IDataSerializer dataSerializer)
+        : this(new TestRequestHandler(), DataCollectionTestCaseEventSender.Create(), processHelper, testPlatformEventSource, testSessionMessageLogger, testPluginCache, dataSerializer)
     {
     }
 
     internal DefaultEngineInvoker(ITestRequestHandler requestHandler,
-        IDataCollectionTestCaseEventSender dataCollectionTestCaseEventSender, IProcessHelper processHelper)
+        IDataCollectionTestCaseEventSender dataCollectionTestCaseEventSender, IProcessHelper processHelper,
+        ITestPlatformEventSource testPlatformEventSource, TestSessionMessageLogger testSessionMessageLogger, TestPluginCache testPluginCache, IDataSerializer dataSerializer)
     {
         _processHelper = processHelper;
+        _testPlatformEventSource = testPlatformEventSource;
+        _testSessionMessageLogger = testSessionMessageLogger;
+        _testPluginCache = testPluginCache;
         _requestHandler = requestHandler;
         _dataCollectionTestCaseEventSender = dataCollectionTestCaseEventSender;
+        _dataSerializer = dataSerializer;
     }
 
     public void Invoke(IDictionary<string, string?> argsDictionary)
@@ -151,7 +164,7 @@ internal class DefaultEngineInvoker :
         EqtTrace.Info("DefaultEngineInvoker.Invoke: Start Request Processing.");
         try
         {
-            StartProcessingAsync(_requestHandler, new TestHostManagerFactory(telemetryOptedIn)).Wait();
+            StartProcessingAsync(_requestHandler, new TestHostManagerFactory(telemetryOptedIn, _testPlatformEventSource, _testSessionMessageLogger, _testPluginCache, _dataSerializer)).Wait();
         }
         finally
         {

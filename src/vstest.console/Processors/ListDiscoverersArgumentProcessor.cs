@@ -4,13 +4,13 @@
 using System;
 using System.Globalization;
 
-using Microsoft.VisualStudio.TestPlatform.Client;
 using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
+using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
@@ -34,7 +34,9 @@ internal class ListDiscoverersArgumentProcessor : ArgumentProcessor<bool>, IExec
             var testSessionMessageLogger = new TestSessionMessageLogger();
             var testPluginCache = new TestPluginCache(testSessionMessageLogger);
             var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger, testPluginCache);
-            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
+            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(),
+                serviceProvider.GetService<IEnvironment>(), testSessionMessageLogger, TestPlatformEventSource.Instance, testPluginCache,
+                JsonDataSerializer.Instance, serviceProvider.GetService<IFileHelper>());
             var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
                 testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>(), testPluginCache, JsonDataSerializer.Instance);
             return new ListDiscoverersArgumentExecutor(serviceProvider.GetService<IOutput>(), testPlatform, testPluginCache);

@@ -59,7 +59,8 @@ internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>, IExecutorCre
             var testSessionMessageLogger = new TestSessionMessageLogger();
             var testPluginCache = new TestPluginCache(testSessionMessageLogger);
             var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger, testPluginCache);
-            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
+            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>(),
+                testSessionMessageLogger, TestPlatformEventSource.Instance, testPluginCache, JsonDataSerializer.Instance, serviceProvider.GetService<IFileHelper>());
             var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
                 testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>(), testPluginCache, JsonDataSerializer.Instance);
             var testPlatformEventSource = TestPlatformEventSource.Instance;
@@ -74,10 +75,11 @@ internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>, IExecutorCre
             new InferHelper(AssemblyMetadataProvider.Instance),
             metricsPublisherTask,
             serviceProvider.GetService<IProcessHelper>(),
-            new TestRunAttachmentsProcessingManager(testPlatformEventSource, new DataCollectorAttachmentsProcessorsFactory()),
+            new TestRunAttachmentsProcessingManager(testPlatformEventSource, new DataCollectorAttachmentsProcessorsFactory(), testPluginCache),
             serviceProvider.GetService<IEnvironment>()
             );
-            var artifactProcessingManager = new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId);
+            var artifactProcessingManager = new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId,
+                TestPlatformEventSource.Instance, testPluginCache, serviceProvider.GetService<IOutput>());
             // TODO: Replace those resolves by shipping the instances on the invocation context directly,
             // so we don't get strayed into trying to grab unavailable services from the provider,
             // or register more services than what is the "evironment" surrounding the run (e.g. consoleOptions

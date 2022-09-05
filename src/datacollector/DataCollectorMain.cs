@@ -5,6 +5,8 @@ using System;
 using System.Globalization;
 using System.Reflection;
 
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
+using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.DataCollection;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.DataCollection.Interfaces;
@@ -53,16 +55,18 @@ public class DataCollectorMain
     private readonly IDataCollectionRequestHandler _requestHandler;
     private readonly UiLanguageOverride _uiLanguageOverride;
 
-    public DataCollectorMain() :
-        this(
+
+    internal static DataCollectorMain Create()
+    {
+        var messageLogger = new TestSessionMessageLogger();
+        var testPluginCache = new TestPluginCache(messageLogger);
+        return new DataCollectorMain(
             new ProcessHelper(),
             new PlatformEnvironment(),
-            DataCollectionRequestHandler.Create(new SocketCommunicationManager(), new MessageSink()),
+            DataCollectionRequestHandlerFactory.Create(new SocketCommunicationManager(), new MessageSink(), messageLogger, testPluginCache),
             new UiLanguageOverride()
-        )
-    {
+        );
     }
-
     internal DataCollectorMain(IProcessHelper processHelper, IEnvironment environment, IDataCollectionRequestHandler requestHandler, UiLanguageOverride uiLanguageOverride)
     {
         _processHelper = processHelper;

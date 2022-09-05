@@ -20,7 +20,7 @@ internal static class DataCollectionLauncherFactory
     /// <returns>
     /// The <see cref="IDataCollectionLauncher"/>.
     /// </returns>
-    internal static IDataCollectionLauncher GetDataCollectorLauncher(IProcessHelper processHelper, string? settingsXml)
+    internal static IDataCollectionLauncher GetDataCollectorLauncher(IProcessHelper processHelper, string? settingsXml, ObjectModel.Logging.IMessageLogger messageLogger, TestPlatform.Utilities.Helpers.Interfaces.IFileHelper fileHelper)
     {
         // Event log datacollector is built for .NET Framework and we need to load inside .NET Framework process.
         if (!settingsXml.IsNullOrWhiteSpace())
@@ -31,7 +31,7 @@ internal static class DataCollectionLauncherFactory
                 if (string.Equals(dataCollectorSettings.FriendlyName, "event Log", StringComparison.OrdinalIgnoreCase)
                     || string.Equals(dataCollectorSettings.Uri?.ToString(), @"datacollector://Microsoft/EventLog/2.0", StringComparison.OrdinalIgnoreCase))
                 {
-                    return new DefaultDataCollectionLauncher();
+                    return new DefaultDataCollectionLauncher(processHelper, messageLogger);
                 }
             }
         }
@@ -42,7 +42,7 @@ internal static class DataCollectionLauncherFactory
 
         return currentProcessPath.EndsWith("dotnet", StringComparison.OrdinalIgnoreCase)
                || currentProcessPath.EndsWith("dotnet.exe", StringComparison.OrdinalIgnoreCase)
-            ? new DotnetDataCollectionLauncher()
-            : new DefaultDataCollectionLauncher();
+            ? new DotnetDataCollectionLauncher(processHelper, fileHelper, messageLogger)
+            : new DefaultDataCollectionLauncher(processHelper, messageLogger);
     }
 }

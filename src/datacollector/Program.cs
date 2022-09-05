@@ -22,7 +22,7 @@ public class Program
     {
         try
         {
-            new DataCollectorMain().Run(args);
+            DataCollectorMain.Create().Run(args);
         }
         catch (Exception ex)
         {

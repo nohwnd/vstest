@@ -108,7 +108,7 @@ internal class TestPlatform : ITestPlatform
         IProxyExecutionManager executionManager = _testEngine.GetExecutionManager(requestData, testRunCriteria, sourceToSourceDetailMap, warningLogger);
         executionManager.Initialize(options?.SkipDefaultAdapters ?? false);
 
-        return new TestRunRequest(requestData, testRunCriteria, executionManager, loggerManager);
+        return new TestRunRequest(requestData, testRunCriteria, executionManager, loggerManager, _dataSerializer, _testPluginCache);
     }
 
     /// <inheritdoc/>

@@ -11,6 +11,7 @@ using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.Common.SettingsProvider;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
+using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
@@ -36,7 +37,8 @@ internal class ListSettingsProvidersArgumentProcessor : ArgumentProcessor<bool>,
             var testSessionMessageLogger = new TestSessionMessageLogger();
             var testPluginCache = new TestPluginCache(testSessionMessageLogger);
             var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger, testPluginCache);
-            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
+            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>(),
+                testSessionMessageLogger, TestPlatformEventSource.Instance, testPluginCache, JsonDataSerializer.Instance, serviceProvider.GetService<IFileHelper>());
             var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
                 testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>(), testPluginCache, JsonDataSerializer.Instance);
             return new ListSettingsProvidersArgumentExecutor(serviceProvider.GetService<IOutput>(), testPlatform, testPluginCache, testSessionMessageLogger);

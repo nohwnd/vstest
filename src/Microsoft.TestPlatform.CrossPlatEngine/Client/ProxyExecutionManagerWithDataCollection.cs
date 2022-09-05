@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection.Interfaces;
@@ -12,6 +13,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Host;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 namespace Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client;
 
@@ -44,12 +46,18 @@ internal class ProxyExecutionManagerWithDataCollection : ProxyExecutionManager
         ITestRequestSender requestSender,
         ITestRuntimeProvider testHostManager,
         Framework testHostManagerFramework,
-        IProxyDataCollectionManager proxyDataCollectionManager)
+        IProxyDataCollectionManager proxyDataCollectionManager,
+        IDataSerializer dataSerializer,
+        IFileHelper fileHelper,
+        TestPluginCache testPluginCache)
         : base(
             requestData,
             requestSender,
             testHostManager,
-            testHostManagerFramework)
+            testHostManagerFramework,
+            dataSerializer,
+            fileHelper,
+            testPluginCache)
     {
         ProxyDataCollectionManager = proxyDataCollectionManager;
         DataCollectionRunEventsHandler = new DataCollectionRunEventsHandler();

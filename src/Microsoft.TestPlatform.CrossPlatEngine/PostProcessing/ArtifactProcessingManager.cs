@@ -10,10 +10,12 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestPlatform.Common;
+using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
+using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.TestRunAttachmentsProcessing;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
@@ -38,12 +40,12 @@ internal class ArtifactProcessingManager : IArtifactProcessingManager
     private readonly ITestRunAttachmentsProcessingEventsHandler _testRunAttachmentsProcessingEventsHandler;
     private readonly IFeatureFlag _featureFlag;
 
-    public ArtifactProcessingManager(string? testSessionCorrelationId) :
+    public ArtifactProcessingManager(string? testSessionCorrelationId, ITestPlatformEventSource testPlatformEventSource, TestPluginCache testPluginCache, IOutput output) :
         this(testSessionCorrelationId,
             new FileHelper(),
-            new TestRunAttachmentsProcessingManager(TestPlatformEventSource.Instance, new DataCollectorAttachmentsProcessorsFactory()),
+            new TestRunAttachmentsProcessingManager(testPlatformEventSource, new DataCollectorAttachmentsProcessorsFactory(), testPluginCache),
             JsonDataSerializer.Instance,
-            new PostProcessingTestRunAttachmentsProcessingEventsHandler(ConsoleOutput.Instance),
+            new PostProcessingTestRunAttachmentsProcessingEventsHandler(output),
             FeatureFlag.Instance)
     { }
 

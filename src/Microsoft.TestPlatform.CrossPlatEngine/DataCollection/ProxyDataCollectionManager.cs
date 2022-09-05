@@ -20,10 +20,12 @@ using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.DataCollection.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
+using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommunicationUtilitiesResources = Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Resources.Resources;
 using CoreUtilitiesConstants = Microsoft.VisualStudio.TestPlatform.CoreUtilities.Constants;
@@ -63,23 +65,6 @@ internal class ProxyDataCollectionManager : IProxyDataCollectionManager
     /// Initializes a new instance of the <see cref="ProxyDataCollectionManager"/> class.
     /// </summary>
     /// <param name="requestData">
-    /// Request Data providing common execution/discovery services.
-    /// </param>
-    /// <param name="settingsXml">
-    ///     Runsettings that contains the datacollector related configuration.
-    /// </param>
-    /// <param name="sources">
-    ///     Test Run sources
-    /// </param>
-    public ProxyDataCollectionManager(IRequestData requestData, string? settingsXml, IEnumerable<string> sources)
-        : this(requestData, settingsXml, sources, new ProcessHelper())
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ProxyDataCollectionManager"/> class.
-    /// </summary>
-    /// <param name="requestData">
     ///     Request Data providing common execution/discovery services.
     /// </param>
     /// <param name="settingsXml">
@@ -91,8 +76,8 @@ internal class ProxyDataCollectionManager : IProxyDataCollectionManager
     /// <param name="processHelper">
     ///     The process helper.
     /// </param>
-    internal ProxyDataCollectionManager(IRequestData requestData, string? settingsXml, IEnumerable<string> sources, IProcessHelper processHelper)
-        : this(requestData, settingsXml, sources, new DataCollectionRequestSender(), processHelper, DataCollectionLauncherFactory.GetDataCollectorLauncher(processHelper, settingsXml))
+    internal ProxyDataCollectionManager(IRequestData requestData, string? settingsXml, IEnumerable<string> sources, IProcessHelper processHelper, IMessageLogger messageLogger, IFileHelper fileHelper)
+        : this(requestData, settingsXml, sources, new DataCollectionRequestSender(), processHelper, DataCollectionLauncherFactory.GetDataCollectorLauncher(processHelper, settingsXml, messageLogger, fileHelper))
     {
     }
 

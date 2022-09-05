@@ -22,7 +22,6 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Host;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
@@ -41,7 +40,6 @@ public class TestEngine : ITestEngine
     private readonly TestSessionMessageLogger _testSessionMessageLogger;
     private readonly ITestPlatformEventSource _testPlatformEventSource;
     private readonly TestPluginCache _testPluginCache;
-    private readonly IMessageLogger _messageLogger;
     private readonly IDataSerializer _dataSerializer;
     private readonly IFileHelper _fileHelper;
     private ITestExtensionManager? _testExtensionManager;
@@ -53,7 +51,6 @@ public class TestEngine : ITestEngine
         TestSessionMessageLogger testSessionMessageLogger,
         ITestPlatformEventSource testPlatformEventSource,
         TestPluginCache testPluginCache,
-        IMessageLogger messageLogger,
         IDataSerializer dataSerializer,
         IFileHelper fileHelper)
     {
@@ -63,7 +60,6 @@ public class TestEngine : ITestEngine
         _testSessionMessageLogger = testSessionMessageLogger;
         _testPlatformEventSource = testPlatformEventSource;
         _testPluginCache = testPluginCache;
-        _messageLogger = messageLogger;
         _dataSerializer = dataSerializer;
         _fileHelper = fileHelper;
     }
@@ -262,7 +258,7 @@ public class TestEngine : ITestEngine
         Func<TestRuntimeProviderInfo, IProxyExecutionManager> proxyExecutionManagerCreator = runtimeProviderInfo =>
             CreateNonParallelExecutionManager(requestData, testRunCriteria, isDataCollectorEnabled, runtimeProviderInfo);
 
-        var executionManager = new ParallelProxyExecutionManager(requestData, proxyExecutionManagerCreator, parallelLevel, testHostProviders);
+        var executionManager = new ParallelProxyExecutionManager(requestData, proxyExecutionManagerCreator, parallelLevel, testHostProviders, _testPluginCache);
 
         EqtTrace.Verbose($"TestEngine.GetExecutionManager: Chosen execution manager '{executionManager.GetType().AssemblyQualifiedName}' ParallelLevel '{parallelLevel}'.");
 
@@ -348,7 +344,13 @@ public class TestEngine : ITestEngine
                 new ProxyDataCollectionManager(
                     requestData,
                     runtimeProviderInfo.RunSettings,
-                    sources))
+                    sources,
+                    _processHelper,
+                    _testSessionMessageLogger,
+                    _fileHelper),
+                _dataSerializer,
+                _fileHelper,
+                _testPluginCache)
             : new ProxyExecutionManager(
                 requestData,
                 requestSender,
