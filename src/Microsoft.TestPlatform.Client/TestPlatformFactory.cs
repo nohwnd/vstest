@@ -18,6 +18,5 @@ public class TestPlatformFactory
     /// Gets an instance of the test platform.
     /// </summary>
     /// <returns> The <see cref="ITestPlatform"/> instance. </returns>
-    [Obsolete("don't use", error: true)]
     public static ITestPlatform GetTestPlatform() => throw new NotSupportedException();
 }

@@ -34,7 +34,6 @@ public class TestRuntimeProviderManager : ITestRuntimeProviderManager
     /// <summary>
     /// Gets the instance of TestRuntimeProviderManager
     /// </summary>
-    [Obsolete("don't use", error: true)]
     public static TestRuntimeProviderManager Instance
         => s_testHostManager ??= new TestRuntimeProviderManager(TestSessionMessageLogger.Instance);
 

@@ -35,7 +35,6 @@ internal class RunSettingsManager : IRunSettingsProvider
     #endregion
 
     [AllowNull]
-    [Obsolete("Don't use.", error: true)]
     public static RunSettingsManager Instance
     {
         get

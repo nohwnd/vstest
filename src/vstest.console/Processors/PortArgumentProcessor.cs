@@ -46,43 +46,7 @@ internal class PortArgumentProcessor : ArgumentProcessor<int>, IExecutorCreator
         HelpPriority = HelpContentPriority.PortArgumentProcessorHelpPriority;
 
         CreateExecutor = c =>
-        {
-            var serviceProvider = c.ServiceProvider;
-            var testSessionMessageLogger = TestSessionMessageLogger.Instance;
-            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger);
-            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
-            var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
-                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>());
-            var testPlatformEventSource = TestPlatformEventSource.Instance;
-            var metricsPublisher = serviceProvider.GetService<IMetricsPublisher>();
-            var metricsPublisherTask = Task.FromResult(metricsPublisher);
-            var testRequestManager = new TestRequestManager(
-
-                            c.ServiceProvider.GetService<CommandLineOptions>(),
-            testPlatform,
-            new TestRunResultAggregator(),
-            testPlatformEventSource,
-            new InferHelper(AssemblyMetadataProvider.Instance),
-            metricsPublisherTask,
-            serviceProvider.GetService<IProcessHelper>(),
-            new TestRunAttachmentsProcessingManager(testPlatformEventSource, new DataCollectorAttachmentsProcessorsFactory()),
-            serviceProvider.GetService<IEnvironment>()
-            );
-            var artifactProcessingManager = new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId);
-
-            var designModeClient = new DesignModeClient(new SocketCommunicationManager(), JsonDataSerializer.Instance, serviceProvider.GetService<IEnvironment>());
-            // TODO: Replace those resolves by shipping the instances on the invocation context directly.
-
-            var sharedDependencies = serviceProvider.GetService<SharedDependencyDictionary>();
-            // TODO: Maybe rather add directly this, because that is what we need in in-process console wrapper?
-            // sharedDependencies[typeof(TestRequestManager)] = new WeakReference(testRequestManager);
-            sharedDependencies[typeof(DesignModeClient)] = new WeakReference(designModeClient);
-            return new PortArgumentExecutor(
-                c.ServiceProvider.GetService<CommandLineOptions>(),
-                    testRequestManager,
-                   c.ServiceProvider.GetService<IProcessHelper>(),
-                   designModeClient);
-        };
+            new PortArgumentExecutor(CommandLineOptions.Instance, TestRequestManager.Instance));
     }
 
     public Func<InvocationContext, IArgumentExecutor> CreateExecutor { get; }
