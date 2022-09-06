@@ -177,8 +177,7 @@ internal class EnableCodeCoverageArgumentExecutor : IArgumentExecutor
             runSettingsDocument = document;
         }
 
-        var runSettingsNavigator = runSettingsDocument.CreateNavigator();
-
+        var runSettingsNavigator = runSettingsDocument.CreateNavigator()!;
         if (ContainsDataCollectorWithFriendlyName(runSettingsNavigator, FriendlyName))
         {
             // runsettings already has Code coverage data collector, just enable it.
@@ -210,15 +209,15 @@ internal class EnableCodeCoverageArgumentExecutor : IArgumentExecutor
             XPathNavigator dataCollectorsNavigator;
             if (existingPath.Equals(xpaths[2]) == false)
             {
-                dataCollectorsNavigator = runSettingsNavigator.SelectSingleNode(existingPath);
+                dataCollectorsNavigator = runSettingsNavigator.SelectSingleNode(existingPath)!;
                 var missingNodesText = GetMissingNodesTextIfAny(existingPath, xpaths[2]);
                 dataCollectorsNavigator.AppendChild(missingNodesText);
             }
 
-            dataCollectorsNavigator = runSettingsNavigator.SelectSingleNode(xpaths[2]);
+            dataCollectorsNavigator = runSettingsNavigator.SelectSingleNode(xpaths[2])!;
             dataCollectorsNavigator.AppendChild(CodeCoverageCollectorSettingsTemplate);
 
-            _runSettingsManager.UpdateRunSettings(runSettingsDocument.CreateNavigator().OuterXml);
+            _runSettingsManager.UpdateRunSettings(runSettingsDocument.CreateNavigator()!.OuterXml);
         }
     }
 
@@ -249,7 +248,7 @@ internal class EnableCodeCoverageArgumentExecutor : IArgumentExecutor
         _ = runSettingDocument ?? throw new ArgumentNullException(nameof(runSettingDocument));
         _ = dataCollectorFriendlyName ?? throw new ArgumentNullException(nameof(dataCollectorFriendlyName));
 
-        var navigator = runSettingDocument.CreateNavigator();
+        var navigator = runSettingDocument.CreateNavigator()!;
         var nodes = navigator.Select("/RunSettings/DataCollectionRunSettings/DataCollectors/DataCollector");
 
         foreach (XPathNavigator? dataCollectorNavigator in nodes)

@@ -163,7 +163,7 @@ internal class ListFullyQualifiedTestsArgumentExecutor : IArgumentExecutor
 
             // Initializing the test case filter here because the filter value is read late.
             TestCaseFilter.Initialize(_options.TestCaseFilterValue);
-            var discoveredTests = args.DiscoveredTestCases.ToList();
+            var discoveredTests = args.DiscoveredTestCases!.ToList();
             var filteredTests = TestCaseFilter.FilterTests(discoveredTests).ToList();
 
             // remove any duplicate tests

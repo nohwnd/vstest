@@ -151,7 +151,7 @@ internal class TestDiscovererMetadata : ITestDiscovererCapabilities
     /// </summary>
     /// <param name="fileExtensions"> The file Extensions. </param>
     /// <param name="defaultExecutorUri"> The default Executor Uri. </param>
-    public TestDiscovererMetadata(IReadOnlyCollection<string>? fileExtensions, string? defaultExecutorUri, AssemblyType assemblyType = default)
+    public TestDiscovererMetadata(IReadOnlyCollection<string>? fileExtensions, string? defaultExecutorUri, AssemblyType assemblyType = default, bool isDirectoryBased = false)
     {
         if (fileExtensions != null && fileExtensions.Count > 0)
         {
@@ -164,6 +164,7 @@ internal class TestDiscovererMetadata : ITestDiscovererCapabilities
         }
 
         AssemblyType = assemblyType;
+        IsDirectoryBased = isDirectoryBased;
     }
 
     /// <summary>
@@ -188,6 +189,16 @@ internal class TestDiscovererMetadata : ITestDiscovererCapabilities
     /// Gets assembly type supported by the discoverer.
     /// </summary>
     public AssemblyType AssemblyType
+    {
+        get;
+        private set;
+    }
+
+    /// <summary>
+    /// <c>true</c> if the discoverer plugin is decorated with <see cref="DirectoryBasedTestDiscovererAttribute"/>,
+    /// <c>false</c> otherwise.
+    /// </summary>
+    public bool IsDirectoryBased
     {
         get;
         private set;

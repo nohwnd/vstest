@@ -59,9 +59,6 @@ internal class Executor
     internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper,
         IEnvironment environment, IFeatureFlag featureFlag)
     {
-        DebuggerBreakpoint.AttachVisualStudioDebugger("VSTEST_RUNNER_DEBUG_ATTACHVS");
-        DebuggerBreakpoint.WaitForDebugger("VSTEST_RUNNER_DEBUG");
-
         // TODO: Get rid of this by making vstest.console code properly async.
         // The current implementation of vstest.console is blocking many threads that just wait
         // for completion in non-async way. Because threadpool is setting the limit based on processor count,
@@ -79,6 +76,9 @@ internal class Executor
         var additionalThreadsCount = Environment.ProcessorCount * 4;
         ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
         ThreadPool.SetMinThreads(workerThreads + additionalThreadsCount, completionPortThreads + additionalThreadsCount);
+
+        DebuggerBreakpoint.AttachVisualStudioDebugger(WellKnownDebugEnvironmentVariables.VSTEST_RUNNER_DEBUG_ATTACHVS);
+        DebuggerBreakpoint.WaitForDebugger(WellKnownDebugEnvironmentVariables.VSTEST_RUNNER_DEBUG);
 
         _output = output;
         _testPlatformEventSource = testPlatformEventSource;
