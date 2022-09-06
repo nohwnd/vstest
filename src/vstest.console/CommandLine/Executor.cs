@@ -129,12 +129,11 @@ internal class Executor
         // to make sure we use the same instance no matter what the usage is.
         serviceProvider.AddService(_ => CommandLineOptions.Instance);
 
-
         var messageLogger = new TestSessionMessageLogger();
         var runsettingsManager = new RunSettingsManager(messageLogger, new Common.ExtensionFramework.TestPluginCache(messageLogger));
 
         runsettingsManager.AddDefaultRunSettings();
-        serviceProvider.AddService(_ => runsettingsManager);
+        serviceProvider.AddService<IRunSettingsProvider>(_ => runsettingsManager);
         serviceProvider.AddService(_ => RunSettingsHelper.Instance);
 
         // On syntax error print the error, and help.

@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.TestPlatform.CommandLine.Publisher;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
 using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.CommandLineUtilities;
+using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework;
 using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
@@ -54,11 +55,14 @@ internal class PortArgumentProcessor : ArgumentProcessor<int>, IExecutorCreator
             var dataSerializer = JsonDataSerializer.Instance;
             var testSessionMessageLogger = new TestSessionMessageLogger();
             var testPluginCache = new TestPluginCache(testSessionMessageLogger);
+            var runsettingsProvider = new RunSettingsManager(testSessionMessageLogger, testPluginCache);
+
+            Client.TestPlatform.AddExtensionAssembliesFromExtensionDirectory(testPluginCache, runsettingsProvider);
             var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger, testPluginCache);
             var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>(),
                 testSessionMessageLogger, testPlatformEventSource, testPluginCache, dataSerializer, serviceProvider.GetService<IFileHelper>());
             var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
-                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>(), testPluginCache, dataSerializer);
+                testhostProviderManager, runsettingsProvider, testPluginCache, dataSerializer);
 
             var metricsPublisher = serviceProvider.GetService<IMetricsPublisher>();
             var metricsPublisherTask = Task.FromResult(metricsPublisher);

@@ -63,7 +63,6 @@ internal class TestPlatform : ITestPlatform
         _runsettingsManager = runsettingsManager;
         _testPluginCache = testPluginCache;
         _dataSerializer = dataSerializer;
-        AddExtensionAssembliesFromExtensionDirectory();
     }
 
     /// <inheritdoc/>
@@ -257,10 +256,10 @@ internal class TestPlatform : ITestPlatform
     /// load the inbox extensions like TrxLogger and legacy test extensions like MSTest v1,
     /// MSTest C++, etc..
     /// </summary>
-    private void AddExtensionAssembliesFromExtensionDirectory()
+    public static TestPluginCache AddExtensionAssembliesFromExtensionDirectory(TestPluginCache testPluginCache, IRunSettingsProvider runSettingsManager)
     {
         ///
-       //  var a = CONTINUE;
+        //  var a = CONTINUE;
             // here. AddExtensionAssembliesFromExtensionDirectory needs to be called before
         //    TestRuntimeExtensionManager Create
         //    because that loads up the runtime providers from the cache.
@@ -274,7 +273,7 @@ internal class TestPlatform : ITestPlatform
         // Otherwise we will always get a "No suitable test runtime provider found for this run." error.
         // I (@haplois) will modify this behavior later on, but we also need to consider legacy adapters
         // and make sure they still work after modification.
-        string? runSettings = _runsettingsManager.ActiveRunSettings.SettingsXml;
+        string? runSettings = runSettingsManager.ActiveRunSettings.SettingsXml;
         RunConfiguration runConfiguration = XmlRunSettingsUtilities.GetRunConfigurationNode(runSettings);
         TestAdapterLoadingStrategy strategy = runConfiguration.TestAdapterLoadingStrategy;
 
@@ -319,7 +318,9 @@ internal class TestPlatform : ITestPlatform
             }
         }
 
-        _testPluginCache.DefaultExtensionPaths = defaultExtensionPaths.Distinct();
+        testPluginCache.DefaultExtensionPaths = defaultExtensionPaths.Distinct();
+
+        return testPluginCache;
     }
 
     private static SearchOption GetSearchOption(TestAdapterLoadingStrategy strategy, SearchOption defaultStrategyOption)
