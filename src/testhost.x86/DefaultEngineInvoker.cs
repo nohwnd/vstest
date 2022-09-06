@@ -17,6 +17,7 @@ using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Helpers;
+using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -72,6 +73,10 @@ internal class DefaultEngineInvoker :
     private readonly TestSessionMessageLogger _testSessionMessageLogger;
     private readonly TestPluginCache _testPluginCache;
     private readonly IDataSerializer _dataSerializer;
+
+    // TODO: this is default constructor because we create it in appdomain, do we have a better way? Like creating it via a container instead?
+    public DefaultEngineInvoker()
+        : this(new ProcessHelper(), TestPlatformEventSource.Instance, new TestSessionMessageLogger(), new TestPluginCache(new TestSessionMessageLogger()), JsonDataSerializer.Instance) { }
 
     public DefaultEngineInvoker(IProcessHelper processHelper, ITestPlatformEventSource testPlatformEventSource, TestSessionMessageLogger testSessionMessageLogger, TestPluginCache testPluginCache, IDataSerializer dataSerializer)
         : this(new TestRequestHandler(), DataCollectionTestCaseEventSender.Create(), processHelper, testPlatformEventSource, testSessionMessageLogger, testPluginCache, dataSerializer)

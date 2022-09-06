@@ -24,7 +24,7 @@ public class TestSessionMessageLogger : IMessageLogger
     /// <summary>
     /// Initializes a new instance of the <see cref="TestSessionMessageLogger"/> class.
     /// </summary>
-    protected internal TestSessionMessageLogger()
+    public TestSessionMessageLogger()
     {
         TreatTestAdapterErrorsAsWarnings = Constants.DefaultTreatTestAdapterErrorsAsWarnings;
     }
