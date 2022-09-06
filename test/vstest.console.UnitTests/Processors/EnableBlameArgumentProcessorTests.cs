@@ -423,7 +423,7 @@ public class EnableBlameArgumentProcessorTests
         internal TestableEnableBlameArgumentExecutor(IRunSettingsProvider runSettingsManager, IEnvironment environment, IOutput output)
             : base(runSettingsManager, environment, new Mock<IFileHelper>().Object)
         {
-            _output = output;
+            Output = output;
         }
     }
 }

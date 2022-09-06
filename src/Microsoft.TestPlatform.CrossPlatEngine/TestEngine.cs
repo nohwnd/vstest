@@ -37,6 +37,18 @@ public class TestEngine : ITestEngine
 
     private ITestExtensionManager? _testExtensionManager;
 
+    public TestEngine()
+        : this(TestRuntimeProviderManager.Instance, new ProcessHelper())
+    {
+    }
+
+    protected internal TestEngine(
+        TestRuntimeProviderManager testHostProviderManager,
+        IProcessHelper processHelper)
+        : this(testHostProviderManager, processHelper, new PlatformEnvironment())
+    {
+    }
+
     internal TestEngine(
         ITestRuntimeProviderManager testHostProviderManager,
         IProcessHelper processHelper,

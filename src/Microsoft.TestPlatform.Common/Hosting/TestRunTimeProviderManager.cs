@@ -26,7 +26,7 @@ public class TestRuntimeProviderManager : ITestRuntimeProviderManager
     /// <param name="sessionLogger">
     /// The session Logger.
     /// </param>
-    public TestRuntimeProviderManager(IMessageLogger sessionLogger)
+    protected TestRuntimeProviderManager(IMessageLogger sessionLogger)
     {
         _testHostExtensionManager = TestRuntimeExtensionManager.Create(sessionLogger);
     }

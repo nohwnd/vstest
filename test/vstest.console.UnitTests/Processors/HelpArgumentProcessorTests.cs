@@ -67,7 +67,7 @@ public class HelpArgumentProcessorTests
     {
         HelpArgumentExecutor executor = new();
         var output = new DummyConsoleOutput();
-        executor._output = output;
+        executor.Output = output;
         _ = executor.Execute();
         Assert.IsTrue(output.Lines.Contains("Usage: vstest.console.exe [Arguments] [Options] [[--] <RunSettings arguments>...]]"));
         Assert.IsTrue(output.Lines.Contains("Arguments:"));

@@ -54,6 +54,14 @@ public class DesignModeClient : IDesignModeClient
     /// <summary>
     /// Initializes a new instance of the <see cref="DesignModeClient"/> class.
     /// </summary>
+    public DesignModeClient()
+        : this(new SocketCommunicationManager(), JsonDataSerializer.Instance, new PlatformEnvironment())
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DesignModeClient"/> class.
+    /// </summary>
     /// <param name="communicationManager">
     /// The communication manager.
     /// </param>
@@ -63,7 +71,7 @@ public class DesignModeClient : IDesignModeClient
     /// <param name="platformEnvironment">
     /// The platform Environment
     /// </param>
-    internal DesignModeClient(/* transitive dependency */ ICommunicationManager communicationManager, IDataSerializer dataSerializer, IEnvironment platformEnvironment)
+    internal DesignModeClient(ICommunicationManager communicationManager, IDataSerializer dataSerializer, IEnvironment platformEnvironment)
     {
         _communicationManager = communicationManager;
         _dataSerializer = dataSerializer;
@@ -73,9 +81,23 @@ public class DesignModeClient : IDesignModeClient
     }
 
     /// <summary>
+    /// Property exposing the Instance
+    /// </summary>
+    public static DesignModeClient? Instance { get; private set; }
+
+    /// <summary>
     /// Gets the test request manager.
     /// </summary>
     public ITestRequestManager? TestRequestManager { get; internal set; }
+
+    /// <summary>
+    /// Initializes DesignMode
+    /// </summary>
+    [MemberNotNull(nameof(Instance))]
+    public static void Initialize()
+    {
+        Instance = new DesignModeClient();
+    }
 
     /// <summary>
     /// Creates a client and waits for server to accept connection asynchronously

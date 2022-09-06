@@ -13,7 +13,6 @@ using Microsoft.TestPlatform.VsTestConsole.TranslationLayer.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Client;
 using Microsoft.VisualStudio.TestPlatform.Client.DesignMode;
 using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Helpers;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
@@ -22,7 +21,6 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client.Payloads;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.VsTestConsole.TranslationLayer.Interfaces;
@@ -53,7 +51,7 @@ internal class InProcessVsTestConsoleWrapper : IVsTestConsoleWrapper
               environmentVariableHelper: new EnvironmentVariableHelper(),
               requestSender: new VsTestConsoleRequestSender(),
               testRequestManager: null,
-              executor: new Executor(new ConsoleOutput(), TestPlatformEventSource.Instance, new ProcessHelper(), new PlatformEnvironment(), FeatureFlag.Instance, new RunSettingsManager()),
+              executor: new Executor(ConsoleOutput.Instance),
               testPlatformEventSource: TestPlatformEventSource.Instance)
     { }
 
@@ -124,10 +122,10 @@ internal class InProcessVsTestConsoleWrapper : IVsTestConsoleWrapper
         TestRequestManager = testRequestManager;
         if (TestRequestManager is null)
         {
-            var designModeClientWeakReference = executor.SharedDependencies[typeof(DesignModeClient)];
-            var designModeClient = designModeClientWeakReference.Target as DesignModeClient;
-            TPDebug.Assert(designModeClient != null, "Design mode client is null, are we running in with /Port argument processor?");
-            TestRequestManager = designModeClient.TestRequestManager;
+            TPDebug.Assert(
+                DesignModeClient.Instance != null,
+                "DesignModeClient.Instance is null");
+            TestRequestManager = DesignModeClient.Instance.TestRequestManager;
         }
 
         _testPlatformEventSource.TranslationLayerInitializeStop();

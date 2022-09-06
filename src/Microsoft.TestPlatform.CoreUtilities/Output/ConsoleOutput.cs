@@ -20,7 +20,7 @@ public class ConsoleOutput : IOutput
     /// <summary>
     /// Initializes a new instance of the <see cref="ConsoleOutput"/> class.
     /// </summary>
-    public ConsoleOutput()
+    internal ConsoleOutput()
     {
         _standardOutput = Console.Out;
         _standardError = Console.Error;

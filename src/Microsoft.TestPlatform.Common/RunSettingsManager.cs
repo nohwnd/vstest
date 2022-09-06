@@ -20,7 +20,7 @@ internal class RunSettingsManager : IRunSettingsProvider
     /// <summary>
     /// Default constructor.
     /// </summary>
-    internal RunSettingsManager()
+    private RunSettingsManager()
     {
         ActiveRunSettings = new RunSettings();
     }
