@@ -46,7 +46,7 @@ internal class PortArgumentProcessor : ArgumentProcessor<int>, IExecutorCreator
         HelpPriority = HelpContentPriority.PortArgumentProcessorHelpPriority;
 
         CreateExecutor = c =>
-            new PortArgumentExecutor(CommandLineOptions.Instance, TestRequestManager.Instance));
+            new PortArgumentExecutor(CommandLineOptions.Instance, TestRequestManager.Instance);
     }
 
     public Func<InvocationContext, IArgumentExecutor> CreateExecutor { get; }

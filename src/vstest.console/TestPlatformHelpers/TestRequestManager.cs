@@ -81,6 +81,25 @@ internal class TestRequestManager : ITestRequestManager
     /// </summary>
     private CancellationTokenSource? _currentAttachmentsProcessingCancellationTokenSource;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TestRequestManager"/> class.
+    /// </summary>
+    public TestRequestManager()
+        : this(
+            CommandLineOptions.Instance,
+            TestPlatformFactory.GetTestPlatform(),
+            TestRunResultAggregator.Instance,
+            TestPlatformEventSource.Instance,
+            new InferHelper(AssemblyMetadataProvider.Instance),
+            MetricsPublisherFactory.GetMetricsPublisher(
+                IsTelemetryOptedIn(),
+                CommandLineOptions.Instance.IsDesignMode),
+            new ProcessHelper(),
+            new TestRunAttachmentsProcessingManager(TestPlatformEventSource.Instance, new DataCollectorAttachmentsProcessorsFactory()),
+            new PlatformEnvironment())
+    {
+    }
+
     internal TestRequestManager(
         CommandLineOptions commandLineOptions,
         ITestPlatform testPlatform,
@@ -102,6 +121,12 @@ internal class TestRequestManager : ITestRequestManager
         _attachmentsProcessingManager = attachmentsProcessingManager;
         _environment = environment;
     }
+
+    /// <summary>
+    /// Gets the test request manager instance.
+    /// </summary>
+    public static ITestRequestManager Instance
+        => s_testRequestManagerInstance ??= new TestRequestManager();
 
     #region ITestRequestManager
 
@@ -646,7 +671,7 @@ internal class TestRequestManager : ITestRequestManager
             XmlRunSettingsUtilities.ReaderSettings);
         var document = new XmlDocument();
         document.Load(reader);
-        var navigator = document.CreateNavigator();
+        var navigator = document.CreateNavigator()!;
         var runConfiguration = XmlRunSettingsUtilities.GetRunConfigurationNode(runsettingsXml);
         var loggerRunSettings = XmlRunSettingsUtilities.GetLoggerRunSettings(runsettingsXml)
                                 ?? new LoggerRunSettings();

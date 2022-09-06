@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 
+using Microsoft.VisualStudio.TestPlatform.Execution;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
@@ -118,6 +119,8 @@ public class BlameCollector : DataCollector, ITestExecutionEnvironmentSpecifier
         DataCollectionLogger logger,
         DataCollectionEnvironmentContext? environmentContext)
     {
+        DebuggerBreakpoint.WaitForDebugger(WellKnownDebugEnvironmentVariables.VSTEST_BLAMEDATACOLLECTOR_DEBUG);
+
         _events = events;
         _dataCollectionSink = dataSink;
         _context = environmentContext;
@@ -540,7 +543,7 @@ public class BlameCollector : DataCollector, ITestExecutionEnvironmentSpecifier
     /// </summary>
     /// <param name="sender">Sender</param>
     /// <param name="args">TestHostLaunchedEventArgs</param>
-    private void TestHostLaunchedHandler(object sender, TestHostLaunchedEventArgs args)
+    private void TestHostLaunchedHandler(object? sender, TestHostLaunchedEventArgs args)
     {
         ResetInactivityTimer();
         _testHostProcessId = args.TestHostProcessId;
@@ -634,7 +637,7 @@ public class BlameCollector : DataCollector, ITestExecutionEnvironmentSpecifier
         var dumpDirectoryOverrideHasValue = !dumpDirectoryOverride.IsNullOrWhiteSpace();
         _uploadDumpFiles = !dumpDirectoryOverrideHasValue;
 
-        var dumpDirectory = dumpDirectoryOverrideHasValue ? dumpDirectoryOverride : GetTempDirectory();
+        var dumpDirectory = dumpDirectoryOverrideHasValue ? dumpDirectoryOverride! : GetTempDirectory();
         Directory.CreateDirectory(dumpDirectory);
         var dumpPath = Path.Combine(Path.GetFullPath(dumpDirectory));
 
