@@ -48,45 +48,15 @@ internal class RunTestsArgumentProcessor : ArgumentProcessor<bool>, IExecutorCre
 
         HelpContentResourceName = CommandLineResources.RunTestsArgumentHelp;
         HelpPriority = HelpContentPriority.RunTestsArgumentProcessorHelpPriority;
-
-        CreateExecutor = c =>
-        {
-            var serviceProvider = c.ServiceProvider;
-            var testSessionMessageLogger = TestSessionMessageLogger.Instance;
-            var testhostProviderManager = new TestRuntimeProviderManager(testSessionMessageLogger);
-            var testEngine = new TestEngine(testhostProviderManager, serviceProvider.GetService<IProcessHelper>(), serviceProvider.GetService<IEnvironment>());
-            var testPlatform = new Client.TestPlatform(testEngine, serviceProvider.GetService<IFileHelper>(),
-                testhostProviderManager, serviceProvider.GetService<IRunSettingsProvider>());
-            var testPlatformEventSource = TestPlatformEventSource.Instance;
-            var metricsPublisher = serviceProvider.GetService<IMetricsPublisher>();
-            var metricsPublisherTask = Task.FromResult(metricsPublisher);
-            var testRequestManager = new TestRequestManager(
-
-                            c.ServiceProvider.GetService<CommandLineOptions>(),
-            testPlatform,
-            new TestRunResultAggregator(),
-            testPlatformEventSource,
-            new InferHelper(AssemblyMetadataProvider.Instance),
-            metricsPublisherTask,
-            serviceProvider.GetService<IProcessHelper>(),
-            new TestRunAttachmentsProcessingManager(testPlatformEventSource, new DataCollectorAttachmentsProcessorsFactory()),
-            serviceProvider.GetService<IEnvironment>()
-            );
-            var artifactProcessingManager = new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId);
-            // TODO: Replace those resolves by shipping the instances on the invocation context directly,
-            // so we don't get strayed into trying to grab unavailable services from the provider,
-            // or register more services than what is the "evironment" surrounding the run (e.g. consoleOptions
-            // or environmentHelper, or runsettings, but we should not register TestPlatform or TestRequestManager).
-            return new RunTestsArgumentExecutor(
-                c.ServiceProvider.GetService<CommandLineOptions>(),
-                    c.ServiceProvider.GetService<IRunSettingsProvider>()!,
-                    testRequestManager,
-                    artifactProcessingManager,
-                    c.ServiceProvider.GetService<IOutput>()!);
-        };
     }
 
-    public Func<InvocationContext, IArgumentExecutor> CreateExecutor { get; }
+    public Func<InvocationContext, IArgumentExecutor> CreateExecutor { get; } =
+        c => new RunTestsArgumentExecutor(
+                CommandLineOptions.Instance,
+                RunSettingsManager.Instance,
+                TestRequestManager.Instance,
+                new ArtifactProcessingManager(CommandLineOptions.Instance.TestSessionCorrelationId),
+                ConsoleOutput.Instance);
 }
 
 internal interface IExecutorCreator

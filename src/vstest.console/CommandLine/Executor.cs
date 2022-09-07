@@ -9,11 +9,14 @@ using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Publisher;
 using Microsoft.VisualStudio.TestPlatform.CommandLine2;
+using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
+using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
 using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Execution;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
@@ -46,7 +49,6 @@ namespace Microsoft.VisualStudio.TestPlatform.CommandLine;
 /// </summary>
 internal class Executor
 {
-    private readonly IOutput _output;
     private readonly ITestPlatformEventSource _testPlatformEventSource;
     private readonly IProcessHelper _processHelper;
     private readonly IEnvironment _environment;
@@ -55,11 +57,14 @@ internal class Executor
 
     public SharedDependencyDictionary SharedDependencies { get; } = new();
 
-    internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper,
-        IEnvironment environment, IFeatureFlag featureFlag, IRunSettingsProvider runsettingsManager)
+    public Executor(IOutput output) : this(output, TestPlatformEventSource.Instance, new ProcessHelper(), new PlatformEnvironment())
     {
-        DebuggerBreakpoint.AttachVisualStudioDebugger("VSTEST_RUNNER_DEBUG_ATTACHVS");
-        DebuggerBreakpoint.WaitForDebugger("VSTEST_RUNNER_DEBUG");
+    }
+
+    internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper, IEnvironment environment)
+    {
+        DebuggerBreakpoint.AttachVisualStudioDebugger(WellKnownDebugEnvironmentVariables.VSTEST_RUNNER_DEBUG_ATTACHVS);
+        DebuggerBreakpoint.WaitForDebugger(WellKnownDebugEnvironmentVariables.VSTEST_RUNNER_DEBUG);
 
         // TODO: Get rid of this by making vstest.console code properly async.
         // The current implementation of vstest.console is blocking many threads that just wait
@@ -79,13 +84,20 @@ internal class Executor
         ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
         ThreadPool.SetMinThreads(workerThreads + additionalThreadsCount, completionPortThreads + additionalThreadsCount);
 
-        _output = output;
+        Output = output;
         _testPlatformEventSource = testPlatformEventSource;
         _processHelper = processHelper;
         _environment = environment;
-        _featureFlag = featureFlag;
-        _runsettingsManager = runsettingsManager;
+        _featureFlag = FeatureFlag.Instance;
+        _runsettingsManager = RunSettingsManager.Instance;
+
+        _runsettingsManager.AddDefaultRunSettings();
     }
+
+    /// <summary>
+    /// Instance to use for sending output.
+    /// </summary>
+    private IOutput Output { get; set; }
 
     /// <summary>
     /// Performs the execution based on the arguments provided.
@@ -115,7 +127,7 @@ internal class Executor
         serviceProvider.AddService(_ => initializeInvocationContext);
         serviceProvider.AddService(_ => SharedDependencies);
 
-        serviceProvider.AddService(_ => _output);
+        serviceProvider.AddService(_ => Output);
         serviceProvider.AddService(_ => _processHelper);
         serviceProvider.AddService(_ => _environment);
         serviceProvider.AddService(_ => _featureFlag);
@@ -145,7 +157,7 @@ internal class Executor
                 logoExecutor.Initialize(parseResult);
                 logoExecutor.Execute();
             }
-            _output.Error(appendPrefix: false, string.Join(Environment.NewLine, parseResult.Errors));
+            Output.Error(appendPrefix: false, string.Join(Environment.NewLine, parseResult.Errors));
             var helpArgumentProcessor = new HelpArgumentProcessor();
             var helpExecutor = ArgumentProcessorFactory.CreateExecutor(helpArgumentProcessor, initializeInvocationContext, helpArgumentProcessor.ExecutorType);
             helpExecutor.Initialize(parseResult);
@@ -161,13 +173,13 @@ internal class Executor
         {
             if (!parseResult.Errors.Any())
             {
-                _output.Error(appendPrefix: false, "Initialize failed but no error was reported.");
+                Output.Error(appendPrefix: false, "Initialize failed but no error was reported.");
             }
             else
             {
-                _output.Error(appendPrefix: false, string.Join("\n", parseResult.Errors));
+                Output.Error(appendPrefix: false, string.Join("\n", parseResult.Errors));
             }
-            //var executor = new HelpArgumentExecutor(_output, argumentProcessors.ToList());
+            //var executor = new HelpArgumentExecutor(Output, argumentProcessors.ToList());
             //executor.Initialize(parseResult);
             //executor.Execute();
 
@@ -239,14 +251,14 @@ internal class Executor
                     if (ex is CommandLineException or TestPlatformException or SettingsException or InvalidOperationException)
                     {
                         EqtTrace.Error("ExecuteArgumentProcessor: failed to execute argument process: {0}", ex);
-                        _output.Error(false, ex.Message);
+                        Output.Error(false, ex.Message);
 
                         // Send inner exception only when its message is different to avoid duplicate.
                         if (ex is TestPlatformException &&
                             ex.InnerException != null &&
                             !string.Equals(ex.InnerException.Message, ex.Message, StringComparison.CurrentCultureIgnoreCase))
                         {
-                            _output.Error(false, ex.InnerException.Message);
+                            Output.Error(false, ex.InnerException.Message);
                         }
                     }
                     else
@@ -282,7 +294,7 @@ internal class Executor
         //    else
         //    {
         //        // No known processor was found, report an error and continue
-        //        _output.Error(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.NoArgumentProcessorFound, arg));
+        //        Output.Error(false, string.Format(CultureInfo.CurrentCulture, CommandLineResources.NoArgumentProcessorFound, arg));
 
         //        // Add the help processor
         //        if (result == 0)
@@ -327,13 +339,13 @@ internal class Executor
         //    {
         //        if (ex is CommandLineException or TestPlatformException or SettingsException)
         //        {
-        //            _output.Error(false, ex.Message);
+        //            Output.Error(false, ex.Message);
         //            result = 1;
         //            _showHelp = false;
         //        }
         //        else if (ex is TestSourceException)
         //        {
-        //            _output.Error(false, ex.Message);
+        //            Output.Error(false, ex.Message);
         //            result = 1;
         //            _showHelp = false;
         //            break;
@@ -410,14 +422,14 @@ internal class Executor
             if (ex is CommandLineException or TestPlatformException or SettingsException or InvalidOperationException)
             {
                 EqtTrace.Error("ExecuteArgumentProcessor: failed to execute argument process: {0}", ex);
-                _output.Error(false, ex.Message);
+                Output.Error(false, ex.Message);
 
                 // Send inner exception only when its message is different to avoid duplicate.
                 if (ex is TestPlatformException &&
                     ex.InnerException != null &&
                     !string.Equals(ex.InnerException.Message, ex.Message, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    _output.Error(false, ex.InnerException.Message);
+                    Output.Error(false, ex.InnerException.Message);
                 }
             }
             else

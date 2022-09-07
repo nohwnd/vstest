@@ -11,7 +11,6 @@ using System.Threading;
 
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
-using Microsoft.VisualStudio.TestPlatform.CommandLine.UnitTests.Processors;
 using Microsoft.VisualStudio.TestPlatform.Common.Logging;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
@@ -55,7 +54,7 @@ public class ConsoleLoggerTests
         _mockProgressIndicator = new Mock<IProgressIndicator>();
         _consoleLogger = new ConsoleLogger(_mockOutput.Object, _mockProgressIndicator.Object, _mockFeatureFlag.Object);
 
-        RunTestsArgumentProcessorTests.SetupMockExtensions();
+       // TODO: fix when I add the processors back RunTestsArgumentProcessorTests.SetupMockExtensions();
     }
 
     [TestMethod]

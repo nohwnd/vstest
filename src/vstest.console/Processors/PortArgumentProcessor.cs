@@ -3,27 +3,15 @@
 
 using System;
 using System.Globalization;
-using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestPlatform.Client.DesignMode;
 using Microsoft.VisualStudio.TestPlatform.Client.RequestHelper;
-using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors.Utilities;
-using Microsoft.VisualStudio.TestPlatform.CommandLine.Publisher;
 using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
 using Microsoft.VisualStudio.TestPlatform.CommandLine2;
-using Microsoft.VisualStudio.TestPlatform.CommandLineUtilities;
-using Microsoft.VisualStudio.TestPlatform.Common.Hosting;
-using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
-using Microsoft.VisualStudio.TestPlatform.Common.Logging;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
-using Microsoft.VisualStudio.TestPlatform.CoreUtilities.Tracing;
-using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
-using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.ArtifactProcessing;
-using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.TestRunAttachmentsProcessing;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers;
-using Microsoft.VisualStudio.TestPlatform.Utilities.Helpers.Interfaces;
 
 using CommandLineResources = Microsoft.VisualStudio.TestPlatform.CommandLine.Resources.Resources;
 
@@ -70,7 +58,7 @@ internal class PortArgumentExecutor : IArgumentExecutor
     /// <summary>
     /// Initializes Design mode when called
     /// </summary>
-    private readonly Func<IDesignModeClient?, int, IProcessHelper, IDesignModeClient> _initializeDesignMode;
+    private readonly Func<int, IProcessHelper, IDesignModeClient> _designModeInitializer;
 
     /// <summary>
     /// IDesignModeClient
@@ -82,20 +70,36 @@ internal class PortArgumentExecutor : IArgumentExecutor
     /// </summary>
     private readonly IProcessHelper _processHelper;
 
-    // REVIEW: this has initialize design mode callback, I guess that is to prevent startup during unit tests
-    internal PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager, IProcessHelper processHelper, IDesignModeClient designModeClient)
-        : this(options, testRequestManager, InitializeDesignMode, processHelper, designModeClient)
+    /// <summary>
+    /// Default constructor.
+    /// </summary>
+    /// <param name="options">
+    /// The options.
+    /// </param>
+    /// <param name="testRequestManager"> Test request manager</param>
+    public PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager)
+        : this(options, testRequestManager, InitializeDesignMode, new ProcessHelper())
     {
     }
 
-    internal PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager, Func<IDesignModeClient?, int, IProcessHelper, IDesignModeClient> designModeInitializer, IProcessHelper processHelper, IDesignModeClient designModeClient)
+    /// <summary>
+    /// For Unit testing only
+    /// </summary>
+    internal PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager, IProcessHelper processHelper)
+        : this(options, testRequestManager, InitializeDesignMode, processHelper)
+    {
+    }
+
+    /// <summary>
+    /// For Unit testing only
+    /// </summary>
+    internal PortArgumentExecutor(CommandLineOptions options, ITestRequestManager testRequestManager, Func<int, IProcessHelper, IDesignModeClient> designModeInitializer, IProcessHelper processHelper)
     {
         ValidateArg.NotNull(options, nameof(options));
         _commandLineOptions = options;
         _testRequestManager = testRequestManager;
-        _initializeDesignMode = designModeInitializer;
+        _designModeInitializer = designModeInitializer;
         _processHelper = processHelper;
-        _designModeClient = designModeClient;
     }
 
 
@@ -112,7 +116,7 @@ internal class PortArgumentExecutor : IArgumentExecutor
         _commandLineOptions.Port = portNumber;
         _commandLineOptions.IsDesignMode = true;
         RunSettingsHelper.Instance.IsDesignMode = true;
-        _designModeClient = _initializeDesignMode?.Invoke(_designModeClient, _commandLineOptions.ParentProcessId, _processHelper);
+        _designModeClient = _designModeInitializer?.Invoke(_commandLineOptions.ParentProcessId, _processHelper);
     }
 
     /// <summary>
@@ -135,24 +139,18 @@ internal class PortArgumentExecutor : IArgumentExecutor
 
     #endregion
 
-    private static IDesignModeClient InitializeDesignMode(IDesignModeClient? designModeClient, int parentProcessId, IProcessHelper processHelper)
+    private static IDesignModeClient InitializeDesignMode(int parentProcessId, IProcessHelper processHelper)
     {
-        if (designModeClient == null)
-        {
-            // Throw when we provide the default initialization but don't provide the designModeClient instance.
-            // This should happen only in tests, because the init func is here for tests only.
-            throw new ArgumentNullException(nameof(designModeClient));
-        }
-
         if (parentProcessId > 0)
         {
             processHelper.SetExitCallback(parentProcessId, (obj) =>
             {
                 EqtTrace.Info($"PortArgumentProcessor: parent process:{parentProcessId} exited.");
-                designModeClient.HandleParentProcessExit();
+                DesignModeClient.Instance?.HandleParentProcessExit();
             });
         }
 
-        return designModeClient;
+        DesignModeClient.Initialize();
+        return DesignModeClient.Instance;
     }
 }
