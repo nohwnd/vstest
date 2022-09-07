@@ -67,30 +67,16 @@ public class ExecutorUnitTests
     public void ExecutorShouldNotPrintsSplashScreenIfNoLogoPassed()
     {
         var mockOutput = new MockOutput();
-        var exitCode = new Executor(mockOutput, _mockTestPlatformEventSource.Object, new ProcessHelper(), new PlatformEnvironment()).Execute("--nologo");
+        // TODO: Bad argument here needs to be provided because otherwise we get stuck. This is because there are shared static instances
+        // of CommandLineOptions.Instance that has a valid source cross-pollinated from a test that run before, and
+        // also RunSettingsManager.Instance.ActiveRunSettings have DesignMode = true, which puts the execution "port" like mode
+        // so we start a server and never return. This needs to be fixed by not sharing instances, which is a difficult goal.
+        var exitCode = new Executor(mockOutput, _mockTestPlatformEventSource.Object, new ProcessHelper(), new PlatformEnvironment()).Execute("--nologo", "/badArgument");
 
         Assert.AreEqual(1, exitCode, "Exit code must be One for bad arguments");
 
-        // Verify that messages exist
-        mockOutput.Messages.Select(m => m.Message).Should().HaveCount(1, "Executor should not print no valid arguments provided");
-        Assert.IsTrue(mockOutput.Messages.Count == 1, "Executor should not print no valid arguments provided");
-
-        // Just check first 20 characters - don't need to check whole thing as assembly version is variable
-        Assert.IsFalse(
-            mockOutput.Messages.First()
-                .Message!.Contains(CommandLineResources.MicrosoftCommandLineTitle.Substring(0, 20)),
-            "First Printed message must be Microsoft Copyright");
-    }
-
-    [TestMethod]
-    public void ExecutorShouldSanitizeNoLogoInput()
-    {
-        var mockOutput = new MockOutput();
-        var exitCode = new Executor(mockOutput, _mockTestPlatformEventSource.Object, new ProcessHelper(), new PlatformEnvironment()).Execute("--nologo");
-
-        Assert.AreEqual(1, exitCode, "Exit code must be One when no arguments are provided.");
-
-        Assert.IsTrue(mockOutput.Messages.Any(message => message.Message!.Contains(CommandLineResources.MissingTestSourceFile)));
+        mockOutput.Messages.Select(m => m.Message)
+            .Should().NotContainMatch($"*{CommandLineResources.MicrosoftCommandLineTitle}*");
     }
 
     /// <summary>
@@ -135,12 +121,13 @@ public class ExecutorUnitTests
     public void ExecutorWithInvalidArgsAndValueShouldPrintErrorMessage()
     {
         var mockOutput = new MockOutput();
-        string badArg = "--invalidArg:xyz";
+        string badParameter = "--invalidArg";
+        string badArg = $"{badParameter:xyz}";
         var exitCode = new Executor(mockOutput, _mockTestPlatformEventSource.Object, new ProcessHelper(), new PlatformEnvironment()).Execute(badArg);
 
         Assert.AreEqual(1, exitCode, "Exit code must be One when no arguments are provided.");
 
-        Assert.IsTrue(mockOutput.Messages.Any(message => message.Message!.Contains(string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidArgument, badArg))));
+        mockOutput.Messages.Select(m => m.Message).Should().Contain(string.Format(CultureInfo.CurrentCulture, CommandLineResources.InvalidArgument, badParameter));
     }
 
     /// <summary>
@@ -192,6 +179,7 @@ public class ExecutorUnitTests
     [TestMethod]
     public void ExecuteShouldNotThrowSettingsExceptionButLogOutput()
     {
+        var activeRunSetting = RunSettingsManager.Instance.ActiveRunSettings;
         var runSettingsFile = Path.Combine(Path.GetTempPath(), "ExecutorShouldShowRightErrorMessage.runsettings");
 
         try
@@ -223,12 +211,14 @@ public class ExecutorUnitTests
         finally
         {
             File.Delete(runSettingsFile);
+            RunSettingsManager.Instance.SetActiveRunSettings(activeRunSetting);
         }
     }
 
     [TestMethod]
     public void ExecuteShouldReturnNonZeroExitCodeIfSettingsException()
     {
+        var activeRunSetting = RunSettingsManager.Instance.ActiveRunSettings;
         var runSettingsFile = Path.Combine(Path.GetTempPath(), "ExecutorShouldShowRightErrorMessage.runsettings");
 
         try
@@ -258,12 +248,14 @@ public class ExecutorUnitTests
         finally
         {
             File.Delete(runSettingsFile);
+            RunSettingsManager.Instance.SetActiveRunSettings(activeRunSetting);
         }
     }
 
     [TestMethod]
     public void ExecutorShouldShowErrorMessageWhenValueForTargetPlatformIsNotAValidPlatform()
     {
+        var activeRunSetting = RunSettingsManager.Instance.ActiveRunSettings;
         var runSettingsFile = Path.Combine(Path.GetTempPath(), "ExecutorShouldShowRightErrorMessage.runsettings");
 
         try
@@ -292,13 +284,14 @@ public class ExecutorUnitTests
             mockOutput.Messages
                 .Where(m => m.Level == OutputLevel.Error)
                 .Select(m => m.Message)
-                .Should().Contain($"Invalid setting 'RunConfiguration'. Invalid value '{invalidPlatform}' specified for 'TargetPlatform'.");
+                .Should().ContainMatch($"*Invalid setting 'RunConfiguration'. Invalid value '{invalidPlatform}' specified for 'TargetPlatform'.*");
 
             Assert.AreEqual(1, exitCode, "Exit code should be 1 because execution exited with error.");
         }
         finally
         {
             File.Delete(runSettingsFile);
+            RunSettingsManager.Instance.SetActiveRunSettings(activeRunSetting);
         }
     }
 

@@ -121,9 +121,9 @@ internal class Executor
         serviceProvider.AddService(_ => initializeInvocationContext);
 
         serviceProvider.AddService(_ => Output);
-        serviceProvider.AddService<IProcessHelper>(_ => new ProcessHelper());
-        serviceProvider.AddService<IEnvironment>(_ => new PlatformEnvironment());
-        serviceProvider.AddService<IFeatureFlag>(_ => FeatureFlag.Instance);
+        serviceProvider.AddService(_ => _processHelper);
+        serviceProvider.AddService(_ => _environment);
+        serviceProvider.AddService(_ => FeatureFlag.Instance);
         serviceProvider.AddService<IFileHelper>(_ => new FileHelper());
 
         // Using instance because it is used in many other places, so we should eradicate it there first
@@ -133,7 +133,7 @@ internal class Executor
 
         RunSettingsManager.Instance.AddDefaultRunSettings();
         serviceProvider.AddService<IRunSettingsProvider>(_ => RunSettingsManager.Instance);
-        serviceProvider.AddService<IRunSettingsHelper>(_ => RunSettingsHelper.Instance);
+        serviceProvider.AddService(_ => RunSettingsHelper.Instance);
 
         // On syntax error print the error, and help.
         if (parseResult.Errors.Any())
@@ -155,6 +155,8 @@ internal class Executor
             _testPlatformEventSource.VsTestConsoleStop();
             return 1;
         }
+
+
 
         // Get the argument processors for the arguments, and initialize them.
         var initializeExitCode = RunIntialize(initializeInvocationContext, out List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors);
