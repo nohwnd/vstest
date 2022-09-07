@@ -29,29 +29,6 @@ internal class ArgumentProcessorFactory
     /// </summary>
     internal const string XplatCommandStarter = "-";
 
-    ///// <summary>
-    ///// Available argument processors.
-    ///// </summary>
-    //private Dictionary<string, ArgumentProcessor>? _commandToProcessorMap;
-    //private Dictionary<string, ArgumentProcessor>? _specialCommandToProcessorMap;
-
-    ///// Initializes the argument processor factory.
-    ///// </summary>
-    ///// <param name="argumentProcessors">
-    ///// The argument Processors.
-    ///// </param>
-    ///// <param name="featureFlag">
-    ///// The feature flag support.
-    ///// </param>
-    ///// <remarks>
-    ///// This is not public because the static Create method should be used to access the instance.
-    ///// </remarks>
-    //protected ArgumentProcessorFactory(IEnumerable<ArgumentProcessor> argumentProcessors)
-    //{
-    //    ValidateArg.NotNull(argumentProcessors, nameof(argumentProcessors));
-    //    AllArgumentProcessors = argumentProcessors;
-    //}
-
     /// <summary>
     /// Creates ArgumentProcessorFactory.
     /// </summary>
@@ -61,88 +38,70 @@ internal class ArgumentProcessorFactory
     /// <returns>ArgumentProcessorFactory.</returns>
     internal static List<ArgumentProcessor> GetProcessorList(IFeatureFlag? featureFlag = null)
     {
-        List<ArgumentProcessor> processors = new(DefaultArgumentProcessors);
+        var enablePostProcessing = !(featureFlag ?? FeatureFlag.Instance).IsSet(FeatureFlag.DISABLE_ARTIFACTS_POSTPROCESSING);
+        List<ArgumentProcessor> processors = new() {
+            new SplashScreenArgumentProcessor(), // --no-logo
+            new HelpArgumentProcessor(), // --help, when the help parameter is present, we should only print the help
+            new EnableDiagArgumentProcessor(), // --diag, we want this to happen as soon as possible to the start so we can initialize diag logger
+            new ResponseFileArgumentProcessor(),
+            new RunSettingsArgumentProcessor(),
+            new TestAdapterLoadingStrategyArgumentProcessor(),
+            new ParentProcessIdArgumentProcessor(),
+            new PortArgumentProcessor(),
+        };
 
-        if (!(featureFlag ?? FeatureFlag.Instance).IsSet(FeatureFlag.DISABLE_ARTIFACTS_POSTPROCESSING))
+        if (enablePostProcessing)
         {
             processors.Add(new ArtifactProcessingCollectModeProcessor());
-            processors.Add(new ArtifactProcessingPostProcessModeProcessor());
+        }
+
+        processors.AddRange(new ArgumentProcessor[] {
+            new TestAdapterPathArgumentProcessor(),
+            new PlatformArgumentProcessor(),
+            new FrameworkArgumentProcessor(),
+            new ParallelArgumentProcessor(),
+            new ResultsDirectoryArgumentProcessor(),
+            new InIsolationArgumentProcessor(),
+            new CollectArgumentProcessor(),
+            new EnableCodeCoverageArgumentProcessor(),
+            new UseVsixExtensionsArgumentProcessor(),
+            new CliRunSettingsArgumentProcessor(),
+        });
+
+        if (enablePostProcessing)
+        {
             processors.Add(new TestSessionCorrelationIdProcessor());
         }
+
+        processors.AddRange(new ArgumentProcessor[] {
+            new EnvironmentArgumentProcessor(),
+            new EnableLoggerArgumentProcessor(),
+            new EnableBlameArgumentProcessor(),
+            new TestSourceArgumentProcessor(),
+            new TestCaseFilterArgumentProcessor(),
+            new DisableAutoFakesArgumentProcessor(),
+            new ListDiscoverersArgumentProcessor(),
+            new ListExecutorsArgumentProcessor(),
+            new ListLoggersArgumentProcessor(),
+            new ListSettingsProvidersArgumentProcessor(),
+            new ListTestsTargetPathArgumentProcessor(),
+            new ListFullyQualifiedTestsArgumentProcessor(),
+            new ListTestsArgumentProcessor(),
+        });
+
+        if (enablePostProcessing)
+        {
+            processors.Add(new ArtifactProcessingPostProcessModeProcessor());
+        }
+
+        processors.AddRange(new ArgumentProcessor[] {
+            new RunSpecificTestsArgumentProcessor(),
+            new RunTestsArgumentProcessor(),
+        });
 
         // Get the ArgumentProcessorFactory
         return processors;
     }
-
-    ///// <summary>
-    ///// Creates the argument processor associated with the provided command line argument.
-    ///// The Lazy that is returned will initialize the underlying argument processor when it is first accessed.
-    ///// </summary>
-    ///// <param name="argument">Command line argument to create the argument processor for.</param>
-    ///// <returns>The argument processor or null if one was not found.</returns>
-    //public ArgumentProcessor? CreateArgumentProcessor(string argument)
-    //{
-    //    ValidateArg.NotNullOrWhiteSpace(argument, nameof(argument));
-
-    //    // Parse the input into its command and argument parts.
-    //    var pair = new CommandArgumentPair(argument);
-
-    //    // Find the associated argument processor.
-    //    CommandToProcessorMap.TryGetValue(pair.Command, out ArgumentProcessor? argumentProcessor);
-
-    //    // If an argument processor was not found for the command, then consider it as a test source argument.
-    //    if (argumentProcessor == null)
-    //    {
-    //        // Update the command pair since the command is actually the argument in the case of
-    //        // a test source.
-    //        pair = new CommandArgumentPair(TestSourceArgumentProcessor.CommandName, argument);
-
-    //        argumentProcessor = SpecialCommandToProcessorMap[TestSourceArgumentProcessor.CommandName];
-    //    }
-
-    //    if (argumentProcessor != null)
-    //    {
-    //        argumentProcessor = WrapLazyProcessorToInitializeOnInstantiation(argumentProcessor, pair.Argument);
-    //    }
-
-    //    return argumentProcessor;
-    //}
-
-    private static IReadOnlyList<ArgumentProcessor> DefaultArgumentProcessors => new List<ArgumentProcessor> {
-        new SplashScreenArgumentProcessor(), // --no-logo
-        new HelpArgumentProcessor(), // --help, when the help parameter is present, we should only print the help
-        new EnableDiagArgumentProcessor(), // --diag, we want this to happen as soon as possible to the start so we can initialize diag logger
-        new TestSourceArgumentProcessor(),
-        new ListTestsArgumentProcessor(),
-        new RunTestsArgumentProcessor(),
-        new RunSpecificTestsArgumentProcessor(),
-        new TestAdapterPathArgumentProcessor(),
-        new TestAdapterLoadingStrategyArgumentProcessor(),
-        new TestCaseFilterArgumentProcessor(),
-        new ParentProcessIdArgumentProcessor(),
-        new PortArgumentProcessor(),
-        new RunSettingsArgumentProcessor(),
-        new PlatformArgumentProcessor(),
-        new FrameworkArgumentProcessor(),
-        new EnableLoggerArgumentProcessor(),
-        new ParallelArgumentProcessor(),
-        new CliRunSettingsArgumentProcessor(),
-        new ResultsDirectoryArgumentProcessor(),
-        new InIsolationArgumentProcessor(),
-        new CollectArgumentProcessor(),
-        new EnableCodeCoverageArgumentProcessor(),
-        new DisableAutoFakesArgumentProcessor(),
-        new ResponseFileArgumentProcessor(),
-        new EnableBlameArgumentProcessor(),
-        new UseVsixExtensionsArgumentProcessor(),
-        new ListDiscoverersArgumentProcessor(),
-        new ListExecutorsArgumentProcessor(),
-        new ListLoggersArgumentProcessor(),
-        new ListSettingsProvidersArgumentProcessor(),
-        new ListFullyQualifiedTestsArgumentProcessor(),
-        new ListTestsTargetPathArgumentProcessor(),
-        new EnvironmentArgumentProcessor()
-    };
 
     ///// <summary>
     ///// Decorates a lazy argument processor so that the real processor is initialized when the lazy value is obtained.
@@ -225,7 +184,7 @@ internal class ArgumentProcessorFactory
     //}
 
 
-    internal static IArgumentExecutor CreateExecutor(ArgumentProcessor processor, InvocationContext context,  Type executorType)
+    internal static IArgumentExecutor CreateExecutor(ArgumentProcessor processor, InvocationContext context, Type executorType)
     {
         if (processor is IExecutorCreator creator)
         {

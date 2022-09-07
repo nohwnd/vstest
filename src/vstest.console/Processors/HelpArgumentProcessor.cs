@@ -18,9 +18,7 @@ internal class HelpArgumentProcessor : ArgumentProcessor<bool>
         : base(new string[] { "-?", "-h", "--help" }, typeof(HelpArgumentExecutor))
     {
         Priority = ArgumentProcessorPriority.Help;
-
         HelpContentResourceName = CommandLineResources.HelpArgumentHelp;
-
         HelpPriority = HelpContentPriority.HelpArgumentProcessorHelpPriority;
     }
 }

@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Internal;
-using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
@@ -20,6 +19,7 @@ internal class SplashScreenArgumentProcessor : ArgumentProcessor<bool>
         : base(new string[] { "--nologo", "--no-logo" }, typeof(SplashScreenArgumentExecutor))
     {
         AlwaysExecute = true;
+        Priority = ArgumentProcessorPriority.Maximum;
     }
 }
 

@@ -115,8 +115,6 @@ internal class Executor
 
         var argumentProcessorsCopy = argumentProcessors.ToList();
 
-        var argOrder = argumentProcessors.OrderBy(a => a.Priority).ToList().Select(p => $"{p.Name} - {p.Priority}").ToList();
-
         serviceProvider.AddService(_ => argumentProcessorsCopy);
         serviceProvider.AddService(_ => initializeInvocationContext);
 
@@ -215,7 +213,7 @@ internal class Executor
     {
         processorsAndExecutors = new List<(ArgumentProcessor, IArgumentExecutor)>();
         var argumentProcessors = ArgumentProcessorFactory.GetProcessorList(FeatureFlag.Instance);
-        argumentProcessors.Sort((p1, p2) => Comparer<ArgumentProcessorPriority>.Default.Compare(p1.Priority, p2.Priority));
+        // argumentProcessors.Sort((p1, p2) => Comparer<ArgumentProcessorPriority>.Default.Compare(p1.Priority, p2.Priority));
 
         // Ensure we have an action argument.
         EnsureActionArgumentIsPresent(argumentProcessors);
