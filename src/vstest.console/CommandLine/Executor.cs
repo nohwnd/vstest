@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 
 using Microsoft.VisualStudio.TestPlatform.CommandLine.Processors;
-using Microsoft.VisualStudio.TestPlatform.CommandLine.Publisher;
+using Microsoft.VisualStudio.TestPlatform.CommandLine.TestPlatformHelpers;
 using Microsoft.VisualStudio.TestPlatform.CommandLine2;
 using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Interfaces;
@@ -52,20 +52,12 @@ internal class Executor
     private readonly ITestPlatformEventSource _testPlatformEventSource;
     private readonly IProcessHelper _processHelper;
     private readonly IEnvironment _environment;
-    private readonly IFeatureFlag? _featureFlag;
-    private readonly IRunSettingsProvider _runsettingsManager;
 
-    public SharedDependencyDictionary SharedDependencies { get; } = new();
-
+    /// <summary>
+    /// Default constructor.
+    /// </summary>
     public Executor(IOutput output) : this(output, TestPlatformEventSource.Instance, new ProcessHelper(), new PlatformEnvironment())
     {
-    }
-
-    internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper, IEnvironment environment)
-    {
-        DebuggerBreakpoint.AttachVisualStudioDebugger(WellKnownDebugEnvironmentVariables.VSTEST_RUNNER_DEBUG_ATTACHVS);
-        DebuggerBreakpoint.WaitForDebugger(WellKnownDebugEnvironmentVariables.VSTEST_RUNNER_DEBUG);
-
         // TODO: Get rid of this by making vstest.console code properly async.
         // The current implementation of vstest.console is blocking many threads that just wait
         // for completion in non-async way. Because threadpool is setting the limit based on processor count,
@@ -83,15 +75,17 @@ internal class Executor
         var additionalThreadsCount = Environment.ProcessorCount * 4;
         ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
         ThreadPool.SetMinThreads(workerThreads + additionalThreadsCount, completionPortThreads + additionalThreadsCount);
+    }
+
+    internal Executor(IOutput output, ITestPlatformEventSource testPlatformEventSource, IProcessHelper processHelper, IEnvironment environment)
+    {
+        DebuggerBreakpoint.AttachVisualStudioDebugger(WellKnownDebugEnvironmentVariables.VSTEST_RUNNER_DEBUG_ATTACHVS);
+        DebuggerBreakpoint.WaitForDebugger(WellKnownDebugEnvironmentVariables.VSTEST_RUNNER_DEBUG);
 
         Output = output;
         _testPlatformEventSource = testPlatformEventSource;
         _processHelper = processHelper;
         _environment = environment;
-        _featureFlag = FeatureFlag.Instance;
-        _runsettingsManager = RunSettingsManager.Instance;
-
-        _runsettingsManager.AddDefaultRunSettings();
     }
 
     /// <summary>
@@ -125,26 +119,21 @@ internal class Executor
 
         serviceProvider.AddService(_ => argumentProcessorsCopy);
         serviceProvider.AddService(_ => initializeInvocationContext);
-        serviceProvider.AddService(_ => SharedDependencies);
 
         serviceProvider.AddService(_ => Output);
-        serviceProvider.AddService(_ => _processHelper);
-        serviceProvider.AddService(_ => _environment);
-        serviceProvider.AddService(_ => _featureFlag);
+        serviceProvider.AddService<IProcessHelper>(_ => new ProcessHelper());
+        serviceProvider.AddService<IEnvironment>(_ => new PlatformEnvironment());
+        serviceProvider.AddService<IFeatureFlag>(_ => FeatureFlag.Instance);
         serviceProvider.AddService<IFileHelper>(_ => new FileHelper());
 
-        var isTelemetryOptedIn = Environment.GetEnvironmentVariable("VSTEST_TELEMETRY_OPTEDIN")?.Equals("1", StringComparison.Ordinal) == true;
-        var metricsPublisher = MetricsPublisherFactory.GetMetricsPublisher(isTelemetryOptedIn, CommandLineOptions.Instance.IsDesignMode).GetAwaiter().GetResult();
-
-        serviceProvider.AddService(_ => metricsPublisher);
         // Using instance because it is used in many other places, so we should eradicate it there first
         // to make sure we use the same instance no matter what the usage is.
         serviceProvider.AddService(_ => CommandLineOptions.Instance);
 
 
-        _runsettingsManager.AddDefaultRunSettings();
-        serviceProvider.AddService(_ => _runsettingsManager);
-        serviceProvider.AddService(_ => RunSettingsHelper.Instance);
+        RunSettingsManager.Instance.AddDefaultRunSettings();
+        serviceProvider.AddService<IRunSettingsProvider>(_ => RunSettingsManager.Instance);
+        serviceProvider.AddService<IRunSettingsHelper>(_ => RunSettingsHelper.Instance);
 
         // On syntax error print the error, and help.
         if (parseResult.Errors.Any())
@@ -206,7 +195,7 @@ internal class Executor
         _testPlatformEventSource.MetricsDisposeStart();
 
         // Disposing Metrics Publisher when VsTestConsole ends
-        metricsPublisher.Dispose();
+        TestRequestManager.Instance.Dispose();
 
         _testPlatformEventSource.MetricsDisposeStop();
 
@@ -223,7 +212,7 @@ internal class Executor
     private int RunIntialize(InvocationContext invocationContext, out List<(ArgumentProcessor, IArgumentExecutor)> processorsAndExecutors)
     {
         processorsAndExecutors = new List<(ArgumentProcessor, IArgumentExecutor)>();
-        var argumentProcessors = ArgumentProcessorFactory.GetProcessorList(_featureFlag);
+        var argumentProcessors = ArgumentProcessorFactory.GetProcessorList(FeatureFlag.Instance);
         argumentProcessors.Sort((p1, p2) => Comparer<ArgumentProcessorPriority>.Default.Compare(p1.Priority, p2.Priority));
 
         // Ensure we have an action argument.
