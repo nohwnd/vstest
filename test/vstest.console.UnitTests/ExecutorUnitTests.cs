@@ -71,6 +71,8 @@ public class ExecutorUnitTests
         // of CommandLineOptions.Instance that has a valid source cross-pollinated from a test that run before, and
         // also RunSettingsManager.Instance.ActiveRunSettings have DesignMode = true, which puts the execution "port" like mode
         // so we start a server and never return. This needs to be fixed by not sharing instances, which is a difficult goal.
+        // In the old code there was this same problem, but this test with nologo bailed early because the custom code for handling
+        // --nologo removed it from the collection of arguments, and the execution ended with "no arguments provided".
         var exitCode = new Executor(mockOutput, _mockTestPlatformEventSource.Object, new ProcessHelper(), new PlatformEnvironment()).Execute("--nologo", "/badArgument");
 
         Assert.AreEqual(1, exitCode, "Exit code must be One for bad arguments");
