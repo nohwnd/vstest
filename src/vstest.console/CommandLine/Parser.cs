@@ -205,6 +205,9 @@ internal class Parser
         // for parsing when unknown parameters are allowed, it is recommended to specify all the sources first to allow
         // them all to bind to the argument rather than putting them at the end where some can be incorrectly bound to
         // unknown parameter.
+        //
+        // UPDATE: System.CommandLine does not take all values that follow argument with multiple arity e.g. --list a b c
+        // instead it takes just the first one by default. We set maxTaken: 1, to do the same.
         for (var i = 0; i < args.Count;)
         {
             // The real argument that user provided.
@@ -223,7 +226,7 @@ internal class Parser
                     // of this parameter so we just assume it can take all the values
                     // it was provided.
                     unbound.Add(arg);
-                    var values = TakeValuesUntilNextParameter(args, i);
+                    var values = TakeValuesUntilNextParameter(args, i, maxTaken: 1);
                     unbound.AddRange(values);
                     // In args, move to the position after the values so we can process next parameter
                     // or end.
@@ -237,7 +240,7 @@ internal class Parser
                     {
                         // We are allowed to take multiple values, so we take values until the next parameter or end,
                         // and merge the values with what already exists in tokens.
-                        List<string> values = TakeValuesUntilNextParameter(args, i);
+                        List<string> values = TakeValuesUntilNextParameter(args, i, maxTaken: 1);
                         ValidateParameter(tokenized, processor, arg, values, bindingErrors);
                         if (!tokenized.ContainsKey(processor.Name))
                         {
@@ -272,7 +275,7 @@ internal class Parser
             {
                 // We found a value, take all the values until the next parameter
                 // and bind them to the default argument, or make them unbound.
-                List<string> values = new[] { arg }.Concat(TakeValuesUntilNextParameter(args, i)).ToList();
+                List<string> values = new[] { arg }.Concat(TakeValuesUntilNextParameter(args, i, maxTaken: 1)).ToList();
                 if (defaultProcessor != null)
                 {
                     ValidateParameter(tokenized, defaultProcessor, arg, values, bindingErrors);
@@ -349,11 +352,13 @@ internal class Parser
         return arg.StartsWith("--") || arg.StartsWith("/") || arg.StartsWith("-");
     }
 
-    private static List<string> TakeValuesUntilNextParameter(List<string> args, int parameterPosition)
+    private static List<string> TakeValuesUntilNextParameter(List<string> args, int parameterPosition, int maxTaken)
     {
         var values = new List<string>();
         for (int i = parameterPosition + 1; i < args.Count; i++)
         {
+            if (i >= maxTaken + parameterPosition + 1)
+                break;
             if (IsParameter(args[i]))
                 break;
 

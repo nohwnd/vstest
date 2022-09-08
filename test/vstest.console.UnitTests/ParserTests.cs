@@ -143,7 +143,7 @@ public class ParserTests
         // Normal usage
         [Row(new[] { "1.dll", "--parameter:aaa" }, new[] { "1.dll", "--parameter", "aaa", })]
         [Row(new[] { "1.dll", "--parameter:aaa", "--", "RunConfiguration.MaxCpuCount=1" }, new[] { "1.dll", "--parameter", "aaa", })]
-        public void ParameterValuesThatAreJoinedBySemicolonGetSplit(string[] args, string[] expected)
+        public void ParameterValuesThatAreJoinedByColonGetSplit(string[] args, string[] expected)
         {
             // -- Arrange
 
@@ -265,6 +265,28 @@ public class ParserTests
             new Parser().Invoking(p => p.Parse(new[] { "--parameter" }, argumentProcessors, ignoreExtraParameters: true))
                 .Should().Throw<ArgumentException>()
                 .And.Message.Should().Match("*boolean and allow multiple values, this is not allowed.");
+        }
+
+        [TestMethod]
+        [Row(new[] { "--parameter", "value" }, "value", new string[] { })]
+        // Normally we might would expect --parameter with multi arity to take as many values as it can
+        // that follow the parameter, but that is not how the previous parser worked, or how System.CommandLine
+        // works in dotnet test. So "value2" should end up in unbound.
+        [Row(new[] { "--parameter", "value", "value2" }, "value", new string[] { "value2" })]
+        [Row(new[] { "--parameter", "value", "value2", "--parameter", "value3" }, "value", new string[] { "value2" })]
+        public void StringParameterWithMultipleArityTakes1ValueAfterEachSpecification(string[] args, string expected, string[] unbound)
+        {
+            // -- Arrange
+            var parameter = new ArgumentProcessor<string[]>("--parameter", typeof(NullArgumentExecutor));
+            var argumentProcessors = new List<ArgumentProcessor> { parameter };
+
+            // -- Act
+            var parseResult = new Parser().Parse(args, argumentProcessors, ignoreExtraParameters: true);
+
+            // -- Assert
+            parseResult.Errors.Should().BeEmpty();
+            parseResult.GetValueFor(parameter).Should().ContainInOrder(new[] { expected });
+            parseResult.Unbound.Should().ContainInOrder(unbound);
         }
     }
 
@@ -396,7 +418,7 @@ public class ParserTests
             var argumentProcessors = new List<ArgumentProcessor> { parameter };
 
             // -- Act
-            var parseResult = new Parser().Parse(new[] { "--parameter", "value", "value2" }, argumentProcessors);
+            var parseResult = new Parser().Parse(new[] { "--parameter", "value", "--parameter", "value2" }, argumentProcessors);
 
             // -- Assert
             parseResult.Errors.Should().BeEmpty();
