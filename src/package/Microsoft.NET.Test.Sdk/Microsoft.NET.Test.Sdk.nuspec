@@ -11,6 +11,9 @@
       <group targetFramework="net462">
         <!-- TestHost gets shipped with vstest.console -->
         <dependency id="Microsoft.CodeCoverage" version="$Version$" />
+        <!-- On .NET this dependency comes from TestHost, but on .NET Framework we don't restore it
+        and adapters end up missing it. https://github.com/microsoft/vstest/issues/2469 -->
+        <dependency id="Microsoft.TestPlatform.ObjectModel" version="$Version$" />
       </group>
     </dependencies>
   </metadata>
