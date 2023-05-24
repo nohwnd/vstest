@@ -51,6 +51,7 @@
     - [Datacollection](#datacollection)
     - [.NET Implementation](#net-implementation)
       - [Architecture](#architecture)
+        - [Runner](#runner)
       - [Extension points](#extension-points)
 
 ## What is TestPlatform?
@@ -1721,6 +1722,18 @@ TODO
 
 ### .NET Implementation
 
+Our test platform is meant to be general, but the actual implementation we provide is used to run vast majority of tests, that are run by TestPlatform. Our implementation also features several extension points that are not documented above, because they are inter-process, most of which are implemented by both us and third-parties.
+
 #### Architecture
+
+
+##### Runner
+
+The central piece of TestPlatform is the Runner. Runner is called `vstest.console` and comes in two flavors, .NET and .NET Framework. Runner is the only piece that is not meant to be replaceable. It is the heart and brain of TestPlatform and orchestrates a single or more hosts, talks with datacollectors and receives commands from Client.
+
+`vstest.console` can be run both interactively or in console. When run interactively, it awaits requests from Client. When run in console, it runs (or discovers) tests from the sources that are provided by startup parameters. 
+
+
+
 
 #### Extension points

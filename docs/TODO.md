@@ -8,13 +8,19 @@ Structures:
     public Dictionary<string, IEnumerable<string>> AdapterSourceMap 
 
 
-    TimeSpan
-
-    string? RunSettings 
 
 
-    string? TestCaseFilter 
+TimeSpan
 
-    TestSessionInfo? TestSessionInfo 
+string? RunSettings 
 
-    TestPlatformOptions
+
+string? TestCaseFilter 
+
+TestSessionInfo? TestSessionInfo 
+
+TestPlatformOptions
+
+
+
+parameters to start additional executables should be part of the spec, because the are "requests", and a way for additional tools to integrate with us.
