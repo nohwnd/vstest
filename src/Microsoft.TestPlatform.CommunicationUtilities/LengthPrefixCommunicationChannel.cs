@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
@@ -92,6 +93,7 @@ public class LengthPrefixCommunicationChannel : ICommunicationChannel
             }
             else
             {
+                Thread.Sleep(1);
                 EqtTrace.Verbose("LengthPrefixCommunicationChannel.NotifyDataAvailable: New data are waiting to be received, but there is no subscriber to be notified. Not reading them from the stream.");
             }
         }
