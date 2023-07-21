@@ -149,9 +149,9 @@ internal class Program
         // Run with test cases and custom testhost launcher
         //r.RunTestsWithCustomTestHost(discoveryHandler.TestCases, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler(detailedOutput), new DebuggerTestHostLauncher());
         //// Run with test cases and without custom testhost launcher
-        r.RunTests(discoveryHandler.TestCases, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler(detailedOutput));
+        // r.RunTests(discoveryHandler.TestCases, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler(detailedOutput));
         //// Run with sources and custom testhost launcher and debugging
-        //r.RunTestsWithCustomTestHost(sources, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler(detailedOutput), new DebuggerTestHostLauncher());
+        r.RunTestsWithCustomTestHost(sources, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler(detailedOutput), new DebuggerTestHostLauncher());
         //// Run with sources
         //r.RunTests(sources, sourceSettings, options, sessionHandler.TestSessionInfo, new TestRunHandler(detailedOutput));
         var rd = sw.ElapsedMilliseconds;
@@ -287,27 +287,37 @@ internal class Program
                 : "\t<empty>";
     }
 
-    internal class DebuggerTestHostLauncher : ITestHostLauncher2
+    internal class DebuggerTestHostLauncher : ITestHostLauncher2, ITestHostLauncher3
     {
-        public bool IsDebug => true;
+        public bool IsDebug => true; // <---
 
         public bool AttachDebuggerToProcess(int pid)
         {
+            // You want to implement this.
             return true;
         }
 
         public bool AttachDebuggerToProcess(int pid, CancellationToken cancellationToken)
         {
+            // You want to implement this.
+            return true;
+        }
+
+        public bool AttachDebuggerToProcess(AttachDebuggerInfo attachDebuggerInfo, CancellationToken cancellationToken)
+        {
+            // You want to implement this.
             return true;
         }
 
         public int LaunchTestHost(TestProcessStartInfo defaultTestHostStartInfo)
         {
+            // This is not called anymore in modern client and vstest.console.
             return 1;
         }
 
         public int LaunchTestHost(TestProcessStartInfo defaultTestHostStartInfo, CancellationToken cancellationToken)
         {
+            // This is not called anymore in modern client and vstest.console.
             return 1;
         }
     }
