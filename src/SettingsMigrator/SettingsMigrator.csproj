@@ -3,14 +3,14 @@
 
   <PropertyGroup>
     <AssemblyName>SettingsMigrator</AssemblyName>
-    <TargetFrameworks>net7.0;$(NetFrameworkMinimum)</TargetFrameworks>
+    <TargetFrameworks>net8.0;$(NetFrameworkMinimum)</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <IsTestProject>false</IsTestProject>
     <Prefer32Bit Condition="$(TargetFramework.StartsWith('net4'))">true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == '$(NetFrameworkMinimum)'">
-    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == '$(NetFrameworkMinimum)' ">
     <Reference Include="System" />

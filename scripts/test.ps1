@@ -9,9 +9,9 @@ Param(
     [System.String] $Configuration = "Debug",
 
     [Parameter(Mandatory=$false)]
-    [ValidateSet("win7-x64", "win7-x86")]
+    [ValidateSet("win-x64", "win-x86")]
     [Alias("r")]
-    [System.String] $TargetRuntime = "win7-x64",
+    [System.String] $TargetRuntime = "win-x64",
 
     [Parameter(Mandatory=$false)]
     [ValidateSet("net48", "net6.0")]
@@ -96,7 +96,7 @@ $env:NUGET_PACKAGES = $env:TP_PACKAGES_DIR
 #
 $TPT_TargetFrameworkNet462 = "net462"
 $TPT_TargetFrameworkNet48 = "net48"
-$TPT_TargetFrameworkCore31 = "netcoreapp3.1"
+$TPT_TargetFrameworkCore31 = "net6.0"
 $TPT_TargetFrameworkNet60 = "net6.0"
 Write-Verbose "Setup build configuration."
 $Script:TPT_Configuration = $Configuration

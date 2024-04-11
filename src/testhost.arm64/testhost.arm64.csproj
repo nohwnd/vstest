@@ -10,13 +10,13 @@
 
   <PropertyGroup>
     <AssemblyName>testhost.arm64</AssemblyName>
-    <TargetFrameworks>net7.0;$(NetCoreAppMinimum);$(NetFrameworkMinimum);net47;net471;net472;net48</TargetFrameworks>
+    <TargetFrameworks>net8.0;$(NetCoreAppMinimum);$(NetFrameworkMinimum);net47;net471;net472;net48</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <IsTestProject>false</IsTestProject>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
-    <RuntimeIdentifier Condition="'$(DotNetBuildSourceOnly)' != 'true'">win10-arm64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(DotNetBuildSourceOnly)' != 'true'">win-arm64</RuntimeIdentifier>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <TargetName Condition="'$(TargetFramework)' != '$(NetFrameworkMinimum)'">$(AssemblyName.Replace('.arm64', '')).$(TargetFramework).arm64</TargetName>
   </PropertyGroup>

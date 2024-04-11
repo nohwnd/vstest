@@ -92,14 +92,14 @@ public class IntegrationTestEnvironment
 
     /// <summary>
     /// Gets the target framework.
-    /// Supported values = <c>net462</c>, <c>netcoreapp3.1</c>.
+    /// Supported values = <c>net462</c>, <c>net6.0</c>.
     /// </summary>
     [NotNull]
     public string? TargetFramework { get; set; }
 
     /// <summary>
     /// Gets the target runtime.
-    /// Supported values = <c>win7-x64</c>.
+    /// Supported values = <c>win-x64</c>.
     /// </summary>
     public string? TargetRuntime
     {
@@ -109,7 +109,7 @@ public class IntegrationTestEnvironment
             {
                 if (_targetRuntime.IsNullOrEmpty())
                 {
-                    _targetRuntime = "win7-x64";
+                    _targetRuntime = "win-x64";
                 }
             }
             else
@@ -143,7 +143,7 @@ public class IntegrationTestEnvironment
 
     /// <summary>
     /// Gets the application type.
-    /// Supported values = <c>net462</c>, <c>netcoreapp3.1</c>.
+    /// Supported values = <c>net462</c>, <c>net6.0</c>.
     /// </summary>
     public string RunnerFramework { get; set; }
 

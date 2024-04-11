@@ -289,8 +289,8 @@ public class DotnetTestHostManager : ITestRuntimeProvider2
                 testHostPath = GetTestHostPath(runtimeConfigDevPath, depsFilePath, sourceDirectory);
                 if (!testHostPath.IsNullOrWhiteSpace() && testHostPath.IndexOf("microsoft.testplatform.testhost", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    // testhost.dll is present in path {testHostNugetRoot}\lib\netcoreapp3.1\testhost.dll
-                    // testhost.(x86).exe is present in location {testHostNugetRoot}\build\netcoreapp3.1\{x86/x64}\{testhost.x86.exe/testhost.exe}
+                    // testhost.dll is present in path {testHostNugetRoot}\lib\net6.0\testhost.dll
+                    // testhost.(x86).exe is present in location {testHostNugetRoot}\build\net6.0\{x86/x64}\{testhost.x86.exe/testhost.exe}
                     var folderName = _architecture is Architecture.X64 or Architecture.Default or Architecture.AnyCPU
                         ? Architecture.X64.ToString().ToLowerInvariant()
                         : _architecture.ToString().ToLowerInvariant();
@@ -304,7 +304,7 @@ public class DotnetTestHostManager : ITestRuntimeProvider2
                         testHostExeNugetPath = Path.Combine(testHostNugetRoot.FullName, "build", "net9.0", folderName, exeName);
                     }
 #else
-                    var testHostExeNugetPath = Path.Combine(testHostNugetRoot.FullName, "build", "netcoreapp3.1", folderName, exeName);
+                    var testHostExeNugetPath = Path.Combine(testHostNugetRoot.FullName, "build", "net6.0", folderName, exeName);
 #endif
 
                     if (_fileHelper.Exists(testHostExeNugetPath))
@@ -372,7 +372,7 @@ public class DotnetTestHostManager : ITestRuntimeProvider2
                         // When the project is .NET (Core) we can look at the TargetFramework and gather the rough version from there. We then
                         // provide a runtime config targetting that version. It rolls forward on the minor version by default, so the latest
                         // version that is present will be selected in that range. Same as if you had EXE and no special settings.
-                        // E.g. the dll targets netcoreapp3.1, we get 3.1 from the attribute in the Dll, and provide testhost-3.1.runtimeconfig.json
+                        // E.g. the dll targets net6.0, we get 3.1 from the attribute in the Dll, and provide testhost-3.1.runtimeconfig.json
                         // this will resolve to 3.1.17 runtime because that is the latest installed on the system.
                         //
                         //
@@ -461,7 +461,7 @@ public class DotnetTestHostManager : ITestRuntimeProvider2
 
         EqtTrace.Verbose("DotnetTestHostmanager: Full path of host exe is {0}", startInfo.FileName);
 
-        // Attempt to upgrade netcoreapp2.1 and earlier versions of testhost to netcoreapp3.1 or a newer runtime,
+        // Attempt to upgrade netcoreapp2.1 and earlier versions of testhost to net6.0 or a newer runtime,
         // assuming that the user does not have that old runtime installed.
         if (_targetFramework.Name.StartsWith(".NETCoreApp,", StringComparison.OrdinalIgnoreCase)
             && Version.TryParse(_targetFramework.Version, out var version)

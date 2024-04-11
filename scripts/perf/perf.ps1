@@ -6,12 +6,12 @@ Param(
     [System.String] $Configuration = "Release",
 
     [Parameter(Mandatory=$false)]
-    [ValidateSet("win7-x64", "win7-x86")]
+    [ValidateSet("win-x64", "win-x86")]
     [Alias("r")]
-    [System.String] $TargetRuntime = "win7-x64",
+    [System.String] $TargetRuntime = "win-x64",
 
     [Parameter(Mandatory=$false)]
-    [ValidateSet("netcoreapp3.1", "net462")]
+    [ValidateSet("net6.0", "net462")]
     [Alias("f")]
     [System.String] $TargetFramework,
 
@@ -40,7 +40,7 @@ $env:TP_OUT_DIR = Join-Path $env:TP_ROOT_DIR "artifacts"
 # Test configuration
 #
 $TPT_TargetFrameworkFullCLR = "net462"
-$TPT_TargetFramework31Core = "netcoreapp3.1"
+$TPT_TargetFramework31Core = "net6.0"
 Write-Verbose "Setup build configuration."
 $Script:TPT_Configuration = $Configuration
 $Script:TPT_SourceFolders =  @(Join-Path $env:TP_ROOT_DIR "test\TestAssets")
