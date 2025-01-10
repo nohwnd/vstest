@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Security.Cryptography;
+using System.IO.Hashing;
 using System.Text;
 
 namespace Microsoft.TestPlatform.AdapterUtilities;
@@ -15,14 +15,14 @@ public class TestIdProvider
     private Guid _id = Guid.Empty;
     private byte[]? _hash;
 
-    private readonly SHA1 _sha;
+    private readonly XxHash64 _sha;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestIdProvider"/> class.
     /// </summary>
     public TestIdProvider()
     {
-        _sha = SHA1.Create();
+        _sha = new XxHash64();
     }
 
     /// <summary>
@@ -40,8 +40,7 @@ public class TestIdProvider
         _ = str ?? throw new ArgumentNullException(nameof(str));
 
         var bytes = Encoding.Unicode.GetBytes(str);
-
-        _sha.TransformBlock(bytes, 0, bytes.Length, null, 0);
+        _sha.Append(bytes);
     }
 
     /// <summary>
@@ -63,7 +62,7 @@ public class TestIdProvider
             return;
         }
 
-        _sha.TransformBlock(bytes, 0, bytes.Length, null, 0);
+        _sha.Append(bytes);
     }
 
     /// <summary>
@@ -82,8 +81,7 @@ public class TestIdProvider
         }
 
         // Finalize the hash. We don't have any more data so we provide empty.
-        _sha.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
-        _hash = _sha.Hash;
+        _hash = _sha.GetCurrentHash();
 
         return _hash!;
     }
