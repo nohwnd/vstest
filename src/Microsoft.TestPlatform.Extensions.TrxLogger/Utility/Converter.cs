@@ -69,11 +69,9 @@ internal class Converter
             testElement.TestCategories.Add(testCategory);
         }
 
-        var workItems = GetCustomPropertyValueFromTestCase(rockSteadyTestCase, "WorkItemIds")
-            .Select(workItem => int.Parse(workItem, CultureInfo.CurrentCulture));
-        foreach (int workItem in workItems)
+        foreach (var trait in rockSteadyTestCase.Traits.Where(t => t.Name is not "Owner" and not "Priority"))
         {
-            testElement.WorkItems.Add(workItem);
+            testElement.Traits.Add(new Property(trait.Name, trait.Value));
         }
 
         return testElement;
