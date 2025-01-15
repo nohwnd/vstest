@@ -18,10 +18,27 @@ public class AzureHealthPropertyAttribute
     : TestPropertyAttribute
 {
     public AzureHealthPropertyAttribute(string name, string value)
-        : base($"azure-health-{name}", value)
+        : base($"azure-health--{name}", value)
     {
     }
 }
+
+public class AzureHealthServiceAssemblyMetadataAttribute : TestPropertyAttribute
+{
+    public AzureHealthServiceAssemblyMetadataAttribute(string value)
+        : base($"azure-health-assembly--service", value)
+    {
+    }
+}
+
+public class AzureHealthAssemblyMetadataAttribute : TestPropertyAttribute
+{
+    public AzureHealthAssemblyMetadataAttribute(string name, string value)
+        : base($"azure-health-assembly--{name}", value)
+    {
+    }
+}
+
 
 [TestClass]
 public class UnitTest1
@@ -29,7 +46,10 @@ public class UnitTest1
     [TestMethod]
     [TestProperty("some prop", "some value")]
     [AzureHealthOwner("Jakub")]
-    [AzureHealthProperty("service", "my service")]
+
+    [AzureHealthServiceAssemblyMetadata("my service")]
+
+    [AzureHealthServiceAssemblyMetadata("my service 2")]
     public void TestMethod1_1()
     {
         // Thread.Sleep(1000);

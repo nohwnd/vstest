@@ -103,6 +103,7 @@ public class TrxLogger : ITestLoggerWithParameters
         ValidateArg.NotNullOrEmpty(testResultsDirPath, nameof(testResultsDirPath));
 
         // Register for the events.
+        events.TestRunStart += Events_TestRunStart;
         events.TestRunMessage += TestMessageHandler;
         events.TestResult += TestResultHandler;
         events.TestRunComplete += TestRunCompleteHandler;
@@ -122,6 +123,10 @@ public class TrxLogger : ITestLoggerWithParameters
         TestRunStartTime = DateTime.UtcNow;
 
         IsInitialized = true;
+    }
+
+    private void Events_TestRunStart(object sender, TestRunStartEventArgs e)
+    {
     }
 
     /// <inheritdoc/>
