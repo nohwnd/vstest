@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 using Microsoft.TestPlatform.TestUtilities;
@@ -16,8 +18,6 @@ using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Newtonsoft.Json;
-using System.Diagnostics;
-using System.Globalization;
 
 namespace Microsoft.TestPlatform.Acceptance.IntegrationTests;
 
@@ -35,14 +35,42 @@ public class Build : IntegrationTestBase
         SetDotnetEnvironment();
         Debug.WriteLine($"Setting dotnet environment took: {sw.ElapsedMilliseconds} ms");
         sw.Restart();
-        UnzipExecutablePackagesCleanPackageCacheBuildTestAssets();
+
+        var nugetCache = Path.GetFullPath(Path.Combine(Root, ".packages"));
+        var packagesAreNew = UnzipExecutablePackages();
+        if (packagesAreNew)
+        {
+            CleanNugetCacheAndProjects(nugetCache);
+        }
         Debug.WriteLine($"Building test assets and unzipping packages took: {sw.ElapsedMilliseconds} ms");
         sw.Restart();
-        BuildTestAssetsCompatibility();
+        BuildTestAssets(nugetCache);
+        BuildTestAssetsCompatibility(nugetCache);
         Debug.WriteLine($"Building test assets compatibility matrix took: {sw.ElapsedMilliseconds} ms");
         sw.Restart();
         CopyAndPatchDotnet();
         Debug.WriteLine($"Copying and patching dotnet took: {sw.ElapsedMilliseconds} ms");
+    }
+
+    private static void BuildTestAssets(string nugetCache)
+    {
+        var testAssets = Path.GetFullPath(Path.Combine(Root, "test", "TestAssets", "TestAssets.sln"));
+        var nugetFeeds = GetNugetSourceParameters(Root);
+
+        var netTestSdkVersion = IntegrationTestEnvironment.LatestLocallyBuiltNugetVersion;
+
+        ExecuteApplication2(Dotnet, $"""restore --packages {nugetCache} {nugetFeeds} --source "{IntegrationTestEnvironment.LocalPackageSource}" -p:PackageVersion={netTestSdkVersion} "{testAssets}" """);
+        ExecuteApplication2(Dotnet, $"""build "{testAssets}" --configuration {IntegrationTestEnvironment.BuildConfiguration} --no-restore""");
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // Build special project written in IL.
+            // This project is used on Windows only Tests. On non-Windows the build fails with: "IlasmToolPath must be set in order to build ilproj's outside of Windows.".
+            var cilProject = Path.Combine(Root, "test", "TestAssets", "CILProject", "CILProject.proj");
+            var binPath = Path.Combine(Root, "artifacts", "bin", "TestAssets", "CILProject", IntegrationTestEnvironment.BuildConfiguration, "net462");
+            ExecuteApplication2(Dotnet, $"""restore --packages {nugetCache} {nugetFeeds} --source "{IntegrationTestEnvironment.LocalPackageSource}" "{cilProject}" """);
+            ExecuteApplication2(Dotnet, $"""build "{cilProject}" --configuration {IntegrationTestEnvironment.BuildConfiguration} --no-restore --output {binPath}""");
+        }
     }
 
     private static void SetDotnetEnvironment()
@@ -102,10 +130,9 @@ public class Build : IntegrationTestBase
         DirectoryUtils.CopyDirectory(Path.Combine(packagePath, "runtimes", "any", "native"), dotnetSdkDirectory);
     }
 
-    private static void BuildTestAssetsCompatibility()
+    private static void BuildTestAssetsCompatibility(string nugetCache)
     {
         var testAssetsDir = Path.GetFullPath(Path.Combine(Root, "test", "TestAssets"));
-        var nugetCache = Path.GetFullPath(Path.Combine(Root, ".packages"));
 
         var generated = Path.GetFullPath(Path.Combine(Root, "artifacts", "tmp", "GeneratedTestAssets"));
         var generatedSln = Path.Combine(generated, "CompatibilityTestAssets.slnx");
@@ -195,7 +222,7 @@ public class Build : IntegrationTestBase
         var rebuild = true;
         if (cacheIdText == currentCacheId)
         {
-            // Cache is up-to-date, just rebuilding solution.
+            // Project cache is up-to-date, just rebuilding solution.
             ExecuteApplication2(Dotnet, $"""restore --packages {nugetCache} {nugetFeeds} --source "{IntegrationTestEnvironment.LocalPackageSource}" "{generatedSln}" """);
             ExecuteApplication2(Dotnet, $"build {generatedSln} --no-restore --configuration {IntegrationTestEnvironment.BuildConfiguration} -v:minimal");
             rebuild = false;
@@ -359,12 +386,8 @@ public class Build : IntegrationTestBase
         }
     }
 
-    private static void UnzipExecutablePackagesCleanPackageCacheBuildTestAssets()
+    private static bool UnzipExecutablePackages()
     {
-        var testAssets = Path.GetFullPath(Path.Combine(Root, "test", "TestAssets", "TestAssets.sln"));
-
-        var nugetCache = Path.GetFullPath(Path.Combine(Root, ".packages"));
-        var nugetFeeds = GetNugetSourceParameters(Root);
         var netTestSdkVersion = IntegrationTestEnvironment.LatestLocallyBuiltNugetVersion;
 
         // Extract locally built packages that have our tools (like vstest.console.exe) into tmp directory,
@@ -406,27 +429,19 @@ public class Build : IntegrationTestBase
             File.WriteAllText(cacheMarkerPath, File.GetLastWriteTimeUtc(packagePath).ToString(CultureInfo.InvariantCulture));
         }
 
-        if (packagesAreNew)
-        {
-            CleanNugetCache(nugetCache);
-        }
-
-        ExecuteApplication2(Dotnet, $"""restore --packages {nugetCache} {nugetFeeds} --source "{IntegrationTestEnvironment.LocalPackageSource}" -p:PackageVersion={netTestSdkVersion} "{testAssets}" """);
-        ExecuteApplication2(Dotnet, $"""build "{testAssets}" --configuration {IntegrationTestEnvironment.BuildConfiguration} --no-restore""");
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            // Build special project written in IL.
-            // This project is used on Windows only Tests. On non-Windows the build fails with: "IlasmToolPath must be set in order to build ilproj's outside of Windows.".
-            var cilProject = Path.Combine(Root, "test", "TestAssets", "CILProject", "CILProject.proj");
-            var binPath = Path.Combine(Root, "artifacts", "bin", "TestAssets", "CILProject", IntegrationTestEnvironment.BuildConfiguration, "net462");
-            ExecuteApplication2(Dotnet, $"""restore --packages {nugetCache} {nugetFeeds} --source "{IntegrationTestEnvironment.LocalPackageSource}" "{cilProject}" """);
-            ExecuteApplication2(Dotnet, $"""build "{cilProject}" --configuration {IntegrationTestEnvironment.BuildConfiguration} --no-restore --output {binPath}""");
-        }
+        return packagesAreNew;
     }
 
-    private static void CleanNugetCache(string nugetCache)
+    private static void CleanNugetCacheAndProjects(string nugetCache)
     {
+        // dotnet clean needs the packages in place, but here we don't yet know what projects we will build
+        // luckily they are all built into artifacts/bin/TestAssets and artifacts/obj/TestAssets so we just need to delete
+        // the obj to force re-build in the next steps.
+
+        var objPath = Path.Combine(Root, "artifacts", "obj", "TestAssets");
+        Directory.Delete(objPath, recursive: true);
+
+        // Then clean all -dev and -ci packages from the cache to force updating from local source.
         foreach (var packageDir in Directory.GetDirectories(nugetCache))
         {
             foreach (var versionDir in Directory.GetDirectories(packageDir))
