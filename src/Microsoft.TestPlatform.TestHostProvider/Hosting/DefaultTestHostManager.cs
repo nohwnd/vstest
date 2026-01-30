@@ -207,6 +207,18 @@ public class DefaultTestHostManager : ITestRuntimeProvider2
                 currentWorkingDirectory = sourceDirectory;
                 isUsingTestHostFromNextToSource = true;
             }
+            else
+            {
+                throw new NotSupportedException($"Testhost {testHostPath} was not found! cannot start testhost.");
+            }
+        }
+        else
+        {
+            var a = true;
+            if (a)
+            {
+                throw new NotSupportedException($"Shared testhost is not supported.");
+            }
         }
 
         if (!isUsingTestHostFromNextToSource)
