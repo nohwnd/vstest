@@ -3,6 +3,8 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 using Microsoft.Build.Framework;
@@ -14,8 +16,6 @@ namespace Microsoft.TestPlatform.Build.Tasks;
 public class VSTestTask : Task, ITestTask
 {
     private int _activeProcessId;
-
-    private const string DotnetExe = "dotnet";
 
     [Required]
     public ITaskItem? TestFileFullPath { get; set; }
@@ -73,7 +73,7 @@ public class VSTestTask : Task, ITestTask
 
         var processInfo = new ProcessStartInfo
         {
-            FileName = DotnetExe,
+            FileName = ResolveDotnetPath(),
             Arguments = TestTaskUtils.CreateCommandLineArguments(this),
             UseShellExecute = false,
         };
@@ -93,6 +93,38 @@ public class VSTestTask : Task, ITestTask
         activeProcess.WaitForExit();
         Tracing.Trace($"VSTest: Exit code: {activeProcess.ExitCode}");
         return activeProcess.ExitCode == 0;
+    }
+
+    private static string ResolveDotnetPath()
+    {
+        var dotnetExe = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "dotnet.exe" : "dotnet";
+
+        var dotnetHostPath = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH");
+        if (!dotnetHostPath.IsNullOrEmpty())
+        {
+            var path = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(dotnetHostPath))!, dotnetExe);
+            if (File.Exists(path))
+            {
+                return path;
+            }
+        }
+
+        if (File.Exists(dotnetExe))
+        {
+            return Path.GetFullPath(dotnetExe);
+        }
+
+        var values = Environment.GetEnvironmentVariable("PATH");
+        foreach (var p in values!.Split(Path.PathSeparator))
+        {
+            var fullPath = Path.Combine(p, dotnetExe);
+            if (File.Exists(fullPath))
+            {
+                return fullPath;
+            }
+        }
+
+        return dotnetExe;
     }
 
     public void Cancel()
