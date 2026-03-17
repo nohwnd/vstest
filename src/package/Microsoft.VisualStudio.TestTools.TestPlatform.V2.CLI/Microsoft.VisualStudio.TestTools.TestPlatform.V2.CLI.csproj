@@ -40,6 +40,10 @@
     <InternalTestPlatformExtensionsFolder>$(TestPlatformBinFolder)Microsoft.Internal.TestPlatform.Extensions\</InternalTestPlatformExtensionsFolder>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="$(MicrosoftVSSDKBuildToolsVersion2)" PrivateAssets="All" GeneratePathProperty="true" />
+  </ItemGroup>
+
   <!-- Localized langpack files -->
   <ItemGroup>
     <VsixSourceItem Include="Resources\cs\extension.vsixlangpack">
