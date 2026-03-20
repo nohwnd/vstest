@@ -61,6 +61,13 @@ When working autonomously on issues (e.g. from a milestone), follow this workflo
 - If a PR becomes CONFLICTING, rebase the branch onto `main` and force-push using `--force-with-lease` (e.g. `git push --force-with-lease`).
 - When a PR is fully green (all checks pass, no conflicts), mark it as ready to merge.
 
+### Test Policy
+
+- **Never re-ignore tests.** If a test is `[Ignore]`d and you un-ignore it and it fails, investigate and fix it. Don't add `[Ignore]` back.
+- **Never delete tests unless explicitly asked.**
+- If integration tests fail unexpectedly, run `./build.cmd -pack` (or `./build.sh --pack`) first to refresh the NuGet packages that the tests exercise. Stale packages are a common cause of integration test failures.
+- If you can't fix a failing test, report your findings and let the user decide the next step.
+
 ### Troubleshooting
 
 - If a build fails with warnings treated as errors (e.g. IDE0005 unnecessary using), and you cannot reproduce locally, try building with `-c Release` to match CI: `./build.cmd -c Release`.
