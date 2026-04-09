@@ -45,50 +45,36 @@ internal class AssemblyResolver : IDisposable
 
     /// <summary>
     /// Tracks all assemblies that vstest resolved from its own search directories on behalf of
-    /// external code. Each entry: assembly name → list of requesting assembly names.
+    /// external code.
     /// </summary>
-    private static readonly ConcurrentDictionary<string, ConcurrentBag<string>> ProvidedDependencies = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentBag<string> ProvidedDependencies = new();
 
     /// <summary>
     /// Gets the assemblies that vstest provided from its search directories to resolve
     /// dependencies of other assemblies.
     /// </summary>
-    internal static IReadOnlyDictionary<string, ConcurrentBag<string>> GetProvidedDependencies() => ProvidedDependencies;
+    internal static IReadOnlyCollection<string> GetProvidedDependencies() => ProvidedDependencies;
 
     /// <summary>
     /// Builds telemetry-safe summary of provided dependencies.
     /// Splits into user-requested (count only) and Microsoft/System-requested (names).
     /// </summary>
-    internal static (string assembliesForUser, int userRequestCount, string assembliesForMicrosoft, int microsoftRequestCount) GetProvidedDependencySummary()
+    internal static string GetProvidedDependencySummary()
     {
-        var userAssemblies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        int userCount = 0;
-        var msAssemblies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        int msCount = 0;
+        var assemblies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var kvp in ProvidedDependencies)
+        foreach (var dll in ProvidedDependencies)
         {
-            foreach (var requester in kvp.Value)
+            if (dll.StartsWith("Microsoft.", StringComparison.OrdinalIgnoreCase)
+                || dll.StartsWith("System.", StringComparison.OrdinalIgnoreCase)
+                || dll.StartsWith("Newtonsoft.Json", StringComparison.OrdinalIgnoreCase))
+
             {
-                if (requester.StartsWith("Microsoft.", StringComparison.OrdinalIgnoreCase)
-                    || requester.StartsWith("System.", StringComparison.OrdinalIgnoreCase))
-                {
-                    msAssemblies.Add(kvp.Key);
-                    msCount++;
-                }
-                else
-                {
-                    userAssemblies.Add(kvp.Key);
-                    userCount++;
-                }
+                assemblies.Add(dll);
             }
         }
 
-        return (
-            string.Join("|", userAssemblies),
-            userCount,
-            string.Join("|", msAssemblies),
-            msCount);
+        return string.Join("|", assemblies);
     }
 
     /// <summary>
@@ -228,7 +214,7 @@ internal class AssemblyResolver : IDisposable
                             assembly = _platformAssemblyLoadContext.LoadAssemblyFromPath(assemblyPath);
                             _resolvedAssemblies[args.Name] = assembly;
 
-                            TrackProvidedDependency(requestedName, assemblyPath, args.RequestingAssembly);
+                            TrackProvidedDependency(requestedName, assemblyPath);
 
                             EqtTrace.Info("AssemblyResolver.OnResolve: Resolved assembly: {0}, from path: {1}", args.Name, assemblyPath);
 
@@ -271,7 +257,7 @@ internal class AssemblyResolver : IDisposable
     /// When we resolve an assembly from vstest's search directories for an external requester,
     /// record it so telemetry can report which dependencies vstest is providing.
     /// </summary>
-    private void TrackProvidedDependency(AssemblyName requestedName, string resolvedPath, Assembly? requestingAssembly)
+    private void TrackProvidedDependency(AssemblyName requestedName, string resolvedPath)
     {
         if (requestedName.Name is null)
         {
@@ -285,7 +271,6 @@ internal class AssemblyResolver : IDisposable
             return;
         }
 
-        var requester = requestingAssembly?.GetName().Name ?? "unknown";
         var bag = ProvidedDependencies.GetOrAdd(requestedName.Name, _ => new ConcurrentBag<string>());
         bag.Add(requester);
 

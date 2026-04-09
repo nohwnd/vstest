@@ -10,7 +10,7 @@
 
 namespace Microsoft.VisualStudio.TestPlatform.Client.Resources {
     using System;
-    using System.Reflection;
+    
     
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
@@ -19,7 +19,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -39,7 +39,7 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.VisualStudio.TestPlatform.Client.Resources.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.VisualStudio.TestPlatform.Client.Resources.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -70,44 +70,38 @@ namespace Microsoft.VisualStudio.TestPlatform.Client.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No suitable test runtime provider found for this run..
+        /// </summary>
+        internal static string NoTestHostProviderFound {
+            get {
+                return ResourceManager.GetString("NoTestHostProviderFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The test platform provided the following assembly, which will be removed from the product soon:.
+        /// </summary>
+        internal static string ProvidedDependenciesWarning {
+            get {
+                return ResourceManager.GetString("ProvidedDependenciesWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aborting test run: test run timeout of {0} milliseconds exceeded..
+        /// </summary>
+        internal static string TestSessionTimeoutMessage {
+            get {
+                return ResourceManager.GetString("TestSessionTimeoutMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wait for completion operation is not allowed when there is no active test run. .
         /// </summary>
         internal static string WaitForCompletionOperationIsNotAllowedWhenNoTestRunIsActive {
             get {
                 return ResourceManager.GetString("WaitForCompletionOperationIsNotAllowedWhenNoTestRunIsActive", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Aborting test run: test run timeout of {0} milliseconds exceeded..
-        /// </summary>
-        internal static string TestSessionTimeoutMessage
-        {
-            get
-            {
-                return ResourceManager.GetString("TestSessionTimeoutMessage", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to No suitable test runtime provider found for this run..
-        /// </summary>
-        internal static string NoTestHostProviderFound
-        {
-            get
-            {
-                return ResourceManager.GetString("NoTestHostProviderFound", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The test platform provided the following assemblies to resolve dependencies of test extensions that did not ship their own copy: {0}. Test extensions should ship all their dependencies..
-        /// </summary>
-        internal static string ProvidedDependenciesWarning
-        {
-            get
-            {
-                return ResourceManager.GetString("ProvidedDependenciesWarning", resourceCulture);
             }
         }
     }

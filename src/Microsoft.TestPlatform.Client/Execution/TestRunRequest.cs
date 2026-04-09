@@ -444,34 +444,19 @@ public class TestRunRequest : ITestRunRequest, IInternalTestRunEventsHandler
                 // Record assemblies that vstest provided from its search directories.
                 // Telemetry gets 2 properties: assemblies resolved for user code (count only,
                 // no user assembly names), and assemblies resolved for Microsoft/System code (names ok).
-                var (userAssemblies, userCount, msAssemblies, msCount) = AssemblyResolver.GetProvidedDependencySummary();
-                if (userCount > 0)
-                {
-                    _requestData.MetricsCollection.Add(TelemetryDataConstants.ProvidedDependenciesForUser, userAssemblies);
-                    _requestData.MetricsCollection.Add(TelemetryDataConstants.ProvidedDependenciesForUserCount, userCount);
-                }
-                if (msCount > 0)
-                {
-                    _requestData.MetricsCollection.Add(TelemetryDataConstants.ProvidedDependenciesForMicrosoft, msAssemblies);
-                    _requestData.MetricsCollection.Add(TelemetryDataConstants.ProvidedDependenciesForMicrosoftCount, msCount);
-                }
+                var assemblies = AssemblyResolver.GetProvidedDependencySummary();
+                _requestData.MetricsCollection.Add(TelemetryDataConstants.ProvidedDependencies, assemblies);
 
                 // Opt-in warning: show all provided assemblies in summary when feature flag is set.
                 // Disable flag takes precedence over opt-in.
-                if ((userCount > 0 || msCount > 0)
-                    && !FeatureFlag.Instance.IsSet(FeatureFlag.VSTEST_DISABLE_WARN_MISSING_EXTENSIONS_DEPENDENCIES)
-                    && FeatureFlag.Instance.IsSet(FeatureFlag.VSTEST_OPTIN_WARN_MISSING_EXTENSIONS_DEPENDENCIES))
+                if (!FeatureFlag.Instance.IsSet(FeatureFlag.VSTEST_DISABLE_WARN_MISSING_EXTENSIONS_DEPENDENCIES)
+                    && FeatureFlag.Instance.IsSet(FeatureFlag.VSTEST_OPTIN_WARN_MISSING_EXTENSIONS_DEPENDENCIES)
+                    && assemblies.Contains("newtonsoft.json", StringComparison.OrdinalIgnoreCase))
                 {
-                    var allAssemblies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    foreach (var kvp in AssemblyResolver.GetProvidedDependencies())
-                    {
-                        allAssemblies.Add(kvp.Key);
-                    }
-
                     var message = string.Format(
                         CultureInfo.CurrentCulture,
                         ClientResources.ProvidedDependenciesWarning,
-                        string.Join(", ", allAssemblies));
+                        string.Join(", ", assemblies));
 
                     LoggerManager.HandleTestRunMessage(
                         new TestRunMessageEventArgs(TestMessageLevel.Warning, message));
@@ -660,6 +645,22 @@ public class TestRunRequest : ITestRunRequest, IInternalTestRunEventsHandler
             TestExtensions.AddExtensionTelemetry(
                 testRunCompletePayload.TestRunCompleteArgs.Metrics,
                 testRunCompletePayload.TestRunCompleteArgs.DiscoveredExtensions);
+
+            var metricsCollection = testRunCompletePayload.TestRunCompleteArgs.Metrics;
+            // Record assemblies that vstest provided from its search directories.
+            // Telemetry gets 2 properties: assemblies resolved for user code (count only,
+            // no user assembly names), and assemblies resolved for Microsoft/System code (names ok).
+            var (userAssemblies, userCount, msAssemblies, msCount) = AssemblyResolver.GetProvidedDependencySummary();
+            if (userCount > 0)
+            {
+                metricsCollection.Add(TelemetryDataConstants.ProvidedDependenciesForUser, userAssemblies);
+                metricsCollection.Add(TelemetryDataConstants.ProvidedDependenciesForUserCount, userCount);
+            }
+            if (msCount > 0)
+            {
+                metricsCollection.Add(TelemetryDataConstants.ProvidedDependenciesForMicrosoft, msAssemblies);
+                metricsCollection.Add(TelemetryDataConstants.ProvidedDependenciesForMicrosoftCount, msCount);
+            }
         }
 
         if (message is VersionedMessage message1)
