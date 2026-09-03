@@ -178,7 +178,7 @@ App above).
 | [`code-simplifier.md`](./code-simplifier.md) | Daily + issues | Analyzes recently modified code and opens PRs that simplify it while preserving behavior. |
 | [`efficiency-improver.md`](./efficiency-improver.md) | Daily + manual + issues | Identifies and implements energy/compute efficiency improvements (capped at 8 open PRs). |
 | [`repository-quality-improver.md`](./repository-quality-improver.md) | Weekdays + manual | Rotating repository-quality analysis; opens tracking issues. |
-| [`daily-file-diet.md`](./daily-file-diet.md) | Weekdays + manual + issues | Identifies oversized source files and opens actionable refactoring issues. Uses existing proposal issues to skip any file proposed in the last 30 days. |
+| [`daily-file-diet.md`](./daily-file-diet.md) | Weekdays + manual + issues | Identifies oversized source files and opens actionable refactoring issues. |
 | [`daily-qa.md`](./daily-qa.md) | Daily (04:00 UTC) + manual + issues | Daily maintenance digest — ad hoc, subjective quality assurance. |
 | [`malicious-code-scan.md`](./malicious-code-scan.md) | Daily + manual | Reviews recent code changes for suspicious patterns indicating malicious or agentic threats. |
 
@@ -187,8 +187,14 @@ App above).
 | Workflow | Trigger | Description |
 | --- | --- | --- |
 | [`markdown-linter.md`](./markdown-linter.md) | Weekdays (14:00 UTC) + manual + issues | Runs Markdown quality checks and opens issues for violations. |
-| [`md-link-checker.md`](./md-link-checker.md) | Weekly (Friday) | Finds and fixes broken relative links in documentation. |
-| [`http-link-checker.md`](./http-link-checker.md) | Weekly (Friday) | Finds and fixes broken HTTP links in documentation. |
+| [`md-link-check-probe.yml`](./md-link-check-probe.yml) | Weekly (Friday) + manual | Checks relative links and anchors, and dispatches the agentic fixer only when the broken-link fingerprint changes. |
+| [`md-link-checker.md`](./md-link-checker.md) | Dispatch only | Fixes changed relative link failures and updates the accepted fingerprint. |
+| [`http-link-check-probe.yml`](./http-link-check-probe.yml) | Weekly (Friday) + manual | Checks HTTP links and dispatches the agentic fixer only when the broken-link fingerprint changes. |
+| [`http-link-checker.md`](./http-link-checker.md) | Dispatch only | Investigates changed HTTP link failures and updates the accepted fingerprint. |
+
+Fingerprints and other state these workflows must be able to **commit** live in
+[`eng/agentic-workflows/`](../../eng/agentic-workflows/README.md), not under `.github/`, because
+safe outputs reject agent writes to top-level dot-folders.
 
 ### Regular workflows
 
